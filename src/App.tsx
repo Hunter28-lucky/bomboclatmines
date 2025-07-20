@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Zap, Trophy, RotateCcw, Settings, Play, DollarSign, Plus, Minus, Wallet, Shield, Code, X } from 'lucide-react';
+import PaymentWidget from './PaymentWidget';
 
 interface Tile {
   id: number;
@@ -289,10 +290,10 @@ function App() {
   };
 
   return (
-    <div className={`h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white flex flex-col transition-all duration-500 ${shakeScreen ? 'animate-pulse' : ''}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white flex flex-col items-center justify-center transition-all duration-500 ${shakeScreen ? 'animate-pulse' : ''}`}>
       
       {/* Fixed Header - No Scroll */}
-      <div className="flex-shrink-0 px-4 py-3 bg-gradient-to-r from-gray-800/90 to-slate-800/90 backdrop-blur-sm border-b border-gray-700/50">
+      <div className="w-full max-w-2xl flex-shrink-0 px-2 sm:px-4 md:px-8 py-3 bg-gradient-to-r from-gray-800/90 to-slate-800/90 backdrop-blur-sm border-b border-gray-700/50 mx-auto">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
           <div className="flex items-center gap-2">
@@ -323,9 +324,9 @@ function App() {
         </div>
       </div>
 
-      {/* Main Game Area - Scrollable Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4 pb-20">
+      {/* Main Game Area - Responsive Container */}
+      <div className="flex-1 w-full flex justify-center items-center overflow-y-auto">
+        <div className="w-full max-w-2xl p-2 sm:p-4 md:p-8 pb-20 mx-auto">
           
           {/* Game State: Betting */}
           {gameState === 'betting' && (
@@ -394,11 +395,12 @@ function App() {
               </div>
 
               {/* Game Grid */}
-              <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-4 border border-gray-700/50">
+              <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-2 sm:p-4 border border-gray-700/50">
                 <div 
-                  className="grid gap-2 mb-4"
+                  className="grid gap-1 sm:gap-2 mb-4"
                   style={{ 
                     gridTemplateColumns: `repeat(${getGridCols()}, minmax(0, 1fr))`,
+                    maxWidth: '100%',
                   }}
                 >
                   {tiles.map((tile) => (
@@ -407,7 +409,7 @@ function App() {
                       onClick={() => handleTileClick(tile.id)}
                       disabled={tile.revealed || gameState !== 'playing'}
                       className={`
-                        aspect-square rounded-lg border-2 transition-all duration-300 text-lg font-bold relative overflow-hidden
+                        aspect-square rounded-lg border-2 transition-all duration-300 text-base sm:text-lg font-bold relative overflow-hidden
                         ${tile.revealed 
                           ? tile.isReward 
                             ? 'bg-gradient-to-br from-green-400 to-emerald-500 border-green-300 shadow-lg shadow-green-500/30 scale-95' 
@@ -416,13 +418,14 @@ function App() {
                         }
                         ${gameState !== 'playing' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
                       `}
+                      style={{ minWidth: 0 }}
                     >
                       {tile.revealed && (
                         <div className="flex items-center justify-center h-full">
                           {tile.isReward ? (
-                            <span className="text-xl">💎</span>
+                            <span className="text-lg sm:text-xl">💎</span>
                           ) : (
-                            <span className="text-xl">💣</span>
+                            <span className="text-lg sm:text-xl">💣</span>
                           )}
                         </div>
                       )}
@@ -480,8 +483,8 @@ function App() {
 
       {/* Settings Modal */}
       {showSettings && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-6 w-full max-w-sm border border-gray-700/50 max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-4 sm:p-6 w-full max-w-sm border border-gray-700/50 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Game Settings</h3>
               <button
@@ -543,8 +546,8 @@ function App() {
 
       {/* Deposit Modal */}
       {showDeposit && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-6 w-full max-w-sm border border-gray-700/50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-4 sm:p-6 w-full max-w-sm border border-gray-700/50">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Add Funds</h3>
               <button
@@ -554,60 +557,12 @@ function App() {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            
-            <div className="mb-6">
-              <label className="block text-sm text-gray-300 font-medium mb-3">Deposit Amount</label>
-              <div className="flex items-center gap-3 mb-4">
-                <button
-                  onClick={() => setDepositAmount(Math.max(500, depositAmount - 500))}
-                  className="w-12 h-12 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-300 active:scale-95"
-                >
-                  <Minus className="w-5 h-5" />
-                </button>
-                <div className="flex-1 text-center">
-                  <span className="text-2xl font-bold text-green-400">₹{depositAmount.toLocaleString()}</span>
-                </div>
-                <button
-                  onClick={() => setDepositAmount(Math.min(50000, depositAmount + 500))}
-                  className="w-12 h-12 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-300 active:scale-95"
-                >
-                  <Plus className="w-5 h-5" />
-                </button>
-              </div>
-              
-              {/* Quick Amount Buttons */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                {[1000, 5000, 10000].map(amount => (
-                  <button
-                    key={amount}
-                    onClick={() => setDepositAmount(amount)}
-                    className="py-3 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg text-sm font-semibold transition-all duration-300 active:scale-95"
-                  >
-                    ₹{amount.toLocaleString()}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeposit(false)}
-                className="flex-1 py-3 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg font-semibold transition-all duration-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeposit}
-                className="flex-1 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-lg font-semibold transition-all duration-300 active:scale-95"
-              >
-                Deposit
-              </button>
-            </div>
+            <PaymentWidget siteId="c2de4f18-ab31-4542-930e-9c3c0a162e18" />
           </div>
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         input[type="range"]::-webkit-slider-thumb {
           appearance: none;
           height: 20px;
