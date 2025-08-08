@@ -322,7 +322,7 @@ function App() {
         bet_amount: settings.betAmount,
         grid_size: settings.gridSize,
         bomb_count: settings.bombCount,
-        tiles: JSON.stringify(initialTiles),
+        tiles: initialTiles,
         current_winnings: 0,
         state: 'playing'
       }])
