@@ -10,7 +10,7 @@ import PaymentWidget from './PaymentWidget';
 interface Tile {
   id: number;
   revealed: boolean;
-  isReward: boolean;
+  isBomb: boolean;
   multiplier: number;
 }
 
@@ -36,12 +36,12 @@ function App() {
       bombPositions.add(pos);
     }
     for (let i = 0; i < gridSize; i++) {
-      const isReward = !bombPositions.has(i);
+      const isBomb = bombPositions.has(i);
       tiles.push({
         id: i,
         revealed: false,
-        isReward,
-        multiplier: isReward ? 1 : 0
+        isBomb,
+        multiplier: isBomb ? 0 : 1
       });
     }
     return tiles;
@@ -266,12 +266,12 @@ function App() {
     }
     
     for (let i = 0; i < settings.gridSize; i++) {
-      const isReward = !bombPositions.has(i);
+      const isBomb = bombPositions.has(i);
       newTiles.push({
         id: i,
         revealed: false,
-        isReward,
-        multiplier: isReward ? calculateMultiplier(0, settings.gridSize, settings.bombCount) : 0
+        isBomb,
+        multiplier: isBomb ? 0 : calculateMultiplier(0, settings.gridSize, settings.bombCount)
       });
     }
     
@@ -362,12 +362,12 @@ function App() {
     // Update UI based on server response
     setTiles(prev =>
       prev.map(t =>
-        t.id === tileId ? { ...t, revealed: true, isReward: data.isReward } : t
+        t.id === tileId ? { ...t, revealed: true, isBomb: !data.isReward } : t
       )
     );
     setTilesRevealed(tilesRevealed + 1);
 
-    if (data.isReward) {
+  if (data.isReward) {
       setCurrentWinnings(data.winnings);
       playSound('reward');
       lightHaptic();
@@ -783,7 +783,7 @@ function App() {
                         aspect-square rounded-lg border-2 transition-all duration-300 text-base sm:text-lg font-bold relative overflow-hidden
                         group backdrop-blur-sm
                         ${tile.revealed 
-                          ? tile.isReward 
+                          ? !tile.isBomb 
                             ? 'bg-gradient-to-br from-green-400 to-emerald-500 border-green-300 shadow-lg shadow-green-500/30 scale-95 animate-reveal-success' 
                             : 'bg-gradient-to-br from-red-500 to-red-600 border-red-400 shadow-lg shadow-red-500/30 scale-90 animate-reveal-danger'
                           : 'bg-gradient-to-br from-gray-700/90 to-slate-700/90 border-gray-600 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 hover:scale-105 active:scale-95'
@@ -793,8 +793,8 @@ function App() {
                       style={{ minWidth: 0 }}
                     >
                       {tile.revealed ? (
-                        <div className={`flex items-center justify-center h-full ${tile.isReward ? 'animate-bounce-short' : 'animate-spin-once'}`}>
-                          {tile.isReward ? (
+                        <div className={`flex items-center justify-center h-full ${!tile.isBomb ? 'animate-bounce-short' : 'animate-spin-once'}`}>
+                          {!tile.isBomb ? (
                             <span className="text-lg sm:text-xl">💎</span>
                           ) : (
                             <span className="text-lg sm:text-xl">💣</span>

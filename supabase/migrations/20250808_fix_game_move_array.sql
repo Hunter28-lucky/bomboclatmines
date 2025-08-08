@@ -13,6 +13,9 @@ declare
     v_tile jsonb;
     v_revealed_count integer;
     v_multiplier numeric;
+    v_safe_tiles integer;
+    v_remaining_safe_tiles integer;
+    v_remaining_tiles integer;
 begin
     -- Get game session
     select * into v_game_session
@@ -69,11 +72,19 @@ begin
             from jsonb_array_elements(v_tiles) t
             where (t->>'revealed')::boolean = true
         );
+        v_safe_tiles := v_game_session.grid_size - v_game_session.bomb_count;
+        v_remaining_safe_tiles := v_safe_tiles - v_revealed_count;
+        v_remaining_tiles := v_game_session.grid_size - v_revealed_count;
 
-        -- Calculate multiplier
-        v_multiplier := (v_game_session.grid_size - v_revealed_count)::numeric /
-                       (v_game_session.grid_size - v_game_session.bomb_count - v_revealed_count)::numeric;
-        v_new_winnings := v_game_session.bet_amount * v_multiplier * 0.97; -- 3% house edge
+        -- Prevent division by zero
+        if v_remaining_safe_tiles <= 0 then
+            v_multiplier := 1.05;
+        else
+            v_multiplier := v_remaining_tiles::numeric / v_remaining_safe_tiles::numeric;
+            v_multiplier := greatest(1.05, v_multiplier * 0.97); -- 3% house edge, min 1.05
+        end if;
+
+        v_new_winnings := v_game_session.bet_amount * v_multiplier;
 
         update public.game_sessions
         set tiles = v_tiles,
