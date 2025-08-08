@@ -45,7 +45,7 @@ function App() {
   const [depositAmount, setDepositAmount] = useState(500);
   const [shakeScreen, setShakeScreen] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
-  const [gameSession, setGameSession] = useState(Date.now()); // Security: Session tracking
+  const [gameSession, setGameSession] = useState<any>(null); // Store session object from Supabase
   const [showAccount, setShowAccount] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [username, setUsername] = useState(user?.user_metadata?.full_name || user?.user_metadata?.name || '');
@@ -292,19 +292,28 @@ function App() {
       return;
     }
 
-    const { success, error, session } = await createGameSession(
-      user.id,
-      settings.betAmount,
-      settings.gridSize,
-      settings.bombCount
-    );
+    // Create a new game session in Supabase
+    const { data, error } = await supabase
+      .from('game_sessions')
+      .insert([{
+        user_id: user.id,
+        bet_amount: settings.betAmount,
+        grid_size: settings.gridSize,
+        bomb_count: settings.bombCount,
+        tiles: JSON.stringify([]), // You can generate initial tiles client-side or server-side
+        current_winnings: 0,
+        state: 'playing'
+      }])
+      .select()
+      .single();
 
-    if (!success || error) {
-      alert(error || 'Failed to start game');
+    if (error || !data) {
+      alert(error?.message || 'Failed to start game');
       return;
     }
 
-    setTiles(JSON.parse(session.tiles));
+    setGameSession(data); // Save the session object
+    setTiles(JSON.parse(data.tiles));
     setBalance(balance - settings.betAmount);
     setGameState('playing');
     setCurrentWinnings(0);
@@ -315,25 +324,29 @@ function App() {
 
   // Handle tile click with server-side validation
   const handleTileClick = async (tileId: number) => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || !gameSession?.id) return;
 
-    const { success, error, result } = await revealTile(gameSession.id, user.id, tileId);
+    // Call the server-side function
+    const { data, error } = await supabase.rpc('process_game_move', {
+      p_session_id: gameSession.id,
+      p_tile_index: tileId
+    });
 
-    if (!success || error) {
-      alert(error || 'Failed to reveal tile');
+    if (error || !data?.success) {
+      alert(data?.error || error?.message || 'Failed to reveal tile');
       return;
     }
 
     // Update UI based on server response
-    const newTiles = tiles.map(t => 
-      t.id === tileId ? { ...t, revealed: true, isReward: result.isReward } : t
+    setTiles(prev =>
+      prev.map(t =>
+        t.id === tileId ? { ...t, revealed: true, isReward: data.isReward } : t
+      )
     );
-    
-    setTiles(newTiles);
     setTilesRevealed(tilesRevealed + 1);
 
-    if (result.isReward) {
-      setCurrentWinnings(result.winnings);
+    if (data.isReward) {
+      setCurrentWinnings(data.winnings);
       playSound('reward');
       lightHaptic();
     } else {
@@ -350,32 +363,30 @@ function App() {
 
   // Cash out winnings with security validation
   const cashOut = async () => {
-    if (currentWinnings > 0) {
-      const newBalance = Math.floor(currentWinnings);
-      const updatedBalance = balance + newBalance;
-      
-      const { error } = await supabase
-        .from('users_balance')
-        .update({ balance: updatedBalance })
-        .eq('user_id', user.id);
-      
-      if (!error) {
-        setBalance(updatedBalance);
-        setGameState('collected');
-        playSound('cashout');
-        mediumHaptic();
-        // Confetti effect
-        confetti({
-          particleCount: 120,
-          spread: 80,
-          origin: { y: 0.7 },
-          zIndex: 9999
-        });
-        setTimeout(() => {
-          setGameState('betting');
-        }, 2000);
-      }
+    if (!gameSession?.id || currentWinnings <= 0) return;
+
+    const { data, error } = await supabase.rpc('process_game_cashout', {
+      p_session_id: gameSession.id
+    });
+
+    if (error || !data?.success) {
+      alert(data?.error || error?.message || 'Failed to cash out');
+      return;
     }
+
+    setBalance(data.newBalance);
+    setGameState('collected');
+    playSound('cashout');
+    mediumHaptic();
+    confetti({
+      particleCount: 120,
+      spread: 80,
+      origin: { y: 0.7 },
+      zIndex: 9999
+    });
+    setTimeout(() => {
+      setGameState('betting');
+    }, 2000);
   };
 
   // Handle deposit with validation
