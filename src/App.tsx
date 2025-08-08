@@ -27,6 +27,25 @@ const SECURITY_SALT = 'KG_SECURE_2024';
 const HOUSE_EDGE_FACTOR = 0.92; // 8% house edge - obfuscated
 
 function App() {
+  // Helper to generate initial tiles with bomb placement
+  function generateInitialTiles(gridSize: number, bombCount: number) {
+    const tiles = [];
+    const bombPositions = new Set<number>();
+    while (bombPositions.size < bombCount) {
+      const pos = Math.floor(Math.random() * gridSize);
+      bombPositions.add(pos);
+    }
+    for (let i = 0; i < gridSize; i++) {
+      const isReward = !bombPositions.has(i);
+      tiles.push({
+        id: i,
+        revealed: false,
+        isReward,
+        multiplier: isReward ? 1 : 0
+      });
+    }
+    return tiles;
+  }
   // All hooks must be called unconditionally at the top
   const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
@@ -292,6 +311,9 @@ function App() {
       return;
     }
 
+    // Generate initial tiles with bombs
+    const initialTiles = generateInitialTiles(settings.gridSize, settings.bombCount);
+
     // Create a new game session in Supabase
     const { data, error } = await supabase
       .from('game_sessions')
@@ -300,7 +322,7 @@ function App() {
         bet_amount: settings.betAmount,
         grid_size: settings.gridSize,
         bomb_count: settings.bombCount,
-        tiles: JSON.stringify([]), // You can generate initial tiles client-side or server-side
+        tiles: JSON.stringify(initialTiles),
         current_winnings: 0,
         state: 'playing'
       }])
@@ -313,7 +335,7 @@ function App() {
     }
 
     setGameSession(data); // Save the session object
-    setTiles(JSON.parse(data.tiles));
+    setTiles(initialTiles);
     setBalance(balance - settings.betAmount);
     setGameState('playing');
     setCurrentWinnings(0);
