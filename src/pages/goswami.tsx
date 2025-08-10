@@ -45,7 +45,7 @@ export default function AdminPage() {
     let usersWithMeta: UserBalance[] = [];
     if (userData && Array.isArray(userData)) {
       // Fetch user metadata from auth.users
-      const { data: authUsers } = await supabase.from('users').select('id,email,user_metadata');
+  const { data: authUsers } = await supabase.from('auth.users').select('id,email,user_metadata');
       usersWithMeta = userData.map((u: any) => {
         const authUser = authUsers?.find((au: any) => au.id === u.user_id);
         return {
