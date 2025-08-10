@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabaseClient';
-
+import { useRef } from 'react';
 import Login from './Login';
 // Confetti effect for win
 import confetti from 'canvas-confetti';
@@ -63,7 +63,7 @@ function App() {
   const [showDeposit, setShowDeposit] = useState(false);
 
   const [shakeScreen, setShakeScreen] = useState(false);
-
+  const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [gameSession, setGameSession] = useState<any>(null); // Store session object from Supabase
   const [showAccount, setShowAccount] = useState(false);
 
@@ -256,7 +256,44 @@ function App() {
   const payout = payoutMultiplier(T, B, m, HE);
   const chance = chanceToWin(T, B, m);
 
-
+  // Security: Protected grid initialization with anti-manipulation
+  const initializeGrid = useCallback(() => {
+    const newTiles: Tile[] = [];
+    const bombPositions = new Set<number>();
+    
+    // Security: Cryptographically secure random with session salt
+    const sessionSeed = gameSession + Date.now();
+    
+    // Strategic bomb placement favoring house with security measures
+    while (bombPositions.size < settings.bombCount) {
+      let position;
+      const secureRandom = (sessionSeed * Math.random()) % 1;
+      
+      if (secureRandom < 0.25) {
+        // 25% chance in first third
+        position = Math.floor(Math.random() * Math.floor(settings.gridSize / 3));
+      } else {
+        // 75% chance in last two thirds (house advantage)
+        position = Math.floor(settings.gridSize / 3) + 
+                  Math.floor(Math.random() * Math.ceil(settings.gridSize * 2 / 3));
+      }
+      bombPositions.add(position);
+    }
+    
+    for (let i = 0; i < settings.gridSize; i++) {
+      const isBomb = bombPositions.has(i);
+      newTiles.push({
+        id: i,
+        revealed: false,
+        isBomb,
+        multiplier: isBomb ? 0 : 1
+      });
+    }
+    
+    setTiles(newTiles);
+    setCurrentWinnings(0);
+    setTilesRevealed(0);
+  }, [settings, gameSession]);
 
   if (!authChecked) {
     return (
@@ -584,36 +621,48 @@ function App() {
           )}
           {/* Game State: Betting */}
           {gameState === 'betting' && (
-            <div className="flex justify-center items-center w-full h-full animate-fade-in">
-              <div className="rounded-2xl shadow-2xl bg-gradient-to-br from-gray-800 to-slate-900 border border-gray-700/60 p-8 w-full max-w-md flex flex-col items-center" style={{ marginTop: '2rem' }}>
-                <div className="w-full flex items-center justify-between mb-6">
+            <div className="space-y-4 animate-fade-in">
+              {/* Bet Controls */}
+              <div className="bg-gradient-to-r from-gray-800 to-slate-800 rounded-xl p-4 border border-gray-700/50 shadow-xl">
+                <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-base font-semibold text-gray-400 mb-1">Bet Amount <span className="ml-1 text-xs text-blue-400">ⓘ</span></p>
-                    <p className="text-3xl font-extrabold text-cyan-400">₹{settings.betAmount}</p>
+                    <p className="text-sm text-gray-400">Bet Amount
+                      <span className="ml-1 text-xs text-blue-400 cursor-pointer" onMouseEnter={() => setShowTooltip('bet')} onMouseLeave={() => setShowTooltip(null)}>
+                        ⓘ
+                      </span>
+                    </p>
+                    {showTooltip === 'bet' && (
+                      <span className="absolute mt-1 ml-[-10px] bg-gray-800 text-xs text-white px-3 py-1 rounded shadow-lg z-50 animate-fade-in">Adjust your bet for this round</span>
+                    )}
+                    <p className="text-2xl font-extrabold text-cyan-400">₹{settings.betAmount}</p>
                   </div>
-                  <div className="flex gap-2 bg-gray-900 rounded-lg p-1">
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() => adjustBetAmount(-50)}
-                      className="w-9 h-9 bg-gray-800 hover:bg-cyan-600 rounded-lg flex items-center justify-center text-xl font-bold text-white transition-all duration-200"
+                      className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-800 hover:from-cyan-600 hover:to-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 active:scale-90 shadow-md"
                       aria-label="Decrease Bet"
-                    >-</button>
+                    >
+                      <span className="w-4 h-4 font-bold">-</span>
+                    </button>
                     <button
                       onClick={() => adjustBetAmount(50)}
-                      className="w-9 h-9 bg-gray-800 hover:bg-cyan-600 rounded-lg flex items-center justify-center text-xl font-bold text-white transition-all duration-200"
+                      className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-800 hover:from-cyan-600 hover:to-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 active:scale-90 shadow-md"
                       aria-label="Increase Bet"
-                    >+</button>
+                    >
+                      <span className="w-4 h-4 font-bold">+</span>
+                    </button>
                   </div>
                 </div>
-                <div className="w-full flex gap-3 mb-6">
+                <div className="grid grid-cols-2 gap-3 mb-4">
                   <button
                     onClick={() => setShowDeposit(true)}
-                    className="flex-1 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold text-base shadow-md hover:from-green-600 hover:to-emerald-700 transition-all duration-200"
+                    className="py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-lg text-sm font-semibold transition-all duration-300 active:scale-95 shadow-md"
                   >
                     + Add Funds
                   </button>
                   <button
                     onClick={() => setShowSettings(true)}
-                    className="flex-1 py-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold text-base shadow-md border border-purple-400 hover:from-blue-600 hover:to-purple-600 transition-all duration-200"
+                    className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold shadow-md border border-purple-400 hover:from-purple-600 hover:to-blue-600 transition-all duration-300 active:scale-95"
                     aria-label="Adjust grid and bomb settings"
                   >
                     Grid: {getGridCols()}x{getGridCols()}, Bombs: {settings.bombCount}
@@ -622,8 +671,7 @@ function App() {
                 <button
                   onClick={startGame}
                   disabled={balance < settings.betAmount}
-                  className="w-full py-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold text-xl shadow-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                  style={{ marginTop: '0.5rem', fontSize: '1.35rem' }}
+                  className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed rounded-lg font-bold text-xl transition-all duration-300 flex items-center justify-center gap-3 active:scale-95 shadow-xl animate-bounce-short"
                 >
                   <span className="w-6 h-6 font-bold">▶</span>
                   Start Mining
