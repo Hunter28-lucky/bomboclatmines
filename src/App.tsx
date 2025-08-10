@@ -850,14 +850,9 @@ function App() {
           <div className="mt-6 text-center">
             <div className="bg-gradient-to-r from-gray-800/50 to-slate-800/50 rounded-lg p-3 border border-gray-700/30">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <div className="w-5 h-5 bg-gradient-to-br from-purple-400 to-blue-500 rounded-md flex items-center justify-center">
-                  <Code className="w-3 h-3 text-white" />
-                </div>
-                <span className="text-sm font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                  Developed by Krish Goswami
-                </span>
+                  {/* Footer branding removed as requested */}
               </div>
-              <p className="text-xs text-gray-500">Professional Game Development</p>
+                {/* Professional Game Development text removed */}
             </div>
           </div>
         </div>
