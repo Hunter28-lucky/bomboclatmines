@@ -8,6 +8,8 @@ type UserBalance = {
   user_id: string;
   balance: number;
   topups?: number;
+  email?: string;
+  name?: string;
 };
 
 type Payment = {
@@ -38,9 +40,22 @@ export default function AdminPage() {
 
   async function fetchData() {
     setLoading(true);
-    // Fetch all users
+    // Fetch all users with email and name from auth.users
     const { data: userData } = await supabase.from('users_balance').select('*');
-    setUsers((userData as UserBalance[]) || []);
+    let usersWithMeta: UserBalance[] = [];
+    if (userData && Array.isArray(userData)) {
+      // Fetch user metadata from auth.users
+      const { data: authUsers } = await supabase.from('users').select('id,email,user_metadata');
+      usersWithMeta = userData.map((u: any) => {
+        const authUser = authUsers?.find((au: any) => au.id === u.user_id);
+        return {
+          ...u,
+          email: authUser?.email || u.user_id,
+          name: authUser?.user_metadata?.full_name || authUser?.user_metadata?.name || '',
+        };
+      });
+    }
+    setUsers(usersWithMeta);
     // Fetch all payments
     const { data: paymentData } = await supabase.from('payments').select('*');
     setPayments((paymentData as Payment[]) || []);
@@ -60,6 +75,7 @@ export default function AdminPage() {
               <tr>
                 <th className="px-4 py-2">Profile</th>
                 <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">Balance</th>
                 <th className="px-4 py-2">Topups</th>
               </tr>
@@ -79,6 +95,8 @@ export default function AdminPage() {
             <thead>
               <tr>
                 <th className="px-4 py-2">User</th>
+                <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">Mobile</th>
                 <th className="px-4 py-2">UTR</th>
                 <th className="px-4 py-2">Screenshot</th>
@@ -87,22 +105,27 @@ export default function AdminPage() {
               </tr>
             </thead>
             <tbody>
-              {payments.map(p => (
-                <tr key={p.id} className="border-b border-gray-700">
-                  <td className="px-4 py-2">{p.site_id}</td>
-                  <td className="px-4 py-2">{p.mobile_number}</td>
-                  <td className="px-4 py-2">{p.utr_number}</td>
-                  <td className="px-4 py-2">
-                    {p.screenshot_url ? (
-                      <a href={p.screenshot_url} target="_blank" rel="noopener noreferrer">
-                        <img src={p.screenshot_url} alt="screenshot" className="w-16 h-16 rounded-lg border border-blue-400" />
-                      </a>
-                    ) : 'No screenshot'}
-                  </td>
-                  <td className="px-4 py-2 font-bold text-yellow-400">{p.status}</td>
-                  <td className="px-4 py-2">{new Date(p.submitted_at).toLocaleString()}</td>
-                </tr>
-              ))}
+              {payments.map(p => {
+                const userMeta = users.find(u => u.user_id === p.site_id);
+                return (
+                  <tr key={p.id} className="border-b border-gray-700">
+                    <td className="px-4 py-2">{p.site_id}</td>
+                    <td className="px-4 py-2">{userMeta?.email || p.site_id}</td>
+                    <td className="px-4 py-2">{userMeta?.name || ''}</td>
+                    <td className="px-4 py-2">{p.mobile_number}</td>
+                    <td className="px-4 py-2">{p.utr_number}</td>
+                    <td className="px-4 py-2">
+                      {p.screenshot_url ? (
+                        <a href={p.screenshot_url} target="_blank" rel="noopener noreferrer">
+                          <img src={p.screenshot_url} alt="screenshot" className="w-16 h-16 rounded-lg border border-blue-400" />
+                        </a>
+                      ) : 'No screenshot'}
+                    </td>
+                    <td className="px-4 py-2 font-bold text-yellow-400">{p.status}</td>
+                    <td className="px-4 py-2">{new Date(p.submitted_at).toLocaleString()}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

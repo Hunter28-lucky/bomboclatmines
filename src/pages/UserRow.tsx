@@ -5,6 +5,8 @@ type UserBalance = {
   user_id: string;
   balance: number;
   topups?: number;
+  email?: string;
+  name?: string;
 };
 
 export default function UserRow({ user, onUpdate }: { user: UserBalance, onUpdate: () => void }) {
@@ -32,9 +34,10 @@ export default function UserRow({ user, onUpdate }: { user: UserBalance, onUpdat
   return (
     <tr className="border-b border-gray-700">
       <td className="px-4 py-2">
-        <img src={`https://ui-avatars.com/api/?name=${user.user_id}&background=0ea5e9&color=fff`} alt="avatar" className="w-10 h-10 rounded-full" />
+        <img src={`https://ui-avatars.com/api/?name=${user.name || user.user_id}&background=0ea5e9&color=fff`} alt="avatar" className="w-10 h-10 rounded-full" />
       </td>
-      <td className="px-4 py-2">{user.user_id}</td>
+      <td className="px-4 py-2">{user.email || user.user_id}</td>
+      <td className="px-4 py-2">{user.name || ''}</td>
       <td className="px-4 py-2 font-bold text-green-400">
         {editing ? (
           <input
