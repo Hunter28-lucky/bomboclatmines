@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import Login from './Login';
+import UserRow from './pages/UserRow';
 
 const ADMIN_EMAIL = 'krrishyogi18@gmail.com';
 
@@ -88,18 +89,12 @@ export default function AdminPage() {
                 <th className="px-4 py-2">Email</th>
                 <th className="px-4 py-2">Balance</th>
                 <th className="px-4 py-2">Topups</th>
+                <th className="px-4 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map(u => (
-                <tr key={u.user_id} className="border-b border-gray-700">
-                  <td className="px-4 py-2">
-                    <img src={`https://ui-avatars.com/api/?name=${u.user_id}&background=0ea5e9&color=fff`} alt="avatar" className="w-10 h-10 rounded-full" />
-                  </td>
-                  <td className="px-4 py-2">{u.user_id}</td>
-                  <td className="px-4 py-2 font-bold text-green-400">₹{u.balance}</td>
-                  <td className="px-4 py-2">{u.topups || 0}</td>
-                </tr>
+                <UserRow key={u.user_id} user={u} onUpdate={fetchData} />
               ))}
             </tbody>
           </table>
