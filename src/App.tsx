@@ -451,7 +451,7 @@ function App() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white flex flex-col transition-all duration-500 ${shakeScreen ? 'animate-pulse' : ''}`}>
-      {/* Header with grid size and risk level settings */}
+      {/* Header with clickable grid/bomb settings button */}
       <div className="w-full max-w-2xl flex-shrink-0 px-2 sm:px-4 md:px-6 py-2 bg-gradient-to-r from-gray-800/90 to-slate-800/90 backdrop-blur-sm border-b border-gray-700/50 mx-auto shadow-lg">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
@@ -466,45 +466,20 @@ function App() {
               <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
           </div>
-          {/* Balance and Game Settings */}
+          {/* Balance and Settings Button */}
           <div className="flex items-center gap-6 relative">
             <div className="text-right">
               <p className="text-xs text-gray-400">Balance</p>
               <p className="text-lg font-extrabold text-green-400 bg-black/20 px-2 py-1 rounded-lg shadow-inner animate-balance-pop">₹{balance.toLocaleString()}</p>
             </div>
-            {/* Grid Size Selector */}
-            <div className="flex flex-col items-center">
-              <label className="text-xs text-gray-300 mb-1">Grid Size</label>
-              <div className="flex gap-2">
-                {gridSizeOptions.map(option => (
-                  <button
-                    key={option.size}
-                    onClick={() => gameState !== 'playing' && setSettings(prev => ({ ...prev, gridSize: option.size, bombCount: Math.min(prev.bombCount, Math.floor(option.size * 0.4)) }))}
-                    disabled={gameState === 'playing'}
-                    className={`px-2 py-1 rounded text-xs font-semibold border transition-all duration-300 ${settings.gridSize === option.size ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white border-purple-400' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 border-gray-600/30'} active:scale-95 ${gameState === 'playing' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Risk Level Slider */}
-            <div className="flex flex-col items-center w-32">
-              <label className="text-xs text-gray-300 mb-1">Risk Level: {settings.bombCount} Bombs</label>
-              <input
-                type="range"
-                min="1"
-                max={Math.floor(settings.gridSize * 0.4)}
-                value={settings.bombCount}
-                onChange={(e) => gameState !== 'playing' && setSettings(prev => ({ ...prev, bombCount: parseInt(e.target.value) }))}
-                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                disabled={gameState === 'playing'}
-              />
-              <div className="flex justify-between w-full text-[10px] text-gray-400 mt-1">
-                <span>Low</span>
-                <span>High</span>
-              </div>
-            </div>
+            {/* Clickable button for grid size and bomb count */}
+            <button
+              onClick={() => setShowSettings(true)}
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold shadow-md border border-purple-400 hover:from-purple-600 hover:to-blue-600 transition-all duration-300 active:scale-95"
+              aria-label="Adjust grid and bomb settings"
+            >
+              Grid: {getGridCols()}x{getGridCols()}, Bombs: {settings.bombCount}
+            </button>
             {/* User Account Icon and Logout always visible when logged in */}
             {user && (
               <>
