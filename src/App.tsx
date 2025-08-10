@@ -713,10 +713,13 @@ function App() {
                   >
                     + Add Funds
                   </button>
-                  <div className="bg-gray-700/30 rounded-lg p-3 text-center">
-                    <p className="text-xs text-gray-400">Grid: {gridSizeOptions.find(opt => opt.size === settings.gridSize)?.label}</p>
-                    <p className="text-xs text-red-400">Bombs: {settings.bombCount}</p>
-                  </div>
+                  <button
+                    onClick={() => setShowSettings(true)}
+                    className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold shadow-md border border-purple-400 hover:from-purple-600 hover:to-blue-600 transition-all duration-300 active:scale-95"
+                    aria-label="Adjust grid and bomb settings"
+                  >
+                    Grid: {getGridCols()}x{getGridCols()}, Bombs: {settings.bombCount}
+                  </button>
                 </div>
                 <button
                   onClick={startGame}
