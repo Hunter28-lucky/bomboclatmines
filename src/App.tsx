@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabaseClient';
 import { useRef } from 'react';
 import Login from './Login';
 // Confetti effect for win
 import confetti from 'canvas-confetti';
-import { Zap, Trophy, RotateCcw, Settings, Play, DollarSign, Plus, Minus, Wallet, Shield, Code, X, User } from 'lucide-react';
+import { Zap, Shield, X } from 'lucide-react';
 import PaymentWidget from './PaymentWidget';
 
 interface Tile {
@@ -695,14 +695,14 @@ function App() {
                       className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-800 hover:from-cyan-600 hover:to-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 active:scale-90 shadow-md"
                       aria-label="Decrease Bet"
                     >
-                      <Minus className="w-4 h-4" />
+                      <span className="w-4 h-4 font-bold">-</span>
                     </button>
                     <button
                       onClick={() => adjustBetAmount(50)}
                       className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-800 hover:from-cyan-600 hover:to-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 active:scale-90 shadow-md"
                       aria-label="Increase Bet"
                     >
-                      <Plus className="w-4 h-4" />
+                      <span className="w-4 h-4 font-bold">+</span>
                     </button>
                   </div>
                 </div>
@@ -723,7 +723,7 @@ function App() {
                   disabled={balance < settings.betAmount}
                   className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed rounded-lg font-bold text-xl transition-all duration-300 flex items-center justify-center gap-3 active:scale-95 shadow-xl animate-bounce-short"
                 >
-                  <Play className="w-6 h-6" />
+                  <span className="w-6 h-6 font-bold">▶</span>
                   Start Mining
                 </button>
               </div>
