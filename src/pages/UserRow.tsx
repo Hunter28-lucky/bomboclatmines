@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabaseAdmin } from '../supabaseClient';
 
 type UserBalance = {
   user_id: string;
@@ -18,10 +18,12 @@ export default function UserRow({ user, onUpdate }: { user: UserBalance, onUpdat
   async function handleSave() {
     setLoading(true);
     setError(null);
-    const { error } = await supabase
+    // Use the admin client for unrestricted access
+    const { error } = await supabaseAdmin
       .from('users_balance')
       .update({ balance: newBalance })
       .eq('user_id', user.user_id);
+
     setLoading(false);
     if (error) {
       setError(error.message);
@@ -62,18 +64,24 @@ export default function UserRow({ user, onUpdate }: { user: UserBalance, onUpdat
               {loading ? 'Saving...' : 'Save'}
             </button>
             <button
-              className="px-3 py-1 bg-gray-500 rounded text-white font-bold"
-              onClick={() => setEditing(false)}
-              disabled={loading}
-            >Cancel</button>
-            {error && <div className="text-red-400 mt-2">{error}</div>}
+              className="px-3 py-1 bg-red-500 rounded text-white font-bold"
+              onClick={() => {
+                setEditing(false);
+                setNewBalance(user.balance);
+              }}
+            >
+              Cancel
+            </button>
           </>
         ) : (
           <button
             className="px-3 py-1 bg-blue-500 rounded text-white font-bold"
             onClick={() => setEditing(true)}
-          >Edit</button>
+          >
+            Edit
+          </button>
         )}
+        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       </td>
     </tr>
   );
