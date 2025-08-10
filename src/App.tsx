@@ -451,23 +451,23 @@ function App() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white flex flex-col transition-all duration-500 ${shakeScreen ? 'animate-pulse' : ''}`}>
-      {/* Header with clickable grid/bomb settings button */}
+      {/* Header - optimized for mobile */}
       <div className="w-full max-w-2xl flex-shrink-0 px-2 sm:px-4 md:px-6 py-2 bg-gradient-to-r from-gray-800/90 to-slate-800/90 backdrop-blur-sm border-b border-gray-700/50 mx-auto shadow-lg">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
           {/* Logo and Title */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-md animate-bounce-slow">
               <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h1 className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent tracking-wide drop-shadow-lg">
+            <h1 className="text-base sm:text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent tracking-wide drop-shadow-lg whitespace-nowrap">
               Bombaclat Mine
             </h1>
             <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-green-400 to-emerald-500 rounded-md flex items-center justify-center shadow-md animate-pulse-slow">
               <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
           </div>
-          {/* Balance and Settings Button */}
-          <div className="flex items-center gap-6 relative">
+          {/* Balance and User Controls - stack on mobile */}
+          <div className="flex items-center gap-2 sm:gap-6 relative w-full sm:w-auto justify-center sm:justify-end mt-2 sm:mt-0">
               <div className="text-right">
                 <p className="text-xs text-gray-400">Balance</p>
                 <p className="text-lg font-extrabold text-green-400 bg-black/20 px-2 py-1 rounded-lg shadow-inner animate-balance-pop">₹{balance.toLocaleString()}</p>
