@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
-
+import Login from './Login';
 
 const ADMIN_EMAIL = 'krrishyogi18@gmail.com';
 
@@ -24,16 +24,30 @@ export default function AdminPage() {
   const [users, setUsers] = useState<UserBalance[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [authChecked, setAuthChecked] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data?.user || data.user.email !== ADMIN_EMAIL) {
-        window.location.replace('/');
-      } else {
+    supabase.auth.getSession().then(({ data }) => {
+      const currentUser = data.session?.user;
+      setUser(currentUser);
+      setAuthChecked(true);
+      if (currentUser && currentUser.email === ADMIN_EMAIL) {
         fetchData();
       }
     });
+    // Listen for auth state changes
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const currentUser = session?.user;
+      setUser(currentUser);
+      setAuthChecked(true);
+      if (currentUser && currentUser.email === ADMIN_EMAIL) {
+        fetchData();
+      }
+    });
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -48,6 +62,17 @@ export default function AdminPage() {
     setLoading(false);
   }
 
+  if (!authChecked) return <div className="flex justify-center items-center h-screen text-xl">Checking authentication...</div>;
+  if (!user || user.email !== ADMIN_EMAIL) {
+    return <Login onLogin={async () => {
+      const { data } = await supabase.auth.getSession();
+      setUser(data.session?.user);
+      setAuthChecked(true);
+      if (data.session?.user && data.session.user.email === ADMIN_EMAIL) {
+        fetchData();
+      }
+    }} />;
+  }
   if (loading) return <div className="flex justify-center items-center h-screen text-xl">Loading...</div>;
 
   return (
