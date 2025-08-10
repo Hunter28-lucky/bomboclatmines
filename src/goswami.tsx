@@ -7,8 +7,10 @@ const ADMIN_EMAIL = 'krrishyogi18@gmail.com';
 
 type UserBalance = {
   user_id: string;
+  email: string;
+  full_name: string;
   balance: number;
-  topups?: number;
+  topups: number;
 };
 
 type Payment = {
@@ -55,12 +57,27 @@ export default function AdminPage() {
   async function fetchData() {
     setLoading(true);
     // Fetch all users
-    const { data: userData } = await supabase.from('users_balance').select('*');
-    setUsers((userData as UserBalance[]) || []);
-    // Fetch all payments
-    const { data: paymentData } = await supabase.from('payments').select('*');
-    setPayments((paymentData as Payment[]) || []);
-    setLoading(false);
+    try {
+      // Fetch all user details using secure RPC function
+      const { data: userData, error: userError } = await supabase
+        .rpc('get_all_user_details');
+
+      if (userError) throw userError;
+      setUsers(userData || []);
+
+      // Fetch all payments
+      const { data: paymentData, error: paymentError } = await supabase
+        .from('payments')
+        .select('*')
+        .order('submitted_at', { ascending: false });
+
+      if (paymentError) throw paymentError;
+      setPayments(paymentData || []);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setLoading(false);
+    }
   }
 
   if (!authChecked) return <div className="flex justify-center items-center h-screen text-xl">Checking authentication...</div>;
@@ -87,13 +104,14 @@ export default function AdminPage() {
               <tr>
                 <th className="px-4 py-2">Profile</th>
                 <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">Balance</th>
                 <th className="px-4 py-2">Topups</th>
                 <th className="px-4 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {users.map(u => (
+              {users.map((u) => (
                 <UserRow key={u.user_id} user={u} onUpdate={fetchData} />
               ))}
             </tbody>
@@ -107,6 +125,8 @@ export default function AdminPage() {
             <thead>
               <tr>
                 <th className="px-4 py-2">User</th>
+                <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">Mobile</th>
                 <th className="px-4 py-2">UTR</th>
                 <th className="px-4 py-2">Screenshot</th>
@@ -118,6 +138,8 @@ export default function AdminPage() {
               {payments.map(p => (
                 <tr key={p.id} className="border-b border-gray-700">
                   <td className="px-4 py-2">{p.site_id}</td>
+                  <td className="px-4 py-2">{users.find(u => u.user_id === p.site_id)?.email || p.site_id}</td>
+                  <td className="px-4 py-2">{users.find(u => u.user_id === p.site_id)?.full_name || ''}</td>
                   <td className="px-4 py-2">{p.mobile_number}</td>
                   <td className="px-4 py-2">{p.utr_number}</td>
                   <td className="px-4 py-2">
