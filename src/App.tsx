@@ -466,20 +466,12 @@ function App() {
               <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
           </div>
-          {/* Balance and Settings Button */}
+          {/* Balance and User Account */}
           <div className="flex items-center gap-6 relative">
             <div className="text-right">
               <p className="text-xs text-gray-400">Balance</p>
               <p className="text-lg font-extrabold text-green-400 bg-black/20 px-2 py-1 rounded-lg shadow-inner animate-balance-pop">₹{balance.toLocaleString()}</p>
             </div>
-            {/* Clickable button for grid size and bomb count */}
-            <button
-              onClick={() => setShowSettings(true)}
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold shadow-md border border-purple-400 hover:from-purple-600 hover:to-blue-600 transition-all duration-300 active:scale-95"
-              aria-label="Adjust grid and bomb settings"
-            >
-              Grid: {getGridCols()}x{getGridCols()}, Bombs: {settings.bombCount}
-            </button>
             {/* User Account Icon and Logout always visible when logged in */}
             {user && (
               <>
