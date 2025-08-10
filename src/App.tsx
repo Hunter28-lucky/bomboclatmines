@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
-import { useRef } from 'react';
+
 import Login from './Login';
 // Confetti effect for win
 import confetti from 'canvas-confetti';
-import { Zap, Shield, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import PaymentWidget from './PaymentWidget';
 
 interface Tile {
@@ -23,8 +23,8 @@ interface GameSettings {
 }
 
 // Security: Obfuscated game logic with encrypted state management
-const SECURITY_SALT = 'KG_SECURE_2024';
-const HOUSE_EDGE_FACTOR = 0.92; // 8% house edge - obfuscated
+
+const DEFAULT_HOUSE_EDGE = 0.20; // 20% house edge
 
 function App() {
   // Helper to generate initial tiles with bomb placement
@@ -61,14 +61,12 @@ function App() {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
-  const [depositAmount, setDepositAmount] = useState(500);
+
   const [shakeScreen, setShakeScreen] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [gameSession, setGameSession] = useState<any>(null); // Store session object from Supabase
   const [showAccount, setShowAccount] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [username, setUsername] = useState(user?.user_metadata?.full_name || user?.user_metadata?.name || '');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   // Listen for auth state changes and fetch user balance
   useEffect(() => {
@@ -227,58 +225,38 @@ function App() {
     }
   };
 
-  // Security: Encrypted multiplier calculation with house edge
-  const calculateMultiplier = useCallback((tilesRevealed: number, totalTiles: number, bombCount: number) => {
-    const safeTiles = totalTiles - bombCount;
-    const remainingSafeTiles = safeTiles - tilesRevealed;
-    const remainingTiles = totalTiles - tilesRevealed;
-    
-    if (remainingSafeTiles <= 0) return 1;
-    
-    const baseMultiplier = remainingTiles / remainingSafeTiles;
-    // Security: Obfuscated house edge calculation
-    const secureMultiplier = baseMultiplier * HOUSE_EDGE_FACTOR;
-    return Math.max(1.05, secureMultiplier);
-  }, []);
+  // --- PROFIT-BALANCED MULTIPLIER & CHANCE ---
+  // Fair multiplier formula
+  function fairMultiplier(T: number, B: number, m: number): number {
+    let prod = 1;
+    for (let i = 0; i < m; i++) {
+      prod *= (T - i) / (T - B - i);
+    }
+    return prod;
+  }
 
-  // Security: Protected grid initialization with anti-manipulation
-  const initializeGrid = useCallback(() => {
-    const newTiles: Tile[] = [];
-    const bombPositions = new Set<number>();
-    
-    // Security: Cryptographically secure random with session salt
-    const sessionSeed = gameSession + Date.now();
-    
-    // Strategic bomb placement favoring house with security measures
-    while (bombPositions.size < settings.bombCount) {
-      let position;
-      const secureRandom = (sessionSeed * Math.random()) % 1;
-      
-      if (secureRandom < 0.25) {
-        // 25% chance in first third
-        position = Math.floor(Math.random() * Math.floor(settings.gridSize / 3));
-      } else {
-        // 75% chance in last two thirds (house advantage)
-        position = Math.floor(settings.gridSize / 3) + 
-                  Math.floor(Math.random() * Math.ceil(settings.gridSize * 2 / 3));
-      }
-      bombPositions.add(position);
-    }
-    
-    for (let i = 0; i < settings.gridSize; i++) {
-      const isBomb = bombPositions.has(i);
-      newTiles.push({
-        id: i,
-        revealed: false,
-        isBomb,
-        multiplier: isBomb ? 0 : calculateMultiplier(0, settings.gridSize, settings.bombCount)
-      });
-    }
-    
-    setTiles(newTiles);
-    setCurrentWinnings(0);
-    setTilesRevealed(0);
-  }, [settings, calculateMultiplier, gameSession]);
+  // House edge payout multiplier
+  function payoutMultiplier(T: number, B: number, m: number, HE: number = DEFAULT_HOUSE_EDGE): number {
+    const fair = fairMultiplier(T, B, m);
+    const payout = fair * (1 - HE);
+    return Math.min(payout, 500); // Cap at 500x
+  }
+
+  // Chance to win this pick
+  function chanceToWin(T: number, B: number, m: number): number {
+    if (m >= T - B) return 0;
+    return ((T - B - m) / (T - m)) * 100;
+  }
+
+  // Memoized payout and chance
+  const T = settings.gridSize;
+  const B = settings.bombCount;
+  const m = tilesRevealed;
+  const HE = DEFAULT_HOUSE_EDGE;
+  const payout = payoutMultiplier(T, B, m, HE);
+  const chance = chanceToWin(T, B, m);
+
+
 
   if (!authChecked) {
     return (
@@ -411,21 +389,7 @@ function App() {
     }, 2000);
   };
 
-  // Handle deposit with validation
-  const handleDeposit = async () => {
-    const newBalance = balance + depositAmount;
-    const { error } = await supabase
-      .from('users_balance')
-      .update({ balance: newBalance })
-      .eq('user_id', user.id);
-    
-    if (!error) {
-      setBalance(newBalance);
-      setShowDeposit(false);
-      playSound('cashout');
-      lightHaptic();
-    }
-  };
+
 
   // Adjust bet amount
   const adjustBetAmount = (change: number) => {
@@ -445,206 +409,160 @@ function App() {
   // Calculate potential payout
   const getPotentialPayout = () => {
     if (gameState !== 'playing' || tilesRevealed === 0) return settings.betAmount;
-    const multiplier = calculateMultiplier(tilesRevealed + 1, settings.gridSize, settings.bombCount);
-    return settings.betAmount * multiplier;
+    return settings.betAmount * payoutMultiplier(settings.gridSize, settings.bombCount, tilesRevealed + 1, DEFAULT_HOUSE_EDGE);
   };
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white flex flex-col transition-all duration-500 ${shakeScreen ? 'animate-pulse' : ''}`}>
-      {/* Header with clickable grid/bomb settings button */}
-      <div className="w-full max-w-2xl flex-shrink-0 px-2 sm:px-4 md:px-6 py-2 bg-gradient-to-r from-gray-800/90 to-slate-800/90 backdrop-blur-sm border-b border-gray-700/50 mx-auto shadow-lg">
-        <div className="flex items-center justify-between">
-          {/* Logo and Title */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-md animate-bounce-slow">
-              <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            </div>
-            <h1 className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent tracking-wide drop-shadow-lg">
-              Bombaclat Mine
-            </h1>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-green-400 to-emerald-500 rounded-md flex items-center justify-center shadow-md animate-pulse-slow">
-              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-            </div>
+      {/* Mobile-optimized header */}
+      <div className="fixed top-0 left-0 w-full h-[60px] min-h-[60px] flex items-center justify-between px-4 bg-gradient-to-r from-gray-900 to-slate-900 z-50 shadow-md">
+        <h1 className="font-extrabold text-lg sm:text-xl text-cyan-400 tracking-wide" style={{ flex: 1 }}>Bombaclat Mine</h1>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="rounded-full bg-gradient-to-r from-purple-500 to-blue-500 text-white px-3 py-2 font-semibold shadow-md border border-purple-400"
+            style={{ fontSize: '1rem', minWidth: '2.5rem' }}
+            aria-label="Settings"
+          >
+            ⚙️
+          </button>
+          <div className="ml-2 px-3 py-1 rounded-full bg-cyan-700 text-white font-bold text-base sm:text-lg"
+               style={{ minWidth: '4rem', textAlign: 'center', fontSize: 'clamp(1rem, 2vw, 1.25rem)' }}>
+            ₹{balance.toLocaleString()}
           </div>
-          {/* Balance and User Account */}
-          <div className="flex items-center gap-6 relative">
-            <div className="text-right">
-              <p className="text-xs text-gray-400">Balance</p>
-              <p className="text-lg font-extrabold text-green-400 bg-black/20 px-2 py-1 rounded-lg shadow-inner animate-balance-pop">₹{balance.toLocaleString()}</p>
-            </div>
-            {/* User Account Icon and Logout always visible when logged in */}
-            {user && (
-              <>
-                <button
-                  onClick={() => setShowAccount((prev) => !prev)}
-                  className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 shadow-md border-2 border-cyan-400 ml-2"
-                  aria-label="User Account"
-                  style={{ zIndex: 1000 }}
-                >
-                  {(() => {
-                    const googleIdentity = user?.identities?.find((id: any) => id.provider === 'google');
-                    if (googleIdentity) {
-                      console.log('Google Identity:', googleIdentity);
-                      // Try to get the picture URL directly from the identity data
-                      const pictureUrl = googleIdentity.identity_data?.picture;
-                      console.log('Picture URL:', pictureUrl);
-                      if (pictureUrl) {
-                        return (
-                          <img 
-                            src={pictureUrl} 
-                            alt="avatar" 
-                            className="w-8 h-8 rounded-full object-cover"
-                            onError={(e) => {
-                              console.log('Avatar load error:', e);
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${user?.email?.[0] || 'U'}&background=0ea5e9&color=fff`;
-                            }}
-                          />
-                        );
-                      }
+          {user && (
+            <>
+              <button
+                onClick={() => setShowAccount((prev) => !prev)}
+                className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 shadow-md border-2 border-cyan-400 ml-2"
+                aria-label="User Account"
+                style={{ zIndex: 1000 }}
+              >
+                {(() => {
+                  const googleIdentity = user?.identities?.find((id: any) => id.provider === 'google');
+                  if (googleIdentity) {
+                    const pictureUrl = googleIdentity.identity_data?.picture;
+                    if (pictureUrl) {
+                      return (
+                        <img 
+                          src={pictureUrl} 
+                          alt="avatar" 
+                          className="w-8 h-8 rounded-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${user?.email?.[0] || 'U'}&background=0ea5e9&color=fff`;
+                          }}
+                        />
+                      );
                     }
-                    
-                    // Default icon with first letter of email
-                    return (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
-                        <span className="text-white text-sm font-bold">{user?.email?.[0]?.toUpperCase() || 'U'}</span>
-                      </div>
-                    );
-                  })()}
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="ml-2 px-3 py-1 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg text-xs font-bold text-white hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md"
-                  style={{ zIndex: 1000 }}
-                >
-                  Logout
-                </button>
-              </>
-            )}
-            {/* User Account Modal */}
-            {showAccount && (
-              <div className="fixed inset-0 z-50">
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAccount(false)} />
-                <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-                  <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-4 w-full max-w-sm border border-cyan-400/50 max-h-[85vh] overflow-y-auto relative shadow-2xl animate-fade-in">
-                    <button
-                      onClick={() => setShowAccount(false)}
-                      className="absolute top-4 right-4 w-8 h-8 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-300"
-                      aria-label="Close"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                    <div className="flex flex-col items-center gap-3 mt-2 mb-6">
-                      {(() => {
-                        const googleIdentity = user?.identities?.find((id: any) => id.provider === 'google');
-                        if (googleIdentity) {
-                          console.log('Modal - Google Identity:', googleIdentity);
-                          // Try to get the picture URL directly from the identity data
-                          const pictureUrl = googleIdentity.identity_data?.picture;
-                          console.log('Modal - Picture URL:', pictureUrl);
-                          if (pictureUrl) {
-                            return (
-                              <img 
-                                src={pictureUrl} 
-                                alt="avatar" 
-                                className="w-20 h-20 rounded-full object-cover border-4 border-cyan-400 shadow-lg"
-                                onError={(e) => {
-                                  console.log('Modal - Avatar load error:', e);
-                                  e.currentTarget.onerror = null;
-                                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${user?.email?.[0] || 'U'}&size=80&background=0ea5e9&color=fff`;
-                                }}
-                              />
-                            );
-                          }
-                        }
-                        
-                        // Default icon with first letter of email
-                        return (
-                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center border-4 border-cyan-400 shadow-lg">
-                            <span className="text-white text-3xl font-bold">{user?.email?.[0]?.toUpperCase() || 'U'}</span>
-                          </div>
-                        );
-                      })()}
-                      {/* Username field for email signups or display for Google */}
-                      <div className="w-full flex flex-col items-center">
-                        {user?.identities?.find((id: any) => id.provider === 'google') ? (
-                          <div className="mt-2 px-3 py-2 rounded-lg bg-gray-700/60 text-cyan-200 text-lg font-bold text-center border border-cyan-400" style={{ maxWidth: 220 }}>
-                            {user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email ? user.email.split('@')[0] : 'User')}
-                          </div>
-                        ) : (
-                          <>
-                            <input
-                              type="text"
-                              className="mt-2 px-3 py-2 rounded-lg bg-gray-700/60 text-cyan-200 text-lg font-bold text-center outline-none border border-cyan-400 focus:ring-2 focus:ring-cyan-400"
-                              value={username || user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email ? user.email.split('@')[0] : 'User')}
-                              onChange={e => setUsername(e.target.value)}
-                              placeholder="Enter your username"
-                              style={{ maxWidth: 220 }}
-                            />
-                            <button
-                              className="mt-2 px-4 py-1 bg-cyan-500 rounded-lg text-white font-semibold hover:bg-cyan-600 transition-all"
-                              disabled={uploading}
-                              onClick={async () => {
-                                setUploading(true);
-                                await supabase.auth.updateUser({ data: { full_name: username || user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email ? user.email.split('@')[0] : 'User') } });
-                                setUploading(false);
-                                setShowAccount(false);
-                              }}
-                            >
-                              Save Username
-                            </button>
-                          </>
-                        )}
-                      </div>
-                      {/* Upload avatar for email signups */}
-                      {user?.identities?.find((id: any) => id.provider === 'google') ? null : (
-                        <div className="mt-3 flex flex-col items-center">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              setUploading(true);
-                              // Upload to Supabase Storage (bucket: 'avatars')
-                              const { data, error } = await supabase.storage.from('avatars').upload(`public/${user.id}/${file.name}`, file, { upsert: true });
-                              if (!error && data) {
-                                const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(data.path);
-                                await supabase.auth.updateUser({ data: { avatar_url: urlData.publicUrl } });
-                              }
-                              setUploading(false);
-                              setShowAccount(false);
-                            }}
-                          />
-                          <button
-                            className="mt-1 px-4 py-1 bg-cyan-500 rounded-lg text-white font-semibold hover:bg-cyan-600 transition-all"
-                            disabled={uploading}
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            {uploading ? 'Uploading...' : 'Upload Avatar'}
-                          </button>
-                        </div>
-                      )}
+                  }
+                  // Default icon with first letter of email
+                  return (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">{user?.email?.[0]?.toUpperCase() || 'U'}</span>
                     </div>
-                    <div className="space-y-3 mt-4 w-full">
-                      <div className="bg-gray-700/40 rounded-lg p-3">
-                        <p className="text-xs text-gray-400">Username</p>
-                        <p className="text-base font-semibold text-cyan-300">{username || user?.user_metadata?.full_name || user?.user_metadata?.name || (user?.email ? user.email.split('@')[0] : 'User')}</p>
-                      </div>
-                      <div className="bg-gray-700/40 rounded-lg p-3">
-                        <p className="text-xs text-gray-400">Email</p>
-                        <p className="text-base font-semibold text-white">{user?.email || 'N/A'}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+                  );
+                })()}
+              </button>
+              <button
+                onClick={handleLogout}
+                className="ml-2 px-3 py-1 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg text-xs font-bold text-white hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md"
+                style={{ zIndex: 1000 }}
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
       </div>
+      <div style={{ height: '60px' }} /> {/* Spacer for fixed header */}
+      {/* Main content below header */}
+      {/* User Account and Modal rendering fixed */}
+      {user && (
+        <>
+          <button
+            onClick={() => setShowAccount((prev) => !prev)}
+            className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 shadow-md border-2 border-cyan-400 ml-2"
+            aria-label="User Account"
+            style={{ zIndex: 1000 }}
+          >
+            {(() => {
+              const googleIdentity = user?.identities?.find((id: any) => id.provider === 'google');
+              if (googleIdentity) {
+                const pictureUrl = googleIdentity.identity_data?.picture;
+                if (pictureUrl) {
+                  return (
+                    <img 
+                      src={pictureUrl} 
+                      alt="avatar" 
+                      className="w-8 h-8 rounded-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${user?.email?.[0] || 'U'}&background=0ea5e9&color=fff`;
+                      }}
+                    />
+                  );
+                }
+              }
+              // Default icon with first letter of email
+              return (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">{user?.email?.[0]?.toUpperCase() || 'U'}</span>
+                </div>
+              );
+            })()}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="ml-2 px-3 py-1 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg text-xs font-bold text-white hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md"
+            style={{ zIndex: 1000 }}
+          >
+            Logout
+          </button>
+        </>
+      )}
+      {showAccount && user && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAccount(false)} />
+          <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-4 w-full max-w-sm border border-cyan-400/50 max-h-[85vh] overflow-y-auto relative shadow-2xl animate-fade-in">
+              <button
+                onClick={() => setShowAccount(false)}
+                className="absolute top-4 right-4 w-8 h-8 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-300"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="flex flex-col items-center gap-3 mt-2 mb-6">
+                {(() => {
+                  const googleIdentity = user.identities?.find((id: any) => id.provider === 'google');
+                  if (googleIdentity && googleIdentity.identity_data?.picture) {
+                    return (
+                      <img 
+                        src={googleIdentity.identity_data.picture} 
+                        alt="avatar" 
+                        className="w-16 h-16 rounded-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${user.email?.[0] || 'U'}&background=0ea5e9&color=fff`;
+                        }}
+                      />
+                    );
+                  }
+                  // Default icon with first letter of email
+                  return (
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                      <span className="text-white text-2xl font-bold">{user.email?.[0]?.toUpperCase() || 'U'}</span>
+                    </div>
+                  );
+                })()}
+              </div>
+              {/* ...rest of modal content... */}
+            </div>
+          </div>
+        </div>
+      )}
+  {/* ...existing code... */}
 
       {/* Main Game Area - Responsive Container */}
       <div className="flex-1 w-full flex justify-center items-center p-2 max-h-[calc(100vh-4rem)]">
@@ -659,8 +577,8 @@ function App() {
                 ></div>
               </div>
               <div className="flex justify-between text-xs text-gray-400 mt-0.5">
-                <span>Tiles: {tilesRevealed}/{settings.gridSize}</span>
-                <span>Grid: {Math.sqrt(settings.gridSize)}×{Math.sqrt(settings.gridSize)}</span>
+                <span style={{ fontSize: 'clamp(0.9rem, 2vw, 1.1rem)' }}>Tiles: {tilesRevealed}/{settings.gridSize}</span>
+                <span style={{ fontSize: 'clamp(0.9rem, 2vw, 1.1rem)' }}>Grid: {Math.sqrt(settings.gridSize)}×{Math.sqrt(settings.gridSize)}</span>
               </div>
             </div>
           )}
@@ -731,8 +649,8 @@ function App() {
               {/* Game Stats */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-green-400/5 blur-xl rounded-lg group-hover:bg-green-400/10 transition-all duration-300"></div>
-                  <div className="relative bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-lg p-3 border border-green-500/20 group-hover:border-green-400/40 transition-all duration-300">
+                  <div className="absolute inset-0 bg-green-400/5 blur-xl rounded-lg group-hover:bg-green-400/10 transition-all duration-200"></div>
+                  <div className="relative bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-lg p-3 border border-green-500/20 group-hover:border-green-400/40 transition-all duration-200">
                     <div className="flex items-center gap-2">
                       <p className="text-xs text-green-400">Current Win</p>
                       <span className="text-xs bg-green-500/20 px-1.5 py-0.5 rounded text-green-300">Safe to Collect</span>
@@ -740,11 +658,17 @@ function App() {
                     <p className="text-lg font-bold text-green-400 mt-1 group-hover:scale-105 transition-all">
                       ₹{Math.floor(currentWinnings).toLocaleString()}
                     </p>
+                    <div className="mt-2 text-xs text-cyan-300 font-semibold" style={{ fontSize: 'clamp(0.9rem, 2vw, 1.1rem)' }}>
+                      Chance to win this pick: {chance.toFixed(2)}%
+                    </div>
+                    <div className="mt-1 text-xs text-purple-300 font-semibold" style={{ fontSize: 'clamp(0.9rem, 2vw, 1.1rem)' }}>
+                      Payout if cashout now: {payout.toFixed(2)}×
+                    </div>
                   </div>
                 </div>
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-yellow-400/5 blur-xl rounded-lg group-hover:bg-yellow-400/10 transition-all duration-300"></div>
-                  <div className="relative bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-lg p-3 border border-yellow-500/20 group-hover:border-yellow-400/40 transition-all duration-300">
+                  <div className="absolute inset-0 bg-yellow-400/5 blur-xl rounded-lg group-hover:bg-yellow-400/10 transition-all duration-200"></div>
+                  <div className="relative bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-lg p-3 border border-yellow-500/20 group-hover:border-yellow-400/40 transition-all duration-200">
                     <div className="flex items-center gap-2">
                       <p className="text-xs text-yellow-400">Next Payout</p>
                       <span className="text-xs bg-yellow-500/20 px-1.5 py-0.5 rounded text-yellow-300">If Safe</span>
@@ -763,6 +687,7 @@ function App() {
                   style={{ 
                     gridTemplateColumns: `repeat(${getGridCols()}, minmax(0, 1fr))`,
                     maxWidth: '100%',
+                    gridAutoRows: 'minmax(60px, 1fr)',
                   }}
                 >
                   {tiles.map((tile) => (
