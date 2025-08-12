@@ -1,3 +1,6 @@
+-- Drop existing function if it exists
+DROP FUNCTION IF EXISTS public.get_all_withdrawals();
+
 -- Function for admins to get all withdrawals with user details
 CREATE OR REPLACE FUNCTION public.get_all_withdrawals()
 RETURNS TABLE (
