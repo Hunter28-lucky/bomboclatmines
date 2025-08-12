@@ -4,8 +4,8 @@ import { supabaseAdmin } from '../supabaseClient';
 type Withdrawal = {
   id: string;
   user_id: string;
-  email: string;
-  full_name: string;
+  email: string | null;
+  full_name: string | null;
   amount: number;
   mobile_number: string;
   upi_id: string;

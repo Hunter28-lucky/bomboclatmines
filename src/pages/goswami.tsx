@@ -28,7 +28,21 @@ export default function AdminPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  type Withdrawal = {
+    id: string;
+    user_id: string;
+    email: string | null;
+    full_name: string | null;
+    amount: number;
+    mobile_number: string;
+    upi_id: string;
+    status: 'pending' | 'approved' | 'rejected';
+    admin_note?: string;
+    requested_at: string;
+    processed_at?: string;
+  };
+
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
 
   useEffect(() => {
     checkAdminAndFetchData();
