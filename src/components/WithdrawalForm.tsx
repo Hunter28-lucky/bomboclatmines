@@ -12,6 +12,7 @@ type Props = {
 export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted }: Props) {
   const [amount, setAmount] = useState(500);
   const [upiId, setUpiId] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'new' | 'history'>('new');
@@ -39,10 +40,23 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
       return;
     }
 
+    if (!mobileNumber || !/^\d{10}$/.test(mobileNumber)) {
+      setError('Please enter a valid 10-digit mobile number');
+      setLoading(false);
+      return;
+    }
+
     try {
+      console.log('Submitting withdrawal with:', {
+        p_amount: amount,
+        p_upi_id: upiId,
+        p_mobile_number: mobileNumber,
+      });
+      
       const { data, error: withdrawalError } = await supabase.rpc('request_withdrawal', {
         p_amount: amount,
         p_upi_id: upiId,
+        p_mobile_number: mobileNumber,
       });
 
       if (withdrawalError) throw withdrawalError;
@@ -138,6 +152,18 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
                     </button>
                   ))}
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Mobile Number</label>
+                <input
+                  type="tel"
+                  value={mobileNumber}
+                  onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  placeholder="10-digit mobile number"
+                  pattern="[0-9]{10}"
+                  maxLength={10}
+                  className="w-full px-3 py-2 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                />
               </div>
               <div>
                 <label className="block text-sm text-gray-400 mb-1">UPI ID</label>

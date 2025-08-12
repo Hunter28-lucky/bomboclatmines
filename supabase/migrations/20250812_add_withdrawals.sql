@@ -16,16 +16,34 @@ create table if not exists withdrawals (
 alter table withdrawals enable row level security;
 
 -- Users can read their own withdrawals
-create policy "Users can read own withdrawals"
-    on withdrawals
-    for select
-    using (auth.uid() = user_id);
+do $$ 
+begin
+    if not exists (
+        select 1 from pg_policies 
+        where tablename = 'withdrawals' 
+        and policyname = 'Users can read own withdrawals'
+    ) then
+        create policy "Users can read own withdrawals"
+            on withdrawals
+            for select
+            using (auth.uid() = user_id);
+    end if;
+end $$;
 
 -- Users can create their own withdrawals
-create policy "Users can create withdrawals"
-    on withdrawals
-    for insert
-    with check (auth.uid() = user_id);
+do $$ 
+begin
+    if not exists (
+        select 1 from pg_policies 
+        where tablename = 'withdrawals' 
+        and policyname = 'Users can create withdrawals'
+    ) then
+        create policy "Users can create withdrawals"
+            on withdrawals
+            for insert
+            with check (auth.uid() = user_id);
+    end if;
+end $$;
 
 -- Function to handle withdrawal requests
 create or replace function request_withdrawal(
@@ -117,7 +135,9 @@ end;
 $$;
 
 -- Function to get admin withdrawal list
-create or replace function get_all_withdrawals()
+drop function if exists get_all_withdrawals();
+
+create function get_all_withdrawals()
 returns table (
     id uuid,
     user_id text,
