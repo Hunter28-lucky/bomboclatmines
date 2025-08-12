@@ -1,8 +1,11 @@
 -- Add topups column to users_balance table
 alter table users_balance add column if not exists topups bigint default 0;
 
--- Update get_all_user_details function to use the new column
-create or replace function get_all_user_details()
+-- Drop existing function first
+drop function if exists get_all_user_details();
+
+-- Create new function with corrected types
+create function get_all_user_details()
 returns table (
   user_id text,
   email text,
