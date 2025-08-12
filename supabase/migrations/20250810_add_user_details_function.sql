@@ -1,5 +1,5 @@
 -- Create a secure function to get user details with metadata
-create or replace function get_user_details()
+create or replace function get_all_user_details()
 returns table (
   user_id uuid,
   email text,
@@ -14,10 +14,10 @@ begin
   return query
   select 
     au.id as user_id,
-    au.email,
+    au.email as email,
     (au.raw_user_meta_data->>'full_name')::text as full_name,
-    ub.balance,
-    ub.topups
+    coalesce(ub.balance, 0) as balance,
+    coalesce(ub.topups, 0) as topups
   from auth.users au
   left join users_balance ub on au.id = ub.user_id;
 end;
