@@ -4,9 +4,9 @@ import { supabaseAdmin } from '../supabaseClient';
 type Withdrawal = {
   id: string;
   user_id: string;
-  email: string | null;
-  full_name: string | null;
-  amount: number;
+  email: string;
+  full_name: string | null; // Can be null since it comes from user_metadata
+  amount: string; // DECIMAL in PostgreSQL comes as string in JSON
   upi_id: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
@@ -46,7 +46,7 @@ export default function WithdrawalRow({ withdrawal, onUpdate }: { withdrawal: Wi
       <td className="px-4 py-2">{withdrawal.user_id}</td>
       <td className="px-4 py-2">{withdrawal.email}</td>
       <td className="px-4 py-2">{withdrawal.full_name}</td>
-      <td className="px-4 py-2 font-bold text-green-400">₹{withdrawal.amount}</td>
+      <td className="px-4 py-2 font-bold text-green-400">₹{parseFloat(withdrawal.amount).toFixed(2)}</td>
       <td className="px-4 py-2">N/A</td>
       <td className="px-4 py-2">{withdrawal.upi_id}</td>
       <td className="px-4 py-2">

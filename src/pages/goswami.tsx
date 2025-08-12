@@ -28,21 +28,19 @@ export default function AdminPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  type Withdrawal = {
-    id: string;
-    user_id: string;
-    email: string | null;
-    full_name: string | null;
-    amount: number;
-    upi_id: string;
-    status: 'pending' | 'approved' | 'rejected';
-    created_at: string;
-    processed_at: string | null;
-    processed_by: string | null;
-    notes: string | null;
-  };
-
-  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+type Withdrawal = {
+  id: string;
+  user_id: string;
+  email: string;
+  full_name: string | null; // Can be null since it comes from user_metadata
+  amount: string; // DECIMAL in PostgreSQL comes as string in JSON
+  upi_id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  processed_at: string | null;
+  processed_by: string | null;
+  notes: string | null;
+};  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
 
   useEffect(() => {
     checkAdminAndFetchData();
