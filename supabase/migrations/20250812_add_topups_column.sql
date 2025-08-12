@@ -30,33 +30,37 @@ alter table users_balance add column if not exists topups numeric default 0;
 drop function if exists get_all_user_details();
 
 -- Create diagnostic function to show exact query result structure
-create or replace function debug_user_query()
+create or replace function get_all_user_details()
 returns table (
-    col_name text,
-    col_type text
+    user_id uuid,
+    email text,
+    full_name text,
+    balance numeric,
+    topups integer
 )
 language plpgsql
+security definer
 as $$
+declare
+    result record;
 begin
-    return query
-    select 
-        a.attname::text as col_name,
-        format_type(a.atttypid, a.atttypmod)::text as col_type
-    from pg_attribute a
-    where a.attrelid = (
-        select x.oid 
-        from (
-            select au.id as user_id,
-                   au.email as email,
-                   (au.raw_user_meta_data->>'full_name')::text as full_name,
-                   coalesce(ub.balance, 0::numeric) as balance,
-                   coalesce(ub.topups, 0) as topups
-            from auth.users au
-            left join users_balance ub on au.id = ub.user_id
-            limit 0
-        ) x
-    )
-    and a.attnum > 0;
+    for result in
+        select 
+            au.id,
+            au.email,
+            coalesce(au.raw_user_meta_data->>'full_name', '') as full_name,
+            coalesce(ub.balance, 0::numeric) as balance,
+            coalesce(ub.topups, 0) as topups
+        from auth.users au
+        left join users_balance ub on au.id = ub.user_id
+    loop
+        user_id := result.id;
+        email := result.email;
+        full_name := result.full_name;
+        balance := result.balance;
+        topups := result.topups;
+        return next;
+    end loop;
 end;
 $$;
 
