@@ -91,7 +91,7 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
                     setAmount(value);
                   }
                 }}
-                className="pl-8 pr-4 py-3 w-full rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 transition-all"
+                className="pl-8 pr-4 py-3 w-full rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 transition-all text-gray-900 bg-white placeholder-gray-500"
                 placeholder="Enter amount (min ₹500)"
                 required
               />
@@ -108,7 +108,7 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
               type="text"
               value={upiId}
               onChange={(e) => setUpiId(e.target.value)}
-              className="px-4 py-3 w-full rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 transition-all"
+              className="px-4 py-3 w-full rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 transition-all text-gray-900 bg-white placeholder-gray-500"
               placeholder="your.id@upi"
               required
             />
