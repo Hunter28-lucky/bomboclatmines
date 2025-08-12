@@ -4,11 +4,11 @@ alter table users_balance add column if not exists topups bigint default 0;
 -- Update get_all_user_details function to use the new column
 create or replace function get_all_user_details()
 returns table (
-  user_id uuid,
+  user_id text,
   email text,
   full_name text,
-  balance bigint,
-  topups bigint
+  balance integer,
+  topups integer
 )
 language plpgsql
 security definer
@@ -16,11 +16,11 @@ as $$
 begin
   return query
   select 
-    au.id as user_id,
+    au.id::text as user_id,
     au.email as email,
-    (au.raw_user_meta_data->>'full_name')::text as full_name,
-    coalesce(ub.balance, 0) as balance,
-    coalesce(ub.topups, 0) as topups
+    coalesce(au.raw_user_meta_data->>'full_name', '') as full_name,
+    coalesce(ub.balance, 0)::integer as balance,
+    coalesce(ub.topups, 0)::integer as topups
   from auth.users au
   left join users_balance ub on au.id = ub.user_id;
 end;
