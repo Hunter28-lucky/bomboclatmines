@@ -121,14 +121,18 @@ export default function AdminPage() {
 
   async function fetchWithdrawals() {
     try {
-      const { data: withdrawalData, error: withdrawalError } = await supabaseAdmin
-        .rpc('get_all_withdrawals');
-
-      if (withdrawalError) throw withdrawalError;
-      setWithdrawals(withdrawalData || []);
+      const { data, error } = await supabaseAdmin.rpc('get_all_withdrawals');
+      if (error) {
+        console.error('Error fetching withdrawals:', error);
+        setError(error.message || 'Failed to fetch withdrawals');
+        setWithdrawals([]);
+        return;
+      }
+      setWithdrawals(data || []);
     } catch (err) {
       console.error('Error fetching withdrawals:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch withdrawals');
+      setWithdrawals([]);
     }
   }
 
