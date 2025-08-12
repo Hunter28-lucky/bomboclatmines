@@ -108,11 +108,36 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
                 <input
                   type="number"
                   value={amount}
-                  onChange={(e) => setAmount(Math.max(500, Number(e.target.value)))}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 500 && value <= balance) {
+                      setAmount(value);
+                    }
+                  }}
                   min={500}
                   max={balance}
                   className="w-full px-3 py-2 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none"
                 />
+                {/* Quick amount buttons */}
+                <div className="grid grid-cols-4 gap-2 mt-2">
+                  {[500, 1000, 2000, 5000].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => preset <= balance && setAmount(preset)}
+                      disabled={preset > balance}
+                      className={`px-2 py-1 rounded text-xs font-medium transition-all duration-300 ${
+                        amount === preset
+                          ? 'bg-cyan-500 text-white'
+                          : preset <= balance
+                          ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                          : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
+                      ₹{preset}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm text-gray-400 mb-1">UPI ID</label>
