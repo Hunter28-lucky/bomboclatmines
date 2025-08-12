@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<UserBalance | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showWithdrawal, setShowWithdrawal] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -82,10 +83,24 @@ export default function Dashboard() {
         {/* Withdrawal Section */}
         <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
           <h2 className="text-2xl font-bold mb-4">Withdraw Funds</h2>
-          <WithdrawalForm />
+          <button
+            className="mb-4 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-400 rounded-xl text-white font-medium hover:from-green-600 hover:to-emerald-500 transition-all duration-300 shadow-xl hover:shadow-2xl"
+            onClick={() => setShowWithdrawal(true)}
+          >
+            Request Withdrawal
+          </button>
+          {showWithdrawal && (
+            <WithdrawalForm
+              balance={user?.balance || 0}
+              onClose={() => setShowWithdrawal(false)}
+              onWithdrawalSubmitted={(amount) => {
+                setUser(prev => prev ? { ...prev, balance: (prev.balance || 0) - amount } : prev);
+                setShowWithdrawal(false);
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
   );
 }
-        

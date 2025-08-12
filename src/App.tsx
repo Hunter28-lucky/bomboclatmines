@@ -3,7 +3,7 @@ import { supabase } from './supabaseClient';
 import { useRef } from 'react';
 import Login from './Login';
 import Dashboard from './pages/Dashboard';
-import WithdrawalForm from './WithdrawalForm';
+import WithdrawalForm from './components/WithdrawalForm';
 // Confetti effect for win
 import confetti from 'canvas-confetti';
 import { Zap, Shield, X, CreditCard } from 'lucide-react';

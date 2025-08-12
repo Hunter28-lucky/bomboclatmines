@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 
-export default function WithdrawalForm() {
+type WithdrawalFormProps = {
+  onClose: () => void;
+  balance: number;
+  onWithdrawalSubmitted?: (amount: number) => void;
+};
+
+export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted }: WithdrawalFormProps) {
   const [amount, setAmount] = useState<string>('');
   const [mobileNumber, setMobileNumber] = useState<string>('');
   const [upiId, setUpiId] = useState<string>('');
@@ -35,6 +41,9 @@ export default function WithdrawalForm() {
         setAmount('');
         setMobileNumber('');
         setUpiId('');
+        if (onWithdrawalSubmitted) {
+          onWithdrawalSubmitted(numericAmount);
+        }
       } else {
         setMessage({ text: data.message, type: 'error' });
       }
@@ -50,8 +59,18 @@ export default function WithdrawalForm() {
   }
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-gray-800 rounded-lg shadow-lg">
+    <div className="max-w-md mx-auto p-6 bg-gray-800 rounded-lg shadow-lg relative">
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 w-8 h-8 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-300"
+        aria-label="Close"
+      >
+        <span className="text-white text-lg font-bold">&times;</span>
+      </button>
       <h2 className="text-2xl font-bold mb-6 text-white">Withdraw Funds</h2>
+      <div className="mb-4 text-sm text-gray-300">
+        Current Balance: <span className="font-bold text-green-400">₹{balance.toLocaleString()}</span>
+      </div>
       
       {message && (
         <div className={`p-4 rounded-lg mb-4 ${
