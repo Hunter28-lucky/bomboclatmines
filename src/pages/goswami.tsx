@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import UserRow from '../components/UserRow';
+import WithdrawalRow from '../components/WithdrawalRow';
 import { supabase, supabaseAdmin } from '../supabaseClient';
 
 const ADMIN_EMAIL = 'krrishyogi18@gmail.com';
@@ -34,18 +35,12 @@ export default function AdminPage() {
 
   async function checkAdminAndFetchData() {
     try {
-      const { data, error: authError } = await supabase.auth.getUser();
-      if (authError) {
-        console.error('Auth error:', authError);
-        setError('Authentication failed: ' + authError.message);
-        return;
-      }
+      const { data } = await supabase.auth.getUser();
       if (!data?.user || data.user.email !== ADMIN_EMAIL) {
-        console.error('Not admin:', data?.user?.email);
-        setError('Access denied: You must be an admin to view this page');
+        window.location.replace('/');
         return;
       }
-      await fetchData();
+      await fetchAllData();
     } catch (err) {
       console.error('Unexpected auth error:', err);
       setError('Unexpected authentication error: ' + (err instanceof Error ? err.message : String(err)));
@@ -122,6 +117,38 @@ export default function AdminPage() {
     );
   }
 
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
+
+  async function fetchWithdrawals() {
+    try {
+      const { data: withdrawalData, error: withdrawalError } = await supabaseAdmin
+        .rpc('get_all_withdrawals');
+
+      if (withdrawalError) throw withdrawalError;
+      setWithdrawals(withdrawalData || []);
+    } catch (err) {
+      console.error('Error fetching withdrawals:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch withdrawals');
+    }
+  }
+
+  async function fetchAllData() {
+    setLoading(true);
+    setError(null);
+    try {
+      await Promise.all([fetchData(), fetchWithdrawals()]);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch data');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    checkAdminAndFetchData();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Admin Dashboard</h1>
@@ -189,6 +216,35 @@ export default function AdminPage() {
                   </tr>
                 );
               })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <h2 className="text-2xl font-semibold mb-4">Withdrawal Requests</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-gray-800 rounded-lg shadow-lg">
+            <thead>
+              <tr>
+                <th className="px-4 py-2">User ID</th>
+                <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Name</th>
+                <th className="px-4 py-2">Amount</th>
+                <th className="px-4 py-2">Mobile</th>
+                <th className="px-4 py-2">UPI ID</th>
+                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {withdrawals.map((withdrawal) => (
+                <WithdrawalRow 
+                  key={withdrawal.id} 
+                  withdrawal={withdrawal} 
+                  onUpdate={fetchAllData}
+                />
+              ))}
             </tbody>
           </table>
         </div>
