@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import UserRow from '../components/UserRow';
 import WithdrawalRow from '../components/WithdrawalRow';
 import { supabase, supabaseAdmin } from '../supabaseClient';
@@ -28,6 +28,7 @@ export default function AdminPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
 
   useEffect(() => {
     checkAdminAndFetchData();
@@ -99,26 +100,6 @@ export default function AdminPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-xl">
-        Loading...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="bg-red-500/10 text-red-500 px-4 py-2 rounded-lg">
-          {error}
-        </div>
-      </div>
-    );
-  }
-
-  const [withdrawals, setWithdrawals] = useState<any[]>([]);
-
   async function fetchWithdrawals() {
     try {
       const { data, error } = await supabaseAdmin.rpc('get_all_withdrawals');
@@ -149,9 +130,23 @@ export default function AdminPage() {
     }
   }
 
-  useEffect(() => {
-    checkAdminAndFetchData();
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-xl">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="bg-red-500/10 text-red-500 px-4 py-2 rounded-lg">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white p-4">
