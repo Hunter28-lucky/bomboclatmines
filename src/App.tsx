@@ -482,18 +482,9 @@ function App() {
           </div>
           {/* Balance and Settings Button */}
           <div className="flex items-center gap-6 relative">
-              <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => setShowWithdrawal(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-400 rounded-lg text-white text-sm font-medium hover:from-green-600 hover:to-emerald-500 transition-all duration-300 shadow-md hover:shadow-lg"
-                >
-                  <CreditCard className="w-4 h-4" />
-                  Withdraw
-                </button>
-                <div className="text-right">
-                  <p className="text-xs text-gray-400">Balance</p>
-                  <p className="text-lg font-extrabold text-green-400 bg-black/20 px-2 py-1 rounded-lg shadow-inner animate-balance-pop">₹{balance.toLocaleString()}</p>
-                </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-400">Balance</p>
+                <p className="text-lg font-extrabold text-green-400 bg-black/20 px-2 py-1 rounded-lg shadow-inner animate-balance-pop">₹{balance.toLocaleString()}</p>
               </div>
             {/* User Account Icon and Logout always visible when logged in */}
             {user && (
@@ -872,7 +863,24 @@ function App() {
         </div>
       </div>
 
-      {/* Settings Modal */}
+                {/* Withdrawal Button */}
+          <div className="fixed bottom-4 right-4 z-50">
+            <button 
+              onClick={() => {
+                if (balance < 500) {
+                  alert('You need at least ₹500 to withdraw');
+                  return;
+                }
+                setShowWithdrawal(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-400 rounded-xl text-white font-medium hover:from-green-600 hover:to-emerald-500 transition-all duration-300 shadow-xl hover:shadow-2xl"
+            >
+              <CreditCard className="w-5 h-5" />
+              Withdraw Funds
+            </button>
+          </div>
+
+          {/* Settings Modal */}
       {showSettings && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
           <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-4 sm:p-6 w-full max-w-sm border border-gray-700/50 max-h-[80vh] overflow-y-auto">

@@ -14,14 +14,12 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
 
-    const withdrawalAmount = Number(amount);
-
-    if (withdrawalAmount < 500) {
+    const withdrawalAmount = parseInt(amount) || 0;    if (withdrawalAmount < 500) {
       setError('Minimum withdrawal amount is ₹500');
       setIsSubmitting(false);
       return;
@@ -83,13 +81,18 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
               <input
                 id="amount"
-                type="number"
-                min="500"
-                max={balance}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9]/g, '');
+                  if (value === '' || (parseInt(value) <= balance && parseInt(value) >= 0)) {
+                    setAmount(value);
+                  }
+                }}
                 className="pl-8 pr-4 py-3 w-full rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-400 transition-all"
-                placeholder="Enter amount"
+                placeholder="Enter amount (min ₹500)"
                 required
               />
             </div>
