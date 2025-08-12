@@ -34,15 +34,21 @@ export default function AdminPage() {
 
   async function checkAdminAndFetchData() {
     try {
-      const { data } = await supabase.auth.getUser();
+      const { data, error: authError } = await supabase.auth.getUser();
+      if (authError) {
+        console.error('Auth error:', authError);
+        setError('Authentication failed: ' + authError.message);
+        return;
+      }
       if (!data?.user || data.user.email !== ADMIN_EMAIL) {
-        window.location.replace('/');
+        console.error('Not admin:', data?.user?.email);
+        setError('Access denied: You must be an admin to view this page');
         return;
       }
       await fetchData();
     } catch (err) {
-      console.error('Auth error:', err);
-      window.location.replace('/');
+      console.error('Unexpected auth error:', err);
+      setError('Unexpected authentication error: ' + (err instanceof Error ? err.message : String(err)));
     }
   }
 
@@ -54,13 +60,21 @@ export default function AdminPage() {
       const { data: userData, error: userError } = await supabaseAdmin
         .rpc('get_all_user_details');
 
-      if (userError) throw userError;
+      if (userError) {
+        console.error('User details error:', userError);
+        setError('Failed to fetch user details: ' + userError.message);
+        return;
+      }
 
       // Fetch additional user details from auth.users
       const { data: authUsers, error: authError } = await supabaseAdmin
         .auth.admin.listUsers();
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error('Auth users error:', authError);
+        setError('Failed to fetch auth users: ' + authError.message);
+        return;
+      }
 
       // Combine user data with auth data
       const enrichedUserData = (userData as UserBalance[])?.map((user: UserBalance) => {
