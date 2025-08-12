@@ -112,6 +112,18 @@ type Withdrawal = {
     }
   }
 
+  // Keep track of the subscription
+  const [withdrawalChannel, setWithdrawalChannel] = useState<ReturnType<typeof supabaseAdmin.channel> | null>(null);
+
+  useEffect(() => {
+    // Clean up the subscription when component unmounts
+    return () => {
+      if (withdrawalChannel) {
+        supabaseAdmin.removeChannel(withdrawalChannel);
+      }
+    };
+  }, [withdrawalChannel]);
+
   async function fetchWithdrawals() {
     try {
       const { data, error } = await supabaseAdmin.rpc('get_all_withdrawals');
@@ -121,7 +133,25 @@ type Withdrawal = {
         setWithdrawals([]);
         return;
       }
-      setWithdrawals(data || []);
+      
+      // Parse the JSON response since we modified the function to return JSON
+      const parsedData = Array.isArray(data) ? data : JSON.parse(data);
+      setWithdrawals(parsedData || []);
+
+      // Set up real-time subscription if not already set
+      if (!withdrawalChannel) {
+        const channel = supabaseAdmin
+          .channel('admin-withdrawal-updates')
+          .on('postgres_changes',
+            { event: '*', schema: 'public', table: 'withdrawals' },
+            () => {
+              fetchWithdrawals(); // Refresh the list when there are changes
+            }
+          )
+          .subscribe();
+        
+        setWithdrawalChannel(channel);
+      }
     } catch (err) {
       console.error('Error fetching withdrawals:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch withdrawals');

@@ -1,144 +1,146 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import WithdrawalHistory from './WithdrawalHistory';
+import { X } from 'lucide-react';
 
-type WithdrawalFormProps = {
+type Props = {
   onClose: () => void;
   balance: number;
-  onWithdrawalSubmitted?: (amount: number) => void;
+  onWithdrawalSubmitted: (amount: number) => void;
 };
 
-export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted }: WithdrawalFormProps) {
-  const [amount, setAmount] = useState<string>('');
-  const [mobileNumber, setMobileNumber] = useState<string>('');
-  const [upiId, setUpiId] = useState<string>('');
+export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted }: Props) {
+  const [amount, setAmount] = useState(500);
+  const [upiId, setUpiId] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'new' | 'history'>('new');
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage(null);
+    setError(null);
+
+    if (amount < 500) {
+      setError('Minimum withdrawal amount is ₹500');
+      setLoading(false);
+      return;
+    }
+
+    if (amount > balance) {
+      setError('Insufficient balance');
+      setLoading(false);
+      return;
+    }
+
+    if (!upiId) {
+      setError('Please enter your UPI ID');
+      setLoading(false);
+      return;
+    }
 
     try {
-      const numericAmount = parseFloat(amount);
-      if (isNaN(numericAmount) || numericAmount <= 0) {
-        setMessage({ text: 'Please enter a valid amount', type: 'error' });
-        return;
-      }
-
-      const { data, error } = await supabase
-        .rpc('request_withdrawal', {
-          p_amount: numericAmount,
-          p_mobile_number: mobileNumber,
-          p_upi_id: upiId
-        });
-
-      if (error) throw error;
-
-      if (data.success) {
-        setMessage({ text: data.message + '. Please allow 0-7 working days for processing.', type: 'success' });
-        // Clear form
-        setAmount('');
-        setMobileNumber('');
-        setUpiId('');
-        if (onWithdrawalSubmitted) {
-          onWithdrawalSubmitted(numericAmount);
-        }
-      } else {
-        setMessage({ text: data.message, type: 'error' });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      setMessage({ 
-        text: err instanceof Error ? err.message : 'Failed to submit withdrawal request', 
-        type: 'error' 
+      const { data, error: withdrawalError } = await supabase.rpc('request_withdrawal', {
+        p_amount: amount,
+        p_upi_id: upiId,
       });
+
+      if (withdrawalError) throw withdrawalError;
+
+      if (data.success === false) {
+        throw new Error(data.error || 'Failed to process withdrawal');
+      }
+
+      onWithdrawalSubmitted(amount);
+      setActiveTab('history'); // Switch to history tab after successful submission
+    } catch (err) {
+      console.error('Error processing withdrawal:', err);
+      setError(err instanceof Error ? err.message : 'Failed to process withdrawal');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="max-w-md w-full mx-auto p-6 bg-gray-800 rounded-lg shadow-lg relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-300"
-          aria-label="Close"
-        >
-          <span className="text-white text-lg font-bold">&times;</span>
-        </button>
-        <h2 className="text-2xl font-bold mb-6 text-white">Withdraw Funds</h2>
-        <div className="mb-4 text-sm text-gray-300">
-          Current Balance: <span className="font-bold text-green-400">₹{balance.toLocaleString()}</span>
-        </div>
-        
-        {message && (
-          <div className={`p-4 rounded-lg mb-4 ${
-            message.type === 'success' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
-          }`}>
-            {message.text}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-300">
-              Amount (₹)
-            </label>
-            <input
-              id="amount"
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              min="0"
-              step="1"
-              required
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="mobile" className="block text-sm font-medium text-gray-300">
-              Mobile Number
-            </label>
-            <input
-              id="mobile"
-              type="tel"
-              value={mobileNumber}
-              onChange={(e) => setMobileNumber(e.target.value)}
-              pattern="[0-9]{10}"
-              required
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="upi" className="block text-sm font-medium text-gray-300">
-              UPI ID
-            </label>
-            <input
-              id="upi"
-              type="text"
-              value={upiId}
-              onChange={(e) => setUpiId(e.target.value)}
-              required
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
-          </div>
-
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="relative w-full max-w-md mx-auto bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl border border-gray-700/50 overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
+          <h2 className="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+            Withdraw Funds
+          </h2>
           <button
-            type="submit"
-            disabled={loading}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-              loading
-                ? 'bg-indigo-500/50 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
-            }`}
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-all"
           >
-            {loading ? 'Processing...' : 'Submit Withdrawal Request'}
+            <X className="w-4 h-4" />
           </button>
-        </form>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-gray-700/50">
+          <button
+            className={`flex-1 px-4 py-2 text-sm font-medium transition-all duration-300 ${
+              activeTab === 'new'
+                ? 'bg-cyan-500/10 text-cyan-400 border-b-2 border-cyan-500'
+                : 'text-gray-400 hover:text-gray-300'
+            }`}
+            onClick={() => setActiveTab('new')}
+          >
+            New Withdrawal
+          </button>
+          <button
+            className={`flex-1 px-4 py-2 text-sm font-medium transition-all duration-300 ${
+              activeTab === 'history'
+                ? 'bg-cyan-500/10 text-cyan-400 border-b-2 border-cyan-500'
+                : 'text-gray-400 hover:text-gray-300'
+            }`}
+            onClick={() => setActiveTab('history')}
+          >
+            History
+          </button>
+        </div>
+
+        <div className="p-4">
+          {activeTab === 'new' ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Amount (min. ₹500)</label>
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(Math.max(500, Number(e.target.value)))}
+                  min={500}
+                  max={balance}
+                  className="w-full px-3 py-2 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">UPI ID</label>
+                <input
+                  type="text"
+                  value={upiId}
+                  onChange={(e) => setUpiId(e.target.value)}
+                  placeholder="example@upi"
+                  className="w-full px-3 py-2 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                />
+              </div>
+              {error && (
+                <div className="p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+              >
+                {loading ? 'Processing...' : 'Submit Withdrawal'}
+              </button>
+            </form>
+          ) : (
+            <WithdrawalHistory />
+          )}
+        </div>
       </div>
     </div>
   );
