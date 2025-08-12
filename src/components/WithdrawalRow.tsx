@@ -7,17 +7,17 @@ type Withdrawal = {
   email: string | null;
   full_name: string | null;
   amount: number;
-  mobile_number: string;
   upi_id: string;
   status: 'pending' | 'approved' | 'rejected';
-  admin_note?: string;
-  requested_at: string;
-  processed_at?: string;
+  created_at: string;
+  processed_at: string | null;
+  processed_by: string | null;
+  notes: string | null;
 };
 
 export default function WithdrawalRow({ withdrawal, onUpdate }: { withdrawal: Withdrawal; onUpdate: () => void }) {
   const [loading, setLoading] = useState(false);
-  const [note, setNote] = useState(withdrawal.admin_note || '');
+  const [note, setNote] = useState(withdrawal.notes || '');
   const [error, setError] = useState<string | null>(null);
 
   async function handleProcess(status: 'approved' | 'rejected') {
@@ -28,7 +28,7 @@ export default function WithdrawalRow({ withdrawal, onUpdate }: { withdrawal: Wi
       const { error } = await supabaseAdmin.rpc('admin_process_withdrawal', {
         p_withdrawal_id: withdrawal.id,
         p_status: status,
-        p_admin_note: note
+        p_notes: note
       });
 
       if (error) throw error;
@@ -47,7 +47,7 @@ export default function WithdrawalRow({ withdrawal, onUpdate }: { withdrawal: Wi
       <td className="px-4 py-2">{withdrawal.email}</td>
       <td className="px-4 py-2">{withdrawal.full_name}</td>
       <td className="px-4 py-2 font-bold text-green-400">₹{withdrawal.amount}</td>
-      <td className="px-4 py-2">{withdrawal.mobile_number}</td>
+      <td className="px-4 py-2">N/A</td>
       <td className="px-4 py-2">{withdrawal.upi_id}</td>
       <td className="px-4 py-2">
         <span className={`px-2 py-1 rounded text-xs font-bold ${
@@ -90,7 +90,7 @@ export default function WithdrawalRow({ withdrawal, onUpdate }: { withdrawal: Wi
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-400">{withdrawal.admin_note}</p>
+            <p className="text-sm text-gray-400">{withdrawal.notes}</p>
             <p className="text-xs text-gray-500">
               {withdrawal.processed_at ? new Date(withdrawal.processed_at).toLocaleString() : ''}
             </p>

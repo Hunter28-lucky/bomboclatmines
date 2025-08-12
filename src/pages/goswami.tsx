@@ -34,12 +34,12 @@ export default function AdminPage() {
     email: string | null;
     full_name: string | null;
     amount: number;
-    mobile_number: string;
     upi_id: string;
     status: 'pending' | 'approved' | 'rejected';
-    admin_note?: string;
-    requested_at: string;
-    processed_at?: string;
+    created_at: string;
+    processed_at: string | null;
+    processed_by: string | null;
+    notes: string | null;
   };
 
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
@@ -247,7 +247,7 @@ export default function AdminPage() {
                 <th className="px-4 py-2">Mobile</th>
                 <th className="px-4 py-2">UPI ID</th>
                 <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Actions</th>
+                <th className="px-4 py-2">Notes/Actions</th>
               </tr>
             </thead>
             <tbody>
