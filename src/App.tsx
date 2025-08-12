@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabaseClient';
 import { useRef } from 'react';
 import Login from './Login';
+import Dashboard from './pages/Dashboard';
+import WithdrawalForm from './WithdrawalForm';
 // Confetti effect for win
 import confetti from 'canvas-confetti';
-import { Zap, Shield, X } from 'lucide-react';
+import { Zap, Shield, X, CreditCard } from 'lucide-react';
 import PaymentWidget from './PaymentWidget';
 
 interface Tile {
@@ -68,6 +70,7 @@ function App() {
   const [showAccount, setShowAccount] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [username, setUsername] = useState(user?.user_metadata?.full_name || user?.user_metadata?.name || '');
+  const [showWithdrawal, setShowWithdrawal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Listen for auth state changes and fetch user balance
@@ -451,6 +454,17 @@ function App() {
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white flex flex-col transition-all duration-500 ${shakeScreen ? 'animate-pulse' : ''}`}>
+      {/* Withdrawal Modal */}
+      {showWithdrawal && (
+        <WithdrawalForm 
+          onClose={() => setShowWithdrawal(false)}
+          balance={balance}
+          onWithdrawalSubmitted={(amount) => {
+            setBalance(prev => prev - amount);
+            setShowWithdrawal(false);
+          }}
+        />
+      )}
       {/* Header with clickable grid/bomb settings button */}
       <div className="w-full max-w-2xl flex-shrink-0 px-2 sm:px-4 md:px-6 py-2 bg-gradient-to-r from-gray-800/90 to-slate-800/90 backdrop-blur-sm border-b border-gray-700/50 mx-auto shadow-lg">
         <div className="flex items-center justify-between">
@@ -468,9 +482,18 @@ function App() {
           </div>
           {/* Balance and Settings Button */}
           <div className="flex items-center gap-6 relative">
-              <div className="text-right">
-                <p className="text-xs text-gray-400">Balance</p>
-                <p className="text-lg font-extrabold text-green-400 bg-black/20 px-2 py-1 rounded-lg shadow-inner animate-balance-pop">₹{balance.toLocaleString()}</p>
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setShowWithdrawal(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-400 rounded-lg text-white text-sm font-medium hover:from-green-600 hover:to-emerald-500 transition-all duration-300 shadow-md hover:shadow-lg"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  Withdraw
+                </button>
+                <div className="text-right">
+                  <p className="text-xs text-gray-400">Balance</p>
+                  <p className="text-lg font-extrabold text-green-400 bg-black/20 px-2 py-1 rounded-lg shadow-inner animate-balance-pop">₹{balance.toLocaleString()}</p>
+                </div>
               </div>
             {/* User Account Icon and Logout always visible when logged in */}
             {user && (
