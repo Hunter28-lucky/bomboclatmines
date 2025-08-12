@@ -20,7 +20,7 @@ ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Only admins can view admin_users"
     ON public.admin_users
     FOR SELECT
-    USING (auth.uid() IN (SELECT user_id FROM public.admin_users));
+    USING (auth.uid() IN (SELECT admin_users.user_id FROM public.admin_users));
 
 -- Function for admins to get all withdrawals with user details
 CREATE OR REPLACE FUNCTION public.get_all_withdrawals()
@@ -43,8 +43,8 @@ AS $$
 BEGIN
     -- Verify admin status
     IF NOT EXISTS (
-        SELECT 1 FROM public.admin_users 
-        WHERE user_id = auth.uid()
+        SELECT 1 FROM public.admin_users a
+        WHERE a.user_id = auth.uid()
     ) THEN
         RAISE EXCEPTION 'Unauthorized';
     END IF;
