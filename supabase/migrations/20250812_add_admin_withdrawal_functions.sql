@@ -1,6 +1,27 @@
 -- Drop existing function if it exists
 DROP FUNCTION IF EXISTS public.get_all_withdrawals();
 
+-- Create admin_users table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.admin_users (
+    user_id UUID PRIMARY KEY REFERENCES auth.users(id),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Insert the admin user
+INSERT INTO public.admin_users (user_id)
+SELECT id FROM auth.users WHERE email = 'krrishyogi18@gmail.com'
+ON CONFLICT (user_id) DO NOTHING;
+
+-- Enable RLS on admin_users
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
+
+-- Only allow admins to view the admin_users table
+CREATE POLICY "Only admins can view admin_users"
+    ON public.admin_users
+    FOR SELECT
+    USING (auth.uid() IN (SELECT user_id FROM public.admin_users));
+
 -- Function for admins to get all withdrawals with user details
 CREATE OR REPLACE FUNCTION public.get_all_withdrawals()
 RETURNS TABLE (
