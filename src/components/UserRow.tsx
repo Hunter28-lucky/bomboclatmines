@@ -3,10 +3,10 @@ import { supabase } from '../supabaseClient';
 
 type UserBalance = {
   user_id: string;
-  email: string;
-  full_name: string;
+  email: string | null;
+  full_name: string | null;
   balance: number;
-  topups: number;
+  topups: number | null;
 };
 
 export default function UserRow({ user, onUpdate }: { user: UserBalance, onUpdate: () => void }) {

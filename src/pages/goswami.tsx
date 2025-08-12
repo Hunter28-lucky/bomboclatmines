@@ -7,10 +7,10 @@ const ADMIN_EMAIL = 'krrishyogi18@gmail.com';
 
 type UserBalance = {
   user_id: string;
-  email: string;
-  full_name: string;
+  email: string | null;
+  full_name: string | null;
   balance: number;
-  topups: number;
+  topups: number | null;
 };
 
 type Payment = {
