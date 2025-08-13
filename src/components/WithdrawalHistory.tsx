@@ -6,7 +6,11 @@ type WithdrawalHistory = {
   id: string;
   amount: string;
   upi_id: string;
+  mobile_number: string;
   status: 'pending' | 'approved' | 'rejected';
+  admin_note?: string | null;
+  requested_at: string;
+  processed_at: string | null;
   created_at: string;
 };
 
@@ -100,9 +104,18 @@ export default function WithdrawalHistory() {
                 {withdrawal.status.charAt(0).toUpperCase() + withdrawal.status.slice(1)}
               </span>
             </div>
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-400 space-y-1">
               <p>UPI ID: {withdrawal.upi_id}</p>
-              <p>Requested: {format(new Date(withdrawal.created_at), 'MMM d, yyyy h:mm a')}</p>
+              <p>Mobile: {withdrawal.mobile_number}</p>
+              <p>Requested: {format(new Date(withdrawal.requested_at), 'MMM d, yyyy h:mm a')}</p>
+              {withdrawal.processed_at && (
+                <p>Processed: {format(new Date(withdrawal.processed_at), 'MMM d, yyyy h:mm a')}</p>
+              )}
+              {withdrawal.admin_note && (
+                <p className="mt-2 p-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                  Note: {withdrawal.admin_note}
+                </p>
+              )}
             </div>
           </div>
         ))}
