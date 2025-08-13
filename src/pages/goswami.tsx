@@ -49,6 +49,31 @@ type Withdrawal = {
 
   async function checkAdminAndFetchData() {
     try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        setError(sessionError.message);
+        return;
+      }
+      
+      if (!session?.user || session.user.email !== ADMIN_EMAIL) {
+        setError('Unauthorized access');
+        return;
+      }
+
+      const { data: withdrawalData, error: withdrawalError } = await supabase.rpc('get_all_withdrawals');
+      if (withdrawalError) {
+        setError(withdrawalError.message);
+        return;
+      }
+      
+      setWithdrawals(withdrawalData || []);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+    try {
       const { data: authData, error: authError } = await supabase.auth.getUser();
       
       if (authError) throw authError;

@@ -27,13 +27,13 @@ CREATE POLICY "Only admins can view admin_users"
 
 -- Function for admins to get all withdrawals with user details
 CREATE OR REPLACE FUNCTION public.get_all_withdrawals()
-RETURNS SETOF json
+RETURNS SETOF JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-    v_withdrawals json;
+    v_withdrawals JSONB;
 BEGIN
     -- Verify admin status
     IF NOT EXISTS (
@@ -43,21 +43,19 @@ BEGIN
         RAISE EXCEPTION 'Unauthorized';
     END IF;
 
-    SELECT json_agg(row_to_json(withdrawal_data))
-    INTO v_withdrawals
-    FROM (
-        SELECT 
-            w.id,
-            w.user_id,
-            u.email,
-            u.raw_user_meta_data->>'full_name' as full_name,
-            w.amount::text,  -- Convert decimal to text to avoid precision issues
-            w.upi_id,
-            w.status,
-            w.created_at,
-            null as processed_at,  -- Add these fields later if needed
-            null as processed_by,  -- Add these fields later if needed
-            null as notes         -- Add these fields later if needed
+    SELECT jsonb_agg(jsonb_build_object(
+            'id', w.id,
+            'user_id', w.user_id,
+            'email', u.email,
+            'full_name', COALESCE(u.raw_user_meta_data->>'full_name', ''),
+            'amount', w.amount::text,
+            'mobile_number', w.mobile_number,
+            'upi_id', w.upi_id,
+            'status', w.status,
+            'admin_note', w.admin_note,
+            'created_at', w.created_at,
+            'requested_at', w.created_at,
+            'processed_at', w.processed_at
         FROM public.withdrawals w
         LEFT JOIN auth.users u ON u.id = w.user_id
         ORDER BY w.created_at DESC
@@ -65,7 +63,7 @@ BEGIN
 
     -- Handle case where there are no withdrawals
     IF v_withdrawals IS NULL THEN
-        RETURN NEXT '[]'::json;
+        RETURN NEXT '[]'::jsonb;
     ELSE
         RETURN NEXT v_withdrawals;
     END IF;
