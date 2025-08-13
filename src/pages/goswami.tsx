@@ -20,7 +20,7 @@ type Payment = {
   utr_number: string;
   screenshot_url?: string;
   status: string;
-  submitted_at: string;
+  created_at: string;
 };
 
 export default function AdminPage() {
@@ -123,7 +123,7 @@ type Withdrawal = {
       const { data: paymentData, error: paymentError } = await supabaseAdmin
         .from('payments')
         .select('*')
-        .order('submitted_at', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (paymentError) throw paymentError;
       setPayments(paymentData || []);
@@ -300,7 +300,7 @@ type Withdrawal = {
                       ) : 'No screenshot'}
                     </td>
                     <td className="px-4 py-2 font-bold text-yellow-400">{payment.status}</td>
-                    <td className="px-4 py-2">{new Date(payment.submitted_at).toLocaleString()}</td>
+                    <td className="px-4 py-2">{new Date(payment.created_at).toLocaleString()}</td>
                   </tr>
                 );
               })}
