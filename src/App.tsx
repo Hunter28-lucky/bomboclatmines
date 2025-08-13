@@ -53,7 +53,7 @@ function App() {
   const [authChecked, setAuthChecked] = useState(false);
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [currentWinnings, setCurrentWinnings] = useState(0);
-  const [balance, setBalance] = useState(500);
+  const [balance, setBalance] = useState(100);
   const [gameState, setGameState] = useState<GameState>('betting');
   const [tilesRevealed, setTilesRevealed] = useState(0);
   const [settings, setSettings] = useState<GameSettings>({
