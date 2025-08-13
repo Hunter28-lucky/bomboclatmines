@@ -99,7 +99,7 @@ export default function PaymentWidget({ siteId }: PaymentWidgetProps) {
           <p className="text-gray-600 mb-6 text-center">
             Your payment has been successfully submitted and is pending verification.
           </p>
-          <div className="text-xs text-gray-400 mt-4">Powered by <span className="font-bold text-blue-600">KrishPay™</span></div>
+          <div className="text-xs text-gray-400 mt-4">Powered by <span className="font-bold text-blue-600">RazorPay™</span></div>
         </div>
       </div>
     )
@@ -113,7 +113,7 @@ export default function PaymentWidget({ siteId }: PaymentWidgetProps) {
           <div className="w-14 h-14 bg-blue-200 rounded-full flex items-center justify-center mb-2 shadow-lg">
             <CreditCard className="h-8 w-8 text-blue-600" />
           </div>
-          <h1 className="text-xl font-bold text-blue-700 tracking-tight">KrishPay™</h1>
+          <h1 className="text-xl font-bold text-blue-700 tracking-tight">RazorPay™</h1>
           <span className="text-xs text-blue-400 font-medium">Secure UPI Payment</span>
         </div>
         {/* QR Code Section */}
