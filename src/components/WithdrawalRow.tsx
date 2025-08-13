@@ -5,19 +5,20 @@ type Withdrawal = {
   id: string;
   user_id: string;
   email: string;
-  full_name: string | null; // Can be null since it comes from user_metadata
-  amount: string; // DECIMAL in PostgreSQL comes as string in JSON
+  full_name: string | null;
+  amount: string;
+  mobile_number: string;
   upi_id: string;
   status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
+  admin_note: string | null;
+  requested_at: string;
   processed_at: string | null;
-  processed_by: string | null;
-  notes: string | null;
+  created_at: string;
 };
 
 export default function WithdrawalRow({ withdrawal, onUpdate }: { withdrawal: Withdrawal; onUpdate: () => void }) {
   const [loading, setLoading] = useState(false);
-  const [note, setNote] = useState(withdrawal.notes || '');
+  const [note, setNote] = useState(withdrawal.admin_note || '');
   const [error, setError] = useState<string | null>(null);
 
   async function handleProcess(status: 'approved' | 'rejected') {
@@ -28,7 +29,7 @@ export default function WithdrawalRow({ withdrawal, onUpdate }: { withdrawal: Wi
       const { error } = await supabaseAdmin.rpc('admin_process_withdrawal', {
         p_withdrawal_id: withdrawal.id,
         p_status: status,
-        p_notes: note
+        p_admin_note: note
       });
 
       if (error) throw error;
@@ -90,7 +91,7 @@ export default function WithdrawalRow({ withdrawal, onUpdate }: { withdrawal: Wi
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-400">{withdrawal.notes}</p>
+            <p className="text-sm text-gray-400">{withdrawal.admin_note}</p>
             <p className="text-xs text-gray-500">
               {withdrawal.processed_at ? new Date(withdrawal.processed_at).toLocaleString() : ''}
             </p>

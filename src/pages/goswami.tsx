@@ -32,14 +32,15 @@ type Withdrawal = {
   id: string;
   user_id: string;
   email: string;
-  full_name: string | null; // Can be null since it comes from user_metadata
-  amount: string; // DECIMAL in PostgreSQL comes as string in JSON
+  full_name: string | null;
+  amount: string;
+  mobile_number: string;
   upi_id: string;
   status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
+  admin_note: string | null;
+  requested_at: string;
   processed_at: string | null;
-  processed_by: string | null;
-  notes: string | null;
+  created_at: string;
 };  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
 
   useEffect(() => {

@@ -17,15 +17,14 @@ returns table (
     status text,
     admin_note text,
     requested_at timestamp with time zone,
-    processed_at timestamp with time zone
+    processed_at timestamp with time zone,
+    created_at timestamp with time zone
 )
 language plpgsql
 security definer
 set search_path = public
 as $$
 begin
-    -- For now, we'll allow the service role to access this function
-    -- since we're already checking the admin email in the frontend
     return query
     select 
         w.id,
@@ -38,10 +37,11 @@ begin
         w.status,
         w.admin_note,
         w.requested_at,
-        w.processed_at
+        w.processed_at,
+        w.created_at
     from withdrawals w
     join auth.users au on au.id = w.user_id
-    order by w.requested_at desc;
+    order by w.created_at desc;
 end;
 $$;
 
