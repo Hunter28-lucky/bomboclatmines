@@ -237,7 +237,7 @@ export default function PaymentWidget({ siteId }: PaymentWidgetProps) {
               )}
             </button>
           </div>
-          <div className="text-xs text-gray-400 text-center pt-4 pb-2 sm:pb-0">Powered by <span className="font-bold text-blue-600">KrishPay™</span></div>
+          <div className="text-xs text-gray-400 text-center pt-4 pb-2 sm:pb-0">Powered by <span className="font-bold text-blue-600">RazorPay™</span></div>
         </form>
       </div>
       <style>{`
