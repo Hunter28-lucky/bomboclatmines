@@ -129,14 +129,16 @@ type Withdrawal = {
       const { data, error } = await supabaseAdmin.rpc('get_all_withdrawals');
       if (error) {
         console.error('Error fetching withdrawals:', error);
-        setError(error.message || 'Failed to fetch withdrawals');
+        throw error;
+      }
+      
+      if (!data) {
         setWithdrawals([]);
         return;
       }
-      
-      // Parse the JSON response since we modified the function to return JSON
-      const parsedData = Array.isArray(data) ? data : JSON.parse(data);
-      setWithdrawals(parsedData || []);
+
+      // Data should already be an array, no need to parse
+      setWithdrawals(data);
 
       // Set up real-time subscription if not already set
       if (!withdrawalChannel) {
