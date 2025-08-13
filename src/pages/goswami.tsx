@@ -48,15 +48,30 @@ type Withdrawal = {
 
   async function checkAdminAndFetchData() {
     try {
-      const { data } = await supabase.auth.getUser();
-      if (!data?.user || data.user.email !== ADMIN_EMAIL) {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) throw authError;
+      
+      if (!authData?.user || authData.user.email !== ADMIN_EMAIL) {
+        console.error('Access denied: Not an admin user');
         window.location.replace('/');
         return;
       }
+
+      // Get service role token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) throw sessionError;
+      
+      if (!session?.access_token) {
+        throw new Error('No access token available');
+      }
+
       await fetchAllData();
     } catch (err) {
-      console.error('Unexpected auth error:', err);
-      setError('Unexpected authentication error: ' + (err instanceof Error ? err.message : String(err)));
+      console.error('Authentication error:', err);
+      setError('Authentication error: ' + (err instanceof Error ? err.message : String(err)));
+      setLoading(false);
     }
   }
 
@@ -126,18 +141,23 @@ type Withdrawal = {
 
   async function fetchWithdrawals() {
     try {
+      console.log('Fetching withdrawals...');
       const { data, error } = await supabaseAdmin.rpc('get_all_withdrawals');
+      
       if (error) {
         console.error('Error fetching withdrawals:', error);
-        throw error;
+        setError('Failed to fetch withdrawals: ' + error.message);
+        setWithdrawals([]);
+        return;
       }
       
       if (!data) {
+        console.log('No withdrawals found');
         setWithdrawals([]);
         return;
       }
 
-      // Data should already be an array, no need to parse
+      console.log('Withdrawals fetched:', data);
       setWithdrawals(data);
 
       // Set up real-time subscription if not already set
