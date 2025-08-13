@@ -49,54 +49,36 @@ type Withdrawal = {
 
   async function checkAdminAndFetchData() {
     try {
+      // First check session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) {
-        setError(sessionError.message);
-        return;
+        throw new Error(`Session error: ${sessionError.message}`);
       }
       
-      if (!session?.user || session.user.email !== ADMIN_EMAIL) {
-        setError('Unauthorized access');
-        return;
+      if (!session?.user) {
+        throw new Error('No active session');
       }
 
-      const { data: withdrawalData, error: withdrawalError } = await supabase.rpc('get_all_withdrawals');
-      if (withdrawalError) {
-        setError(withdrawalError.message);
-        return;
+      // Then verify user details
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        throw new Error(`User verification error: ${userError.message}`);
       }
       
-      setWithdrawals(withdrawalData || []);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-    try {
-      const { data: authData, error: authError } = await supabase.auth.getUser();
-      
-      if (authError) throw authError;
-      
-      if (!authData?.user || authData.user.email !== ADMIN_EMAIL) {
-        console.error('Access denied: Not an admin user');
-        window.location.replace('/');
-        return;
+      if (!user || user.email !== ADMIN_EMAIL) {
+        throw new Error('Unauthorized access: Not an admin user');
       }
 
-      // Get service role token
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) throw sessionError;
-      
-      if (!session?.access_token) {
-        throw new Error('No access token available');
-      }
-
+      // After successful authentication, fetch all data
       await fetchAllData();
     } catch (err) {
-      console.error('Authentication error:', err);
-      setError('Authentication error: ' + (err instanceof Error ? err.message : String(err)));
+      console.error('Admin panel error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
+      if (errorMessage.includes('Unauthorized')) {
+        window.location.replace('/');
+      }
+    } finally {
       setLoading(false);
     }
   }

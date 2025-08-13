@@ -56,10 +56,11 @@ BEGIN
             'created_at', w.created_at,
             'requested_at', w.created_at,
             'processed_at', w.processed_at
+        ))
+        INTO v_withdrawals
         FROM public.withdrawals w
         LEFT JOIN auth.users u ON u.id = w.user_id
-        ORDER BY w.created_at DESC
-    ) withdrawal_data;
+        ORDER BY w.created_at DESC;
 
     -- Handle case where there are no withdrawals
     IF v_withdrawals IS NULL THEN
