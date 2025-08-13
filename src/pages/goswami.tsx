@@ -158,8 +158,24 @@ type Withdrawal = {
         return;
       }
 
-      console.log('Withdrawals fetched:', data);
-      setWithdrawals(data);
+      // Map the data to ensure all fields are in the correct format
+      const formattedWithdrawals = data.map((w: any) => ({
+        id: w.id,
+        user_id: w.user_id,
+        email: w.email,
+        full_name: w.full_name,
+        amount: w.amount.toString(),
+        mobile_number: w.mobile_number,
+        upi_id: w.upi_id,
+        status: w.status,
+        admin_note: w.admin_note,
+        requested_at: w.requested_at,
+        processed_at: w.processed_at,
+        created_at: w.created_at
+      }));
+
+      console.log('Withdrawals fetched:', formattedWithdrawals);
+      setWithdrawals(formattedWithdrawals);
 
       // Set up real-time subscription if not already set
       if (!withdrawalChannel) {
@@ -182,13 +198,14 @@ type Withdrawal = {
     }
   }
 
-  async function fetchAllData() {
-    setLoading(true);
-    setError(null);
+    async function fetchAllData() {
     try {
-      await Promise.all([fetchData(), fetchWithdrawals()]);
+      await Promise.all([
+        fetchData(),
+        fetchWithdrawals()
+      ]);
     } catch (err) {
-      console.error('Error fetching data:', err);
+      console.error('Error fetching all data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
     } finally {
       setLoading(false);
