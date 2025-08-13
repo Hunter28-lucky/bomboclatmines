@@ -126,7 +126,7 @@ function App() {
   const gridSizeOptions = [
     { size: 16, label: '4×4', cols: 4 },
     { size: 25, label: '5×5', cols: 5 },
-    { size: 36, label: '6×6', cols: 6 }9
+    { size: 36, label: '6×6', cols: 6 }
   ];
 
   // Security: Anti-tampering protection
