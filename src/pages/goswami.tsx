@@ -165,13 +165,14 @@ type Withdrawal = {
         return;
       }
 
-      // Map the data to ensure all fields are in the correct format
-      const formattedWithdrawals = data.map((w: any) => ({
+      // If data is an array, use it directly. If not, wrap in array
+      const withdrawalArray = Array.isArray(data) ? data : (data ? [data] : []);
+      const formattedWithdrawals = withdrawalArray.map((w: any) => ({
         id: w.id,
         user_id: w.user_id,
         email: w.email,
         full_name: w.full_name,
-        amount: w.amount.toString(),
+        amount: w.amount ? w.amount.toString() : '0',
         mobile_number: w.mobile_number,
         upi_id: w.upi_id,
         status: w.status,

@@ -43,46 +43,27 @@ BEGIN
         RAISE EXCEPTION 'Unauthorized';
     END IF;
 
-    WITH withdrawal_data AS (
-        SELECT 
-            w.id,
-            w.user_id,
-            u.email,
-            COALESCE(u.raw_user_meta_data->>'full_name', '') as full_name,
-            w.amount::text,
-            w.mobile_number,
-            w.upi_id,
-            w.status,
-            w.admin_note,
-            w.created_at,
-            w.processed_at
+    FOR v_withdrawals IN
+        SELECT jsonb_build_object(
+            'id', w.id,
+            'user_id', w.user_id,
+            'email', u.email,
+            'full_name', COALESCE(u.raw_user_meta_data->>'full_name', ''),
+            'amount', w.amount::text,
+            'mobile_number', w.mobile_number,
+            'upi_id', w.upi_id,
+            'status', w.status,
+            'admin_note', w.admin_note,
+            'created_at', w.created_at,
+            'requested_at', w.created_at,
+            'processed_at', w.processed_at
+        )
         FROM public.withdrawals w
         LEFT JOIN auth.users u ON u.id = w.user_id
         ORDER BY w.created_at DESC
-    )
-    SELECT jsonb_agg(jsonb_build_object(
-            'id', wd.id,
-            'user_id', wd.user_id,
-            'email', wd.email,
-            'full_name', wd.full_name,
-            'amount', wd.amount,
-            'mobile_number', wd.mobile_number,
-            'upi_id', wd.upi_id,
-            'status', wd.status,
-            'admin_note', wd.admin_note,
-            'created_at', wd.created_at,
-            'requested_at', wd.created_at,
-            'processed_at', wd.processed_at
-        ))
-        INTO v_withdrawals
-        FROM withdrawal_data wd;
-
-    -- Handle case where there are no withdrawals
-    IF v_withdrawals IS NULL THEN
-        RETURN NEXT '[]'::jsonb;
-    ELSE
+    LOOP
         RETURN NEXT v_withdrawals;
-    END IF;
+    END LOOP;
 END;
 $$;
 
