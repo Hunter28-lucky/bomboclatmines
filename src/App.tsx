@@ -53,7 +53,7 @@ function App() {
   const [authChecked, setAuthChecked] = useState(false);
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [currentWinnings, setCurrentWinnings] = useState(0);
-  const [balance, setBalance] = useState(100);
+  const [balance, setBalance] = useState(500);
   const [gameState, setGameState] = useState<GameState>('betting');
   const [tilesRevealed, setTilesRevealed] = useState(0);
   const [settings, setSettings] = useState<GameSettings>({
@@ -63,7 +63,7 @@ function App() {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
-  const [depositAmount, setDepositAmount] = useState(500);
+  const [depositAmount, setDepositAmount] = useState(100);
   const [shakeScreen, setShakeScreen] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [gameSession, setGameSession] = useState<any>(null); // Store session object from Supabase
@@ -165,7 +165,7 @@ function App() {
   // Haptic feedback functions
   const lightHaptic = () => {
     if ('vibrate' in navigator) {
-      navigator.vibrate(50); // Light vibration for rewards
+      navigator.vibrate(90); // Light vibration for rewards
     }
   };
 
