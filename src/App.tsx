@@ -836,8 +836,10 @@ function App() {
                           )}
                         </div>
                       ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300"></div>
-                        <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-white/5 transition-all duration-300 rounded-xl"></div>
+                        <>
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300"></div>
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-white/5 transition-all duration-300 rounded-xl"></div>
+                        </>
                       )}
                     </button>
                   ))}
@@ -886,17 +888,14 @@ function App() {
 
           {/* Developer Branding */}
           <div className="mt-6 text-center">
-            <div className="bg-gradient-to-r from-gray-800/50 to-slate-800/50 rounded-lg p-3 border border-gray-700/30">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                  {/* Footer branding removed as requested */}
-              </div>
-                {/* Professional Game Development text removed */}
+            <div className="bg-gradient-to-r from-slate-800/50 to-blue-900/50 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+              <p className="text-xs text-gray-400">Professional Gaming Experience</p>
             </div>
           </div>
         </div>
       </div>
 
-                {/* Withdrawal Button */}
+          {/* Withdrawal Button */}
           <div className="fixed bottom-6 right-6 z-50 animate-fade-in-up">
             <button 
               onClick={() => {
@@ -915,8 +914,8 @@ function App() {
           </div>
 
           {/* Settings Modal */}
-      {showSettings && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4">
+          {showSettings && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4">
           <div className="card p-6 w-full max-w-sm max-h-[80vh] overflow-y-auto animate-scale-in">
             <div className="flex items-center justify-between mb-6">
                               <h3 className="text-xl font-bold text-gradient">Game Settings</h3>
@@ -985,9 +984,9 @@ function App() {
         </div>
       )}
 
-      {/* Deposit Modal */}
-      {showDeposit && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50">
+          {/* Deposit Modal */}
+          {showDeposit && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50">
           <div className="relative w-full max-w-sm mx-auto h-[calc(100vh-2rem)] m-4 flex flex-col">
             <div className="card w-full flex flex-col max-h-full overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-white/20">
