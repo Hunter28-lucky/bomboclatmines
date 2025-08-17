@@ -285,8 +285,12 @@ function App() {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-blue-900">
-        <div className="text-cyan-400 text-xl font-bold animate-pulse">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-purple-500 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          <p className="text-blue-400 text-lg font-semibold mt-4 text-center animate-pulse">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -453,7 +457,13 @@ function App() {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white flex flex-col transition-all duration-500 ${shakeScreen ? 'animate-pulse' : ''}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white flex flex-col transition-all duration-500 relative overflow-hidden ${shakeScreen ? 'animate-pulse' : ''}`}>
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse-slow"></div>
+      </div>
       {/* Withdrawal Modal */}
       {showWithdrawal && (
         <WithdrawalForm 
@@ -466,14 +476,14 @@ function App() {
         />
       )}
       {/* Header with clickable grid/bomb settings button */}
-      <div className="w-full max-w-2xl flex-shrink-0 px-2 sm:px-4 md:px-6 py-2 bg-gradient-to-r from-gray-800/90 to-slate-800/90 backdrop-blur-sm border-b border-gray-700/50 mx-auto shadow-lg">
+      <div className="w-full max-w-2xl flex-shrink-0 px-2 sm:px-4 md:px-6 py-3 bg-gradient-to-r from-slate-800/90 to-blue-900/90 backdrop-blur-md border-b border-white/20 mx-auto shadow-xl sticky top-0 z-40">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl flex items-center justify-center shadow-md animate-bounce-slow">
+          <div className="flex items-center gap-3 group">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:shadow-blue-500/25 transition-all duration-300 animate-bounce-short">
               <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <h1 className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent tracking-wide drop-shadow-lg">
+            <h1 className="text-lg sm:text-2xl font-extrabold text-gradient tracking-wide text-shadow group-hover:scale-105 transition-transform duration-300">
               Bombaclat Mine
             </h1>
             <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-green-400 to-emerald-500 rounded-md flex items-center justify-center shadow-md animate-pulse-slow">
@@ -482,16 +492,18 @@ function App() {
           </div>
           {/* Balance and Settings Button */}
           <div className="flex items-center gap-6 relative">
-              <div className="text-right">
-                <p className="text-xs text-gray-400">Balance</p>
-                <p className="text-lg font-extrabold text-green-400 bg-black/20 px-2 py-1 rounded-lg shadow-inner animate-balance-pop">₹{balance.toLocaleString()}</p>
+              <div className="text-right group">
+                <p className="text-xs text-gray-400 font-medium">Balance</p>
+                <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm border border-green-500/30 px-3 py-2 rounded-xl shadow-lg group-hover:shadow-xl group-hover:shadow-green-500/25 transition-all duration-300 animate-pulse-slow">
+                  <p className="text-lg font-extrabold text-gradient-success text-shadow">₹{balance.toLocaleString()}</p>
+                </div>
               </div>
             {/* User Account Icon and Logout always visible when logged in */}
             {user && (
               <>
                 <button
                   onClick={() => setShowAccount((prev) => !prev)}
-                  className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 shadow-md border-2 border-cyan-400 ml-2"
+                  className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/25 shadow-lg border-2 border-blue-400/50 ml-2 group"
                   aria-label="User Account"
                   style={{ zIndex: 1000 }}
                 >
@@ -528,7 +540,7 @@ function App() {
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="ml-2 px-3 py-1 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg text-xs font-bold text-white hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-md"
+                  className="ml-2 px-3 py-1 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg text-xs font-bold text-white hover:from-red-600 hover:to-pink-700 transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-red-500/25"
                   style={{ zIndex: 1000 }}
                 >
                   Logout
@@ -540,7 +552,7 @@ function App() {
               <div className="fixed inset-0 z-50">
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAccount(false)} />
                 <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-                  <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-4 w-full max-w-sm border border-cyan-400/50 max-h-[85vh] overflow-y-auto relative shadow-2xl animate-fade-in">
+                  <div className="card p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto relative animate-fade-in-up">
                     <button
                       onClick={() => setShowAccount(false)}
                       className="absolute top-4 right-4 w-8 h-8 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-300"
@@ -661,28 +673,38 @@ function App() {
       </div>
 
       {/* Main Game Area - Responsive Container */}
-      <div className="flex-1 w-full flex justify-center items-center p-2 max-h-[calc(100vh-4rem)]">
-        <div className="w-full max-w-xl mx-auto flex flex-col gap-2 overflow-y-auto">
+      <div className="flex-1 w-full flex justify-center items-center p-4 max-h-[calc(100vh-4rem)] relative z-10">
+        <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 overflow-y-auto">
           {/* Progress Bar for revealed tiles */}
           {gameState === 'playing' && (
-            <div className="w-full mb-2">
-              <div className="h-2 bg-gray-700/50 rounded-full overflow-hidden shadow-inner">
-                <div
-                  className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-500"
-                  style={{ width: `${(tilesRevealed / settings.gridSize) * 100}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-between text-xs text-gray-400 mt-0.5">
-                <span>Tiles: {tilesRevealed}/{settings.gridSize}</span>
-                <span>Grid: {Math.sqrt(settings.gridSize)}×{Math.sqrt(settings.gridSize)}</span>
+            <div className="w-full animate-fade-in-up">
+              <div className="bg-gradient-to-r from-slate-800/50 to-blue-900/50 backdrop-blur-sm rounded-2xl p-4 border border-white/20 shadow-xl">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-300">Progress</span>
+                    <span className="text-sm font-semibold text-blue-400">{Math.round((tilesRevealed / settings.gridSize) * 100)}%</span>
+                  </div>
+                  <div className="h-3 bg-slate-700/50 rounded-full overflow-hidden shadow-inner">
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-700 ease-out rounded-full relative overflow-hidden"
+                      style={{ width: `${(tilesRevealed / settings.gridSize) * 100}%` }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span>Tiles: {tilesRevealed}/{settings.gridSize}</span>
+                    <span>Grid: {Math.sqrt(settings.gridSize)}×{Math.sqrt(settings.gridSize)}</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
           {/* Game State: Betting */}
           {gameState === 'betting' && (
-            <div className="space-y-4 animate-fade-in">
+            <div className="space-y-6 animate-fade-in-up">
               {/* Bet Controls */}
-              <div className="bg-gradient-to-r from-gray-800 to-slate-800 rounded-xl p-4 border border-gray-700/50 shadow-xl">
+              <div className="card-hover p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-sm text-gray-400">Bet Amount
@@ -693,47 +715,55 @@ function App() {
                     {showTooltip === 'bet' && (
                       <span className="absolute mt-1 ml-[-10px] bg-gray-800 text-xs text-white px-3 py-1 rounded shadow-lg z-50 animate-fade-in">Adjust your bet for this round</span>
                     )}
-                    <p className="text-2xl font-extrabold text-cyan-400">₹{settings.betAmount}</p>
+                    <p className="text-3xl font-extrabold text-gradient text-shadow">₹{settings.betAmount}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => adjustBetAmount(-50)}
-                      className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-800 hover:from-cyan-600 hover:to-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 active:scale-90 shadow-md"
+                      className="w-12 h-12 bg-gradient-to-br from-slate-700 to-slate-800 hover:from-red-500 hover:to-pink-600 rounded-xl flex items-center justify-center transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-red-500/25 border border-slate-600/50"
                       aria-label="Decrease Bet"
                     >
-                      <span className="w-4 h-4 font-bold">-</span>
+                      <span className="w-5 h-5 font-bold text-white">−</span>
                     </button>
                     <button
                       onClick={() => adjustBetAmount(50)}
-                      className="w-10 h-10 bg-gradient-to-br from-gray-700 to-gray-800 hover:from-cyan-600 hover:to-blue-700 rounded-lg flex items-center justify-center transition-all duration-300 active:scale-90 shadow-md"
+                      className="w-12 h-12 bg-gradient-to-br from-slate-700 to-slate-800 hover:from-green-500 hover:to-emerald-600 rounded-xl flex items-center justify-center transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-green-500/25 border border-slate-600/50"
                       aria-label="Increase Bet"
                     >
-                      <span className="w-4 h-4 font-bold">+</span>
+                      <span className="w-5 h-5 font-bold text-white">+</span>
                     </button>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="grid grid-cols-2 gap-4 mb-6">
                   <button
                     onClick={() => setShowDeposit(true)}
-                    className="py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-lg text-sm font-semibold transition-all duration-300 active:scale-95 shadow-md"
+                    className="btn-success py-3 text-sm font-semibold"
                   >
-                    + Add Funds
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="text-lg">💰</span>
+                      + Add Funds
+                    </span>
                   </button>
                   <button
                     onClick={() => setShowSettings(true)}
-                    className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold shadow-md border border-purple-400 hover:from-purple-600 hover:to-blue-600 transition-all duration-300 active:scale-95"
+                    className="btn-primary py-3 text-sm font-semibold"
                     aria-label="Adjust grid and bomb settings"
                   >
-                    Grid: {getGridCols()}x{getGridCols()}, Bombs: {settings.bombCount}
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="text-lg">⚙️</span>
+                      Grid: {getGridCols()}x{getGridCols()}, Bombs: {settings.bombCount}
+                    </span>
                   </button>
                 </div>
                 <button
                   onClick={startGame}
                   disabled={balance < settings.betAmount}
-                  className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed rounded-lg font-bold text-xl transition-all duration-300 flex items-center justify-center gap-3 active:scale-95 shadow-xl animate-bounce-short"
+                  className="w-full py-5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed rounded-2xl font-bold text-xl transition-all duration-300 flex items-center justify-center gap-3 active:scale-95 shadow-xl hover:shadow-2xl hover:shadow-blue-500/25 animate-bounce-short glow-effect"
                 >
-                  <span className="w-6 h-6 font-bold">▶</span>
-                  Start Mining
+                  <span className="text-2xl">⛏️</span>
+                  <span className="bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                    Start Mining
+                  </span>
                 </button>
               </div>
             </div>
@@ -743,27 +773,27 @@ function App() {
           {gameState === 'playing' && (
             <div className="space-y-4">
               {/* Game Stats */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4 animate-fade-in-up">
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-green-400/5 blur-xl rounded-lg group-hover:bg-green-400/10 transition-all duration-300"></div>
-                  <div className="relative bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-lg p-3 border border-green-500/20 group-hover:border-green-400/40 transition-all duration-300">
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-green-400">Current Win</p>
-                      <span className="text-xs bg-green-500/20 px-1.5 py-0.5 rounded text-green-300">Safe to Collect</span>
+                  <div className="absolute inset-0 bg-green-400/10 blur-xl rounded-2xl group-hover:bg-green-400/20 transition-all duration-300"></div>
+                  <div className="relative card-hover p-4 border-green-500/30 group-hover:border-green-400/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-green-400">Current Win</p>
+                      <span className="text-xs bg-green-500/20 px-2 py-1 rounded-full text-green-300 font-medium">Safe to Collect</span>
                     </div>
-                    <p className="text-lg font-bold text-green-400 mt-1 group-hover:scale-105 transition-all">
+                    <p className="text-2xl font-bold text-gradient-success text-shadow group-hover:scale-105 transition-all">
                       ₹{Math.floor(currentWinnings).toLocaleString()}
                     </p>
                   </div>
                 </div>
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-yellow-400/5 blur-xl rounded-lg group-hover:bg-yellow-400/10 transition-all duration-300"></div>
-                  <div className="relative bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-lg p-3 border border-yellow-500/20 group-hover:border-yellow-400/40 transition-all duration-300">
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-yellow-400">Next Payout</p>
-                      <span className="text-xs bg-yellow-500/20 px-1.5 py-0.5 rounded text-yellow-300">If Safe</span>
+                  <div className="absolute inset-0 bg-yellow-400/10 blur-xl rounded-2xl group-hover:bg-yellow-400/20 transition-all duration-300"></div>
+                  <div className="relative card-hover p-4 border-yellow-500/30 group-hover:border-yellow-400/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-yellow-400">Next Payout</p>
+                      <span className="text-xs bg-yellow-500/20 px-2 py-1 rounded-full text-yellow-300 font-medium">If Safe</span>
                     </div>
-                    <p className="text-lg font-bold text-yellow-400 mt-1 group-hover:scale-105 transition-all">
+                    <p className="text-2xl font-bold text-yellow-400 text-shadow group-hover:scale-105 transition-all">
                       ₹{Math.floor(getPotentialPayout()).toLocaleString()}
                     </p>
                   </div>
@@ -771,7 +801,7 @@ function App() {
               </div>
 
               {/* Game Grid */}
-              <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-2 border border-gray-700/50">
+              <div className="card-hover p-6">
                 <div 
                   className="grid gap-1 aspect-square"
                   style={{ 
@@ -785,13 +815,13 @@ function App() {
                       onClick={() => handleTileClick(tile.id)}
                       disabled={tile.revealed || gameState !== 'playing'}
                       className={`
-                        aspect-square rounded-lg border-2 transition-all duration-300 text-base sm:text-lg font-bold relative overflow-hidden
-                        group backdrop-blur-sm
+                        aspect-square rounded-xl border-2 transition-all duration-300 text-base sm:text-lg font-bold relative overflow-hidden
+                        group backdrop-blur-sm shadow-lg
                         ${tile.revealed 
                           ? !tile.isBomb 
-                            ? 'bg-gradient-to-br from-green-400 to-emerald-500 border-green-300 shadow-lg shadow-green-500/30 scale-95 animate-reveal-success' 
-                            : 'bg-gradient-to-br from-red-500 to-red-600 border-red-400 shadow-lg shadow-red-500/30 scale-90 animate-reveal-danger'
-                          : 'bg-gradient-to-br from-gray-700/90 to-slate-700/90 border-gray-600 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 hover:scale-105 active:scale-95'
+                            ? 'bg-gradient-to-br from-green-400 to-emerald-500 border-green-300 shadow-xl shadow-green-500/40 scale-95 animate-reveal-success' 
+                            : 'bg-gradient-to-br from-red-500 to-pink-600 border-red-400 shadow-xl shadow-red-500/40 scale-90 animate-reveal-danger'
+                          : 'bg-gradient-to-br from-slate-700/90 to-blue-900/90 border-slate-600 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105 active:scale-95 hover:bg-slate-600/90'
                         }
                         ${gameState !== 'playing' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
                       `}
@@ -800,13 +830,16 @@ function App() {
                       {tile.revealed ? (
                         <div className={`flex items-center justify-center h-full ${!tile.isBomb ? 'animate-bounce-short' : 'animate-spin-once'}`}>
                           {!tile.isBomb ? (
-                            <span className="text-lg sm:text-xl">💎</span>
+                            <span className="text-2xl sm:text-3xl drop-shadow-lg">💎</span>
                           ) : (
-                            <span className="text-lg sm:text-xl">💣</span>
+                            <span className="text-2xl sm:text-3xl drop-shadow-lg">💣</span>
                           )}
                         </div>
                       ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/0 to-blue-500/0 group-hover:from-cyan-500/10 group-hover:to-blue-500/10 transition-all duration-300"></div>
+                        <>
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300"></div>
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-white/5 transition-all duration-300 rounded-xl"></div>
+                        </>
                       )}
                     </button>
                   ))}
@@ -814,15 +847,15 @@ function App() {
 
                 {/* Cash Out Button */}
                 {currentWinnings > 0 && (
-                  <div className="mt-4 relative">
-                    <div className="absolute inset-0 bg-green-400/20 blur-xl rounded-lg animate-pulse-slow"></div>
+                  <div className="mt-6 relative animate-fade-in-up">
+                    <div className="absolute inset-0 bg-green-400/20 blur-xl rounded-2xl animate-pulse-slow"></div>
                     <button
                       onClick={cashOut}
-                      className="relative w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-lg font-bold text-lg transition-all duration-300 active:scale-95 border-2 border-green-400/50 hover:border-green-400 shadow-lg shadow-green-500/20 hover:shadow-green-500/40 group"
+                      className="relative w-full py-5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-2xl font-bold text-xl transition-all duration-300 active:scale-95 border-2 border-green-400/50 hover:border-green-400 shadow-xl shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/50 group glow-effect"
                     >
-                      <span className="flex items-center justify-center gap-2">
-                        <span className="text-2xl group-hover:scale-110 transition-transform">💰</span>
-                        <span className="bg-gradient-to-r from-green-200 to-emerald-200 bg-clip-text text-transparent">
+                      <span className="flex items-center justify-center gap-3">
+                        <span className="text-3xl group-hover:scale-110 transition-transform animate-bounce-short">💰</span>
+                        <span className="bg-gradient-to-r from-white to-green-100 bg-clip-text text-transparent font-extrabold">
                           Collect ₹{Math.floor(currentWinnings)}
                         </span>
                       </span>
@@ -835,36 +868,35 @@ function App() {
 
           {/* Game State: Trapped */}
           {gameState === 'trapped' && (
-            <div className="text-center p-6 bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/30 rounded-xl">
-              <div className="text-4xl mb-3">💥</div>
-              <h3 className="text-xl font-bold text-red-400 mb-2">Mine Detonated!</h3>
-              <p className="text-gray-300">Lost ₹{settings.betAmount}. Better luck next time!</p>
+            <div className="text-center p-8 card border-red-500/30 animate-fade-in-up">
+              <div className="text-6xl mb-4 animate-bounce-short">💥</div>
+              <h3 className="text-2xl font-bold text-gradient-danger mb-3">Mine Detonated!</h3>
+              <p className="text-gray-300 text-lg">Lost ₹{settings.betAmount}. Better luck next time!</p>
+              <div className="mt-4 w-16 h-1 bg-gradient-to-r from-red-500 to-pink-500 rounded-full mx-auto"></div>
             </div>
           )}
 
           {/* Game State: Collected */}
           {gameState === 'collected' && (
-            <div className="text-center p-6 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl">
-              <div className="text-4xl mb-3">🎉</div>
-              <h3 className="text-xl font-bold text-green-400 mb-2">Successfully Collected!</h3>
-              <p className="text-gray-300">Won ₹{Math.floor(currentWinnings)}!</p>
+            <div className="text-center p-8 card border-green-500/30 animate-fade-in-up">
+              <div className="text-6xl mb-4 animate-bounce-short">🎉</div>
+              <h3 className="text-2xl font-bold text-gradient-success mb-3">Successfully Collected!</h3>
+              <p className="text-gray-300 text-lg">Won ₹{Math.floor(currentWinnings)}!</p>
+              <div className="mt-4 w-16 h-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full mx-auto"></div>
             </div>
           )}
 
           {/* Developer Branding */}
           <div className="mt-6 text-center">
-            <div className="bg-gradient-to-r from-gray-800/50 to-slate-800/50 rounded-lg p-3 border border-gray-700/30">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                  {/* Footer branding removed as requested */}
-              </div>
-                {/* Professional Game Development text removed */}
+            <div className="bg-gradient-to-r from-slate-800/50 to-blue-900/50 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+              <p className="text-xs text-gray-400">Professional Gaming Experience</p>
             </div>
           </div>
         </div>
       </div>
 
-                {/* Withdrawal Button */}
-          <div className="fixed bottom-4 right-4 z-50">
+          {/* Withdrawal Button */}
+          <div className="fixed bottom-6 right-6 z-50 animate-fade-in-up">
             <button 
               onClick={() => {
                 if (balance < 500) {
@@ -873,19 +905,20 @@ function App() {
                 }
                 setShowWithdrawal(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-400 rounded-xl text-white font-medium hover:from-green-600 hover:to-emerald-500 transition-all duration-300 shadow-xl hover:shadow-2xl"
+              className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-2xl text-white font-semibold transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-green-500/25 group"
             >
-              <CreditCard className="w-5 h-5" />
-              Withdraw Funds
+              <CreditCard className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline">Withdraw Funds</span>
+              <span className="sm:hidden">Withdraw</span>
             </button>
           </div>
 
           {/* Settings Modal */}
-      {showSettings && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl p-4 sm:p-6 w-full max-w-sm border border-gray-700/50 max-h-[80vh] overflow-y-auto">
+          {showSettings && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="card p-6 w-full max-w-sm max-h-[80vh] overflow-y-auto animate-scale-in">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Game Settings</h3>
+                              <h3 className="text-xl font-bold text-gradient">Game Settings</h3>
               <button
                 onClick={() => setShowSettings(false)}
                 className="w-8 h-8 bg-gray-700/50 hover:bg-gray-600/50 rounded-lg flex items-center justify-center transition-all duration-300"
@@ -903,10 +936,10 @@ function App() {
                     key={option.size}
                     onClick={() => gameState !== 'playing' && setSettings(prev => ({ ...prev, gridSize: option.size }))}
                     disabled={gameState === 'playing'}
-                    className={`py-3 rounded-lg text-sm font-semibold transition-all duration-300 border ${
+                    className={`py-3 rounded-xl text-sm font-semibold transition-all duration-300 border ${
                       settings.gridSize === option.size
-                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white border-purple-400'
-                        : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 border-gray-600/30'
+                        ? 'bg-gradient-to-r from-purple-500 to-blue-600 text-white border-purple-400 shadow-lg shadow-purple-500/25'
+                        : 'bg-slate-700/50 text-gray-300 hover:bg-slate-600/50 border-slate-600/30 hover:border-slate-500/50'
                     } active:scale-95 ${gameState === 'playing' ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {option.label}
@@ -943,7 +976,7 @@ function App() {
 
             <button
               onClick={() => setShowSettings(false)}
-              className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 rounded-lg font-semibold transition-all duration-300 active:scale-95"
+              className="btn-primary w-full py-3 font-semibold"
             >
               Save Settings
             </button>
@@ -951,16 +984,16 @@ function App() {
         </div>
       )}
 
-      {/* Deposit Modal */}
-      {showDeposit && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          {/* Deposit Modal */}
+          {showDeposit && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50">
           <div className="relative w-full max-w-sm mx-auto h-[calc(100vh-2rem)] m-4 flex flex-col">
-            <div className="bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl w-full flex flex-col max-h-full overflow-hidden border border-gray-700/50">
-              <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
-                <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Add Funds</h3>
+            <div className="card w-full flex flex-col max-h-full overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b border-white/20">
+                <h3 className="text-xl font-bold text-gradient">Add Funds</h3>
                 <button
                   onClick={() => setShowDeposit(false)}
-                  className="w-10 h-10 bg-red-500/20 hover:bg-red-500/40 rounded-lg flex items-center justify-center transition-all duration-300 border-2 border-red-500/50"
+                  className="w-10 h-10 bg-red-500/20 hover:bg-red-500/40 rounded-xl flex items-center justify-center transition-all duration-300 border-2 border-red-500/50 hover:shadow-lg hover:shadow-red-500/25"
                 >
                   <X className="w-6 h-6 text-red-500" />
                 </button>
@@ -973,68 +1006,7 @@ function App() {
         </div>
       )}
 
-      <style>{`
-        @keyframes reveal-success {
-          0% { transform: scale(1.1); opacity: 0; }
-          50% { transform: scale(1.2); opacity: 0.5; }
-          100% { transform: scale(0.95); opacity: 1; }
-        }
 
-        @keyframes reveal-danger {
-          0% { transform: scale(1.1) rotate(0deg); opacity: 0; }
-          50% { transform: scale(1.2) rotate(180deg); opacity: 0.5; }
-          100% { transform: scale(0.9) rotate(360deg); opacity: 1; }
-        }
-
-        @keyframes spin-once {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        .animate-reveal-success {
-          animation: reveal-success 0.5s ease-out forwards;
-        }
-
-        .animate-reveal-danger {
-          animation: reveal-danger 0.5s ease-out forwards;
-        }
-
-        .animate-spin-once {
-          animation: spin-once 0.5s ease-out forwards;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-          appearance: none;
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: linear-gradient(45deg, #06b6d4, #3b82f6);
-          cursor: pointer;
-          box-shadow: 0 4px 8px rgba(6, 182, 212, 0.3);
-          transition: transform 0.2s ease;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb:hover {
-          transform: scale(1.1);
-          box-shadow: 0 6px 12px rgba(6, 182, 212, 0.4);
-        }
-
-        input[type="range"]::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
-          border-radius: 50%;
-          background: linear-gradient(45deg, #06b6d4, #3b82f6);
-          cursor: pointer;
-          border: none;
-          box-shadow: 0 4px 8px rgba(6, 182, 212, 0.3);
-          transition: transform 0.2s ease;
-        }
-
-        input[type="range"]::-moz-range-thumb:hover {
-          transform: scale(1.1);
-          box-shadow: 0 6px 12px rgba(6, 182, 212, 0.4);
-        }
-      `}</style>
     </div>
   );
 }

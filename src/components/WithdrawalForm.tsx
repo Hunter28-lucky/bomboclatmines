@@ -76,37 +76,37 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="relative w-full max-w-md mx-auto bg-gradient-to-br from-gray-800 to-slate-800 rounded-xl border border-gray-700/50 overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="relative w-full max-w-md mx-auto card overflow-hidden animate-scale-in">
+        <div className="flex items-center justify-between p-4 border-b border-white/20">
+          <h2 className="text-xl font-bold text-gradient-success">
             Withdraw Funds
           </h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-all duration-300 hover:shadow-lg"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-700/50">
+        <div className="flex border-b border-white/20">
           <button
-            className={`flex-1 px-4 py-2 text-sm font-medium transition-all duration-300 ${
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-300 ${
               activeTab === 'new'
-                ? 'bg-cyan-500/10 text-cyan-400 border-b-2 border-cyan-500'
-                : 'text-gray-400 hover:text-gray-300'
+                ? 'bg-blue-500/10 text-blue-400 border-b-2 border-blue-500'
+                : 'text-gray-400 hover:text-gray-300 hover:bg-white/5'
             }`}
             onClick={() => setActiveTab('new')}
           >
             New Withdrawal
           </button>
           <button
-            className={`flex-1 px-4 py-2 text-sm font-medium transition-all duration-300 ${
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-300 ${
               activeTab === 'history'
-                ? 'bg-cyan-500/10 text-cyan-400 border-b-2 border-cyan-500'
-                : 'text-gray-400 hover:text-gray-300'
+                ? 'bg-blue-500/10 text-blue-400 border-b-2 border-blue-500'
+                : 'text-gray-400 hover:text-gray-300 hover:bg-white/5'
             }`}
             onClick={() => setActiveTab('history')}
           >
@@ -118,7 +118,7 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
           {activeTab === 'new' ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Amount (min. ₹500)</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Amount (min. ₹500)</label>
                 <input
                   type="number"
                   value={amount}
@@ -130,22 +130,22 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
                   }}
                   min={500}
                   max={balance}
-                  className="w-full px-3 py-2 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                  className="input-field"
                 />
                 {/* Quick amount buttons */}
-                <div className="grid grid-cols-4 gap-2 mt-2">
+                <div className="grid grid-cols-4 gap-2 mt-3">
                   {[500, 1000, 2000, 5000].map((preset) => (
                     <button
                       key={preset}
                       type="button"
                       onClick={() => preset <= balance && setAmount(preset)}
                       disabled={preset > balance}
-                      className={`px-2 py-1 rounded text-xs font-medium transition-all duration-300 ${
+                      className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
                         amount === preset
-                          ? 'bg-cyan-500 text-white'
+                          ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
                           : preset <= balance
-                          ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                          : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                          ? 'bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 border border-slate-600/50 hover:border-slate-500/50'
+                          : 'bg-slate-800/50 text-gray-500 cursor-not-allowed border border-slate-700/50'
                       }`}
                     >
                       ₹{preset}
@@ -154,7 +154,7 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Mobile Number</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Mobile Number</label>
                 <input
                   type="tel"
                   value={mobileNumber}
@@ -162,30 +162,37 @@ export default function WithdrawalForm({ onClose, balance, onWithdrawalSubmitted
                   placeholder="10-digit mobile number"
                   pattern="[0-9]{10}"
                   maxLength={10}
-                  className="w-full px-3 py-2 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                  className="input-field"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">UPI ID</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">UPI ID</label>
                 <input
                   type="text"
                   value={upiId}
                   onChange={(e) => setUpiId(e.target.value)}
                   placeholder="example@upi"
-                  className="w-full px-3 py-2 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-cyan-400 focus:outline-none"
+                  className="input-field"
                 />
               </div>
               {error && (
-                <div className="p-2 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
+                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm animate-fade-in">
                   {error}
                 </div>
               )}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                className="btn-success w-full py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Processing...' : 'Submit Withdrawal'}
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Processing...
+                  </div>
+                ) : (
+                  'Submit Withdrawal'
+                )}
               </button>
             </form>
           ) : (
