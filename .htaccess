@@ -1,0 +1,30 @@
+# Apache configuration for InfinityFree & cPanel PHP hosting
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Prevent direct access to includes and config directory files
+    RewriteRule ^(config|includes)/.*$ - [F,L,NC]
+    RewriteRule ^data/.*$ - [F,L,NC]
+
+    # Don't rewrite real files or directories
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Redirect root routes if needed
+    RewriteRule ^admin/?$ admin.php [L,QSA]
+    RewriteRule ^goswami/?$ goswami.php [L,QSA]
+    RewriteRule ^login/?$ login.php [L,QSA]
+    RewriteRule ^dashboard/?$ dashboard.php [L,QSA]
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Disable Directory Browsing
+Options -Indexes
