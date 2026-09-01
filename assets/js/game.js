@@ -352,6 +352,10 @@
 
     if (el.gemCounterVal) el.gemCounterVal.textContent = state.remainingGems;
     if (el.bombCounterVal) el.bombCounterVal.textContent = state.bombCount;
+    const floatGem = document.getElementById('floating-gem-count');
+    const floatBomb = document.getElementById('floating-bomb-count');
+    if (floatGem) floatGem.textContent = state.remainingGems;
+    if (floatBomb) floatBomb.textContent = state.bombCount;
     updateRiskBadge();
 
     try {
@@ -846,11 +850,14 @@
     hapticEngine.tick();
     const valid = Math.max(10, Math.min(state.balance || 10000, Math.floor(amount)));
     state.betAmount = valid;
-    if (el.betInput) el.betInput.value = state.betAmount;
+    const desktopInput = document.getElementById('bet-amount-input');
+    const mobileInput = document.getElementById('bet-amount-input-mobile');
+    if (desktopInput) desktopInput.value = state.betAmount;
+    if (mobileInput) mobileInput.value = state.betAmount;
     state.nextPayout = state.betAmount * state.nextMultiplier;
     updateStatsHeaderUI();
-    if (el.btnQuickRebet) el.btnQuickRebet.innerHTML = `<span>🔁</span> REPLAY (${formatINR(state.betAmount)})`;
-    if (el.btnDoubleRebet) el.btnDoubleRebet.innerHTML = `<span>⚡</span> 2X REPLAY (${formatINR(state.betAmount * 2)})`;
+    if (el.btnQuickRebet) el.btnQuickRebet.innerHTML = `<span>🔁</span> REPLAY ${formatINR(state.betAmount)}`;
+    if (el.btnDoubleRebet) el.btnDoubleRebet.innerHTML = `<span>⚡</span> 2X REPLAY ${formatINR(state.betAmount * 2)}`;
   }
 
   function openModal(modal) {
@@ -940,24 +947,29 @@
   // 15. SETUP EVENT LISTENERS
   // ==========================================
   function setupEvents() {
-    // Bet input change
-    if (el.betInput) {
-      el.betInput.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        if (!isNaN(val) && val > 0) {
-          state.betAmount = val;
-          state.nextPayout = state.betAmount * state.nextMultiplier;
-          updateStatsHeaderUI();
-        }
-      });
-    }
+    // Bet input change (Desktop & Mobile)
+    const handleBetInput = (e) => {
+      const val = parseFloat(e.target.value);
+      if (!isNaN(val) && val > 0) {
+        state.betAmount = val;
+        const desktopInput = document.getElementById('bet-amount-input');
+        const mobileInput = document.getElementById('bet-amount-input-mobile');
+        if (desktopInput && desktopInput !== e.target) desktopInput.value = val;
+        if (mobileInput && mobileInput !== e.target) mobileInput.value = val;
+        state.nextPayout = state.betAmount * state.nextMultiplier;
+        updateStatsHeaderUI();
+      }
+    };
+    if (el.betInput) el.betInput.addEventListener('input', handleBetInput);
+    const mobileBetInput = document.getElementById('bet-amount-input-mobile');
+    if (mobileBetInput) mobileBetInput.addEventListener('input', handleBetInput);
 
-    // Stepper buttons
-    document.querySelectorAll('.stepper-btn').forEach(btn => {
+    // Stepper buttons (Desktop & Mobile)
+    document.querySelectorAll('.stepper-btn, .stepper-btn-mini').forEach(btn => {
       btn.addEventListener('click', () => {
         const action = btn.dataset.action;
-        if (action === 'minus') setBetAmount(state.betAmount - 50);
-        if (action === 'plus') setBetAmount(state.betAmount + 50);
+        if (action === 'minus') setBetAmount(state.betAmount - 10);
+        if (action === 'plus') setBetAmount(state.betAmount + 10);
       });
     });
 
@@ -971,15 +983,17 @@
       });
     });
 
-    // Bomb choice pills (1, 2, 3, 5, 10, 15)
+    // Bomb choice pills (1, 2, 3, 5, 7, 10, 15)
     document.querySelectorAll('.bomb-pill-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         if (state.gameState === 'playing') return;
         soundEngine.playTick();
         hapticEngine.tick();
-        document.querySelectorAll('.bomb-pill-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.bombCount = parseInt(btn.dataset.bombs);
+        const targetBombs = btn.dataset.bombs;
+        document.querySelectorAll('.bomb-pill-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.bombs === targetBombs);
+        });
+        state.bombCount = parseInt(targetBombs);
         updateMultiplierLadder();
       });
     });
@@ -990,9 +1004,11 @@
         if (state.gameState === 'playing') return;
         soundEngine.playTick();
         hapticEngine.tick();
-        document.querySelectorAll('.grid-pill-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.gridSize = parseInt(btn.dataset.size);
+        const targetSize = btn.dataset.size;
+        document.querySelectorAll('.grid-pill-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.size === targetSize);
+        });
+        state.gridSize = parseInt(targetSize);
         const maxBombs = state.gridSize - 1;
         if (state.bombCount > maxBombs) state.bombCount = maxBombs;
         renderGrid(false);
@@ -1018,28 +1034,30 @@
       });
     }
 
-    // Try 10 Bombs Promo Button
-    if (el.btnTry5Bombs) {
-      el.btnTry5Bombs.addEventListener('click', () => {
-        if (state.gameState === 'playing') return;
-        soundEngine.playTick();
-        hapticEngine.tick();
-        document.querySelectorAll('.bomb-pill-btn').forEach(b => {
-          b.classList.toggle('active', b.dataset.bombs === '10');
-        });
-        state.bombCount = 10;
-        updateMultiplierLadder();
+    // Try 10 Bombs Promo Buttons (Desktop & Mobile)
+    const handleTry10Bombs = () => {
+      if (state.gameState === 'playing') return;
+      soundEngine.playTick();
+      hapticEngine.tick();
+      document.querySelectorAll('.bomb-pill-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.bombs === '10' || b.dataset.bombs === '7');
       });
-    }
+      state.bombCount = Math.min(10, state.gridSize - 1);
+      updateMultiplierLadder();
+    };
+    if (el.btnTry5Bombs) el.btnTry5Bombs.addEventListener('click', handleTry10Bombs);
+    const mobileTryBombs = document.getElementById('btn-try-5-bombs-mobile');
+    if (mobileTryBombs) mobileTryBombs.addEventListener('click', handleTry10Bombs);
 
-    // Start Mining Action Button
-    if (el.bigActionBtn) {
-      el.bigActionBtn.addEventListener('click', () => {
-        if (state.gameState === 'betting') {
-          startGame();
-        }
-      });
-    }
+    // Start Mining Action Buttons (Desktop & Mobile)
+    const handleStartMining = () => {
+      if (state.gameState === 'betting') {
+        startGame();
+      }
+    };
+    if (el.bigActionBtn) el.bigActionBtn.addEventListener('click', handleStartMining);
+    const desktopStartBtn = document.getElementById('big-action-btn-desktop');
+    if (desktopStartBtn) desktopStartBtn.addEventListener('click', handleStartMining);
 
     // Fast Replay Button
     if (el.btnQuickRebet) {

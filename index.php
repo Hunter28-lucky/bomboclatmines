@@ -16,8 +16,10 @@ $firstLetter = strtoupper(substr($user['email'], 0, 1));
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>BOMBACLAT MINE - Play Smart. Cash Big.</title>
   <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
@@ -29,11 +31,23 @@ $firstLetter = strtoupper(substr($user['email'], 0, 1));
 
   <!-- Top Navigation Header -->
   <header class="app-header">
-    <div class="brand-section">
-      <svg class="brand-bolt" width="24" height="24" viewBox="0 0 24 24" fill="#a855f7">
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-      </svg>
-      <h1 class="brand-title">BOMBACLAT <span class="mine-highlight">MINE</span></h1>
+    <div class="header-left-group">
+      <button class="menu-hamburger-btn" id="btn-mobile-menu" aria-label="Menu" data-open-modal="account-modal">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <div class="brand-section">
+        <svg class="brand-bolt" width="22" height="22" viewBox="0 0 24 24" fill="#a855f7">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        <div class="brand-titles">
+          <span class="brand-title">BOMBACLAT</span>
+          <span class="mine-highlight">MINE</span>
+        </div>
+      </div>
     </div>
 
     <div class="header-center-badge">
@@ -42,21 +56,27 @@ $firstLetter = strtoupper(substr($user['email'], 0, 1));
     </div>
 
     <div class="header-right">
-      <div class="wallet-balance-box">
-        <div class="wallet-label">WALLET BALANCE</div>
-        <div class="wallet-val" id="user-balance-display">₹<?= number_format($user['balance'], 2) ?></div>
+      <!-- Wallet Balance Capsule with + Button -->
+      <div class="header-wallet-capsule" id="header-wallet-badge">
+        <div class="wallet-balance-info">
+          <div class="wallet-val" id="user-balance-display">₹<?= number_format($user['balance'], 2) ?></div>
+          <div class="wallet-label">WALLET BALANCE</div>
+        </div>
+        <button class="wallet-plus-btn" data-open-modal="deposit-modal" aria-label="Deposit">+</button>
       </div>
 
-      <button class="btn-deposit-purple" data-open-modal="deposit-modal">
-        + DEPOSIT
+      <!-- Bonus Gift Icon -->
+      <button class="gift-box-btn" data-open-modal="deposit-modal" aria-label="Gift Bonus">
+        <img src="assets/images/gift_box.png" alt="Gift" class="gift-btn-img">
       </button>
 
-      <button class="btn-withdraw-neon" data-open-modal="withdrawal-modal">
-        − WITHDRAW
+      <!-- Neon Lime Deposit Button -->
+      <button class="btn-deposit-neon" data-open-modal="deposit-modal">
+        DEPOSIT
       </button>
 
       <?php if (isAdmin()): ?>
-        <a href="admin.php" style="background: #4c1d95; border: 1px solid #a855f7; padding: 7px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; color: #fff; text-decoration: none;">ADMIN</a>
+        <a href="admin.php" class="btn-admin-pill">ADMIN</a>
       <?php endif; ?>
 
       <button class="avatar-circle-btn" data-open-modal="account-modal" aria-label="Account Settings">
@@ -74,16 +94,14 @@ $firstLetter = strtoupper(substr($user['email'], 0, 1));
         </svg>
         <span class="bell-dot"></span>
       </button>
-
-      <a href="api/auth.php?action=logout" class="logout-btn" style="padding: 6px 10px;">Logout</a>
     </div>
   </header>
 
   <!-- Main 3-Column Dashboard Grid -->
   <main class="main-dashboard-grid">
 
-    <!-- Column 1: Left Betting Controls -->
-    <aside class="left-betting-column">
+    <!-- Column 1: Left Betting Controls (Desktop Deck) -->
+    <aside class="left-betting-column desktop-only-deck">
 
       <!-- Bet Input Card -->
       <div class="bet-input-card">
@@ -109,7 +127,7 @@ $firstLetter = strtoupper(substr($user['email'], 0, 1));
       </div>
 
       <!-- Start Mining Action Button -->
-      <button class="btn-start-mining" id="big-action-btn">
+      <button class="btn-start-mining" id="big-action-btn-desktop">
         <span>▶</span> START MINING
       </button>
 
@@ -170,26 +188,30 @@ $firstLetter = strtoupper(substr($user['email'], 0, 1));
     <!-- Column 2: Center Game Arena & Cash Out Bar -->
     <section class="center-game-column panel-card" id="arena-panel">
 
-      <!-- Top Stats Bar & Streak Tag -->
-      <div class="arena-top-stats">
-        <div>
-          <div class="top-stat-label">NEXT MULTIPLIER</div>
-          <div class="top-stat-val stat-cyan" id="next-multiplier-display">1.05x</div>
-        </div>
-        
-        <!-- Hot Streak Counter Tag -->
-        <div class="hot-streak-container" id="hot-streak-container" style="display: none;">
-          <span class="fire-icon">🔥</span>
-          <span id="hot-streak-text">1 WIN STREAK</span>
+      <!-- 4-Stat Strip: Next Multiplier | Diamonds | Bombs | Potential Win -->
+      <div class="arena-stats-strip-four">
+        <div class="stat-quad-cell">
+          <div class="stat-quad-label">NEXT MULTIPLIER</div>
+          <div class="stat-quad-val stat-cyan" id="next-multiplier-display">1.08x</div>
         </div>
 
-        <div style="text-align: right;">
-          <div class="top-stat-label">POTENTIAL WIN</div>
-          <div class="top-stat-val stat-green" id="potential-win-display">₹105.00</div>
+        <div class="stat-quad-cell">
+          <div class="stat-quad-label">DIAMONDS</div>
+          <div class="stat-quad-val stat-cyan"><span style="font-size: 1.05rem;">💎</span> <span id="gem-counter-val">14</span></div>
+        </div>
+
+        <div class="stat-quad-cell">
+          <div class="stat-quad-label">BOMBS</div>
+          <div class="stat-quad-val stat-red"><span style="font-size: 1.05rem;">💣</span> <span id="bomb-counter-val">2</span></div>
+        </div>
+
+        <div class="stat-quad-cell" style="text-align: right;">
+          <div class="stat-quad-label">POTENTIAL WIN</div>
+          <div class="stat-quad-val stat-green" id="potential-win-display">₹108.00</div>
         </div>
       </div>
 
-      <!-- Dynamic Near-Miss Alert Banner (Ventral Striatum Stimulation) -->
+      <!-- Dynamic Near-Miss Alert Banner -->
       <div class="near-miss-banner" id="near-miss-banner" style="display: none;">
         <div class="near-miss-glow"></div>
         <span class="near-miss-bolt">⚡</span>
@@ -199,73 +221,147 @@ $firstLetter = strtoupper(substr($user['email'], 0, 1));
         </div>
       </div>
 
-      <!-- Center Flanked Grid -->
+      <!-- Center Flanked Grid with Glowing Circular Badges -->
       <div class="arena-matrix-container">
         
-        <!-- Left Side: Diamonds Badge -->
-        <div class="side-counter-box">
-          <div class="side-counter-label">DIAMONDS</div>
-          <div class="side-counter-pill diamonds-counter-pill">
-            <span style="font-size: 1.3rem;">💎</span>
-            <span class="counter-count-num" id="gem-counter-val">14</span>
-          </div>
+        <!-- Left Floating Cyan Badge: Diamonds -->
+        <div class="floating-side-badge badge-diamonds-cyan">
+          <span class="badge-icon-emoji">💎</span>
+          <span class="badge-count-text" id="floating-gem-count">14</span>
         </div>
 
-        <!-- Mines Grid Canvas -->
+        <!-- Mines Grid Canvas Stage -->
         <div class="mines-grid-stage" id="grid-stage">
           <div class="mines-grid-canvas" id="mines-grid">
             <!-- Dynamic Grid Buttons -->
           </div>
         </div>
 
-        <!-- Right Side: Bombs Badge -->
-        <div class="side-counter-box">
-          <div class="side-counter-label">BOMBS</div>
-          <div class="side-counter-pill bombs-counter-pill">
-            <span style="font-size: 1.3rem;">💣</span>
-            <span class="counter-count-num" id="bomb-counter-val">2</span>
-          </div>
+        <!-- Right Floating Red Badge: Bombs -->
+        <div class="floating-side-badge badge-bombs-red">
+          <span class="badge-icon-emoji">💣</span>
+          <span class="badge-count-text" id="floating-bomb-count">2</span>
         </div>
 
       </div>
 
-      <!-- Multiplier Step Ladder -->
+      <!-- Multiplier Step Ladder Strip -->
       <div class="multiplier-ladder-box">
         <button class="ladder-arrow-button" id="ladder-arrow-left" aria-label="Previous">&lt;</button>
         <div class="ladder-scroll-lane" id="ladder-scroll-wrapper">
           <!-- Dynamic Step Pills -->
         </div>
-        <button class="ladder-arrow-button" id="ladder-arrow-right" aria-label="Next">&gt;</button>
+        <button class="ladder-chart-button" id="ladder-chart-btn" aria-label="Stats">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </button>
       </div>
 
-      <!-- Cash Out Action Bar -->
+      <!-- Cash Out & Auto Cashout Dual Control Bar -->
       <div class="cashout-control-bar">
+        <!-- Cash Out Main Card -->
         <div class="cashout-action-card disabled" id="cashout-card-btn">
           <div class="cashout-main-info">
             <div class="cashout-label-top">CASH OUT</div>
-            <div class="cashout-amount-huge" id="cashout-amount-text">₹ 105.00</div>
+            <div class="cashout-amount-huge" id="cashout-amount-text">₹105.00</div>
             <div class="cashout-subtext" id="cashout-subtext">Lock in your winnings!</div>
           </div>
-          <div class="cashout-arrow-circle">➔</div>
+          <div class="cashout-arrow-circle">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a3e635" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="13 17 18 12 13 7"></polyline>
+              <polyline points="6 17 11 12 6 7"></polyline>
+            </svg>
+          </div>
         </div>
 
+        <!-- Auto Cashout Card -->
         <div class="auto-cashout-box" id="auto-cashout-box-btn" style="cursor: pointer;">
-          <div>
-            <div class="auto-cashout-label">AUTO CASH OUT</div>
+          <div class="auto-cashout-label">AUTO CASH OUT</div>
+          <div class="auto-cashout-row-controls">
             <span class="toggle-pill-off" id="auto-cashout-toggle">OFF</span>
+            <span class="auto-gear-icon" id="auto-cashout-gear">⚙️</span>
           </div>
-          <span class="auto-gear-icon" id="auto-cashout-gear">⚙️</span>
         </div>
       </div>
 
-      <!-- Fast Re-Bet Acceleration Bar (Machine Zone Continuous Loop) -->
-      <div class="quick-rebet-bar" id="quick-rebet-bar" style="display: none;">
-        <button class="btn-fast-rebet" id="btn-quick-rebet">
-          <span>🔁</span> REPLAY (₹100)
+      <!-- Mobile Integrated Compact Bet Row (Under Game Arena) -->
+      <div class="mobile-compact-bet-deck">
+        <div class="compact-bet-row-three">
+          <!-- 1. Bet Amount with - / + -->
+          <div class="compact-cell bet-cell">
+            <div class="compact-label-row">
+              <span class="compact-label">BET AMOUNT</span>
+              <span class="compact-sub-badge">Min ₹10</span>
+            </div>
+            <div class="compact-input-stepper-wrap">
+              <span class="rupee-char">₹</span>
+              <input type="number" id="bet-amount-input-mobile" class="compact-bet-input" value="100" min="10" step="any">
+              <div class="compact-steppers">
+                <button class="stepper-btn-mini" data-action="minus">-</button>
+                <button class="stepper-btn-mini" data-action="plus">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Bombs Pills: 2, 3, 5, 7 -->
+          <div class="compact-cell bombs-cell">
+            <div class="compact-label-row">
+              <span class="compact-label">BOMBS</span>
+            </div>
+            <div class="compact-pills-row">
+              <button class="choice-pill-btn bomb-pill-btn active" data-bombs="2">2</button>
+              <button class="choice-pill-btn bomb-pill-btn" data-bombs="3">3</button>
+              <button class="choice-pill-btn bomb-pill-btn" data-bombs="5">5</button>
+              <button class="choice-pill-btn bomb-pill-btn" data-bombs="7">7</button>
+            </div>
+          </div>
+
+          <!-- 3. Grid Size Pills: 4x4, 5x5, 6x6 -->
+          <div class="compact-cell grid-cell">
+            <div class="compact-label-row">
+              <span class="compact-label">GRID SIZE</span>
+            </div>
+            <div class="compact-pills-row">
+              <button class="choice-pill-btn grid-pill-btn active" data-size="16">4x4</button>
+              <button class="choice-pill-btn grid-pill-btn" data-size="25">5x5</button>
+              <button class="choice-pill-btn grid-pill-btn" data-size="36">6x6</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Big Start Mining Action Button -->
+        <button class="btn-start-mining" id="big-action-btn">
+          <span>▶</span> START MINING
         </button>
-        <button class="btn-fast-rebet-double" id="btn-double-rebet">
-          <span>⚡</span> 2X REPLAY (₹200)
-        </button>
+
+        <!-- Fast Replay Acceleration Bar -->
+        <div class="quick-rebet-bar" id="quick-rebet-bar">
+          <button class="btn-fast-rebet" id="btn-quick-rebet">
+            <span>🔁</span> REPLAY ₹100.00
+          </button>
+          <button class="btn-fast-rebet-double" id="btn-double-rebet">
+            <span>⚡</span> 2X REPLAY ₹200.00
+          </button>
+        </div>
+
+        <!-- Dare to Win Big Promo Card (Mobile) -->
+        <div class="promo-dare-card mobile-promo-card">
+          <div class="promo-text-side">
+            <div class="promo-title">DARE TO WIN BIG?</div>
+            <div class="promo-subtext">Higher risk. Higher reward.</div>
+            <button class="btn-try-bombs" id="btn-try-5-bombs-mobile">TRY 10 BOMBS</button>
+          </div>
+          <img src="assets/images/skull_bomb.png" alt="Skull Bomb" class="promo-bomb-img">
+        </div>
+
+        <!-- Trust Row -->
+        <div class="footer-trust-row" style="margin-top: 6px;">
+          <span>🛡️ Provably Fair</span>
+          <span>🔒 100% Secure</span>
+        </div>
       </div>
 
     </section>
@@ -395,6 +491,45 @@ $firstLetter = strtoupper(substr($user['email'], 0, 1));
       </div>
     </div>
   </section>
+
+  <!-- Mobile Bottom Sticky Navigation Dock (from Reference Mockup) -->
+  <nav class="mobile-bottom-dock">
+    <button class="dock-nav-item active" id="dock-btn-game" onclick="window.scrollTo({top:0, behavior:'smooth'});">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+      </svg>
+      <span>GAME</span>
+    </button>
+    <button class="dock-nav-item" id="dock-btn-mybets" data-open-modal="account-modal">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+      </svg>
+      <span>MY BETS</span>
+    </button>
+    <button class="dock-nav-item" id="dock-btn-topwins" onclick="document.querySelector('.live-bets-full-card').scrollIntoView({behavior:'smooth'});">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.45 1-1 1H7.5c-.55 0-1 .45-1 1v1c0 .55.45 1 1 1h9c.55 0 1-.45 1-1v-1c0-.55-.45-1-1-1H15c-.55 0-1-.45-1-1v-2.34"></path>
+        <path d="M18 9V4a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v5a6 6 0 0 0 12 0Z"></path>
+      </svg>
+      <span>TOP WINS</span>
+    </button>
+    <button class="dock-nav-item" id="dock-btn-profile" data-open-modal="account-modal">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span>PROFILE</span>
+    </button>
+  </nav>
 
   <!-- Floating Live Support Button -->
   <button class="floating-live-support-btn" data-open-modal="live-support-modal" id="btn-open-live-support">
