@@ -1497,6 +1497,61 @@
       });
     }
 
+    // --- MATHEMATICAL RTP ENGINE ---
+    // Difficulty configurations: step counts and base multiplier curves
+    // Multipliers are dynamically recalculated from target RTP
+    const DIFFICULTY_CONFIGS = {
+      Easy:     { steps: 24, baseMultipliers: [1.03,1.07,1.12,1.17,1.23,1.29,1.36,1.44,1.53,1.63,1.75,1.88,2.04,2.22,2.45,2.72,3.06,3.50,4.08,4.90,6.13,8.17,12.25,24.50] },
+      Medium:   { steps: 22, baseMultipliers: [1.12,1.28,1.47,1.70,1.98,2.33,2.76,3.32,4.03,4.96,6.20,7.91,10.35,13.98,19.57,28.50,43.85,73.08,137.00,308.25,863.10,3452.40] },
+      Hard:     { steps: 20, baseMultipliers: [1.25,1.55,1.98,2.56,3.36,4.49,6.12,8.52,12.18,17.90,27.05,42.40,69.50,121.60,231.00,485.20,1164.50,3260.00,11410.00,57050.00] },
+      Hardcore: { steps: 15, baseMultipliers: [1.65,2.80,4.95,9.08,17.20,34.00,71.50,158.00,370.00,925.00,2540.00,7880.00,28360.00,127600.00,893200.00] }
+    };
+
+    // Dynamically scale multipliers based on target RTP
+    // Formula: M(s) = baseM(s) * (targetRTP / baseRTP), where baseRTP = 0.965
+    function generateMultipliers(difficulty, targetRtp) {
+      const config = DIFFICULTY_CONFIGS[difficulty];
+      if (!config) return [];
+      const baseRtp = 0.965;
+      const scale = (targetRtp / 100.0) / baseRtp;
+      return config.baseMultipliers.map(m => {
+        const scaled = m * scale;
+        // Format: show 2 decimal places, but for large numbers reduce
+        if (scaled >= 10000) return parseFloat(scaled.toFixed(0));
+        if (scaled >= 100) return parseFloat(scaled.toFixed(1));
+        return parseFloat(scaled.toFixed(2));
+      });
+    }
+
+    // Get effective RTP for a given difficulty from admin settings
+    function getEffectiveRtp(difficulty) {
+      const gs = window.gameSettings || {};
+      const u = window.currentUser || (typeof currentUser !== 'undefined' ? currentUser : null);
+      // Per-user overrides first
+      if (u && u.custom_rtp) return parseFloat(u.custom_rtp);
+      if (u && u.rig_mode === 'house_favored') return 80.0;
+      if (u && u.rig_mode === 'high_win') return 110.0;
+      // Per-difficulty RTP from admin
+      const diffKey = 'rtp_' + difficulty.toLowerCase();
+      if (gs[diffKey]) return parseFloat(gs[diffKey]);
+      // Chicken-specific global RTP
+      if (gs.chicken_target_rtp) return parseFloat(gs.chicken_target_rtp);
+      // Global RTP
+      if (gs.rtp_rate) return parseFloat(gs.rtp_rate);
+      if (gs.target_rtp) return parseFloat(gs.target_rtp);
+      return 96.5;
+    }
+
+    // Calculate crash probability at step using true mathematical model
+    // P(crash at step s) = 1 - (M(s-1) / M(s)), with M(0) = RTP/100
+    function calculateCrashProbability(pos, multipliers, targetRtp) {
+      if (pos < 1 || pos > multipliers.length) return 0;
+      const prevM = pos === 1 ? (targetRtp / 100.0) : multipliers[pos - 2];
+      const currM = multipliers[pos - 1];
+      if (currM <= 0) return 0;
+      return Math.max(0, 1.0 - (prevM / currM));
+    }
+
     // --- GAME LOGIC ---
     let gameState = {
       started: false,
@@ -1511,31 +1566,15 @@
     function renderRectangles(difficulty) {
       const scrollInner = document.getElementById('scrollInner');
       scrollInner.innerHTML = '';
-      let total = 25;
-      let overlayTexts = [];
-      if (difficulty === 'Easy') {
-        overlayTexts = [
-          '1.03', '1.07', '1.12', '1.17', '1.23', '1.29', '1.36', '1.44', '1.53', '1.63', '1.75', '1.88', '2.04', '2.22', '2.45', '2.72', '3.06', '3.50', '4.08', '4.90', '6.13', '6.61', '9.81', '19.44'
-        ].map(t => t + 'x');
-      }
-      if (difficulty === 'Medium') {
-        total = 23;
-        overlayTexts = [
-          '1.12', '1.28', '1.47', '1.70', '1.98', '2.33', '2.76', '3.32', '4.03', '4.96', '6.20', '6.91', '8.90', '11.74', '15.99', '22.61', '33.58', '53.20', '92.17', '182.51', '451.71', '1788.80'
-        ].map(t => t + 'x');
-      }
-      if (difficulty === 'Hard') {
-        total = 21;
-        overlayTexts = [
-          '1.23', '1.55', '1.98', '2.56', '3.36', '4.49', '5.49', '7.53', '10.56', '15.21', '22.59', '34.79', '55.97', '94.99', '172.42', '341.40', '760.46', '2007.63', '6956.47', '41321.43'
-        ].map(t => t + 'x');
-      }
-      if (difficulty === 'Hardcore') {
-        total = 16;
-        overlayTexts = [
-          '1.63', '2.80', '4.95', '9.08', '15.21', '30.12', '62.96', '140.24', '337.19', '890.19', '2643.89', '9161.08', '39301.05', '233448.29', '2542251.93'
-        ].map(t => t + 'x');
-      }
+      const config = DIFFICULTY_CONFIGS[difficulty] || DIFFICULTY_CONFIGS.Easy;
+      const total = config.steps + 1; // +1 for HOME rect
+      const effectiveRtp = getEffectiveRtp(difficulty);
+      const multipliers = generateMultipliers(difficulty, effectiveRtp);
+      let overlayTexts = multipliers.map(m => {
+        if (m >= 10000) return Math.round(m).toLocaleString() + 'x';
+        if (m >= 1000) return m.toLocaleString() + 'x';
+        return m.toFixed(2) + 'x';
+      });
       // Always show first and last
       // First rectangle (Home)
       scrollInner.innerHTML += `
@@ -1642,17 +1681,14 @@
 
     // --- GAME LOGIC ---
     function getCurrentOverlays() {
-      // Get overlays for current difficulty
-      let overlays = [];
-      if (selectedDiff === 'Easy') overlays = [
-        '1.03x','1.07x','1.12x','1.17x','1.23x','1.29x','1.36x','1.44x','1.53x','1.63x','1.75x','1.88x','2.04x','2.22x','2.45x','2.72x','3.06x','3.50x','4.08x','4.90x','6.13x','6.61x','9.81x','19.44x']
-      if (selectedDiff === 'Medium') overlays = [
-        '1.12x','1.28x','1.47x','1.70x','1.98x','2.33x','2.76x','3.32x','4.03x','4.96x','6.20x','6.91x','8.90x','11.74x','15.99x','22.61x','33.58x','53.20x','92.17x','182.51x','451.71x','1788.80x']
-      if (selectedDiff === 'Hard') overlays = [
-        '1.23x','1.55x','1.98x','2.56x','3.36x','4.49x','5.49x','7.53x','10.56x','15.21x','22.59x','34.79x','55.97x','94.99x','172.42x','341.40x','760.46x','2007.63x','6956.47x','41321.43x']
-      if (selectedDiff === 'Hardcore') overlays = [
-        '1.63x','2.80x','4.95x','9.08x','15.21x','30.12x','62.96x','140.24x','337.19x','890.19x','2643.89x','9161.08x','39301.05x','233448.29x','2542251.93x']
-      return overlays;
+      // Get dynamically generated overlays for current difficulty from RTP engine
+      const effectiveRtp = getEffectiveRtp(selectedDiff);
+      const multipliers = generateMultipliers(selectedDiff, effectiveRtp);
+      return multipliers.map(m => {
+        if (m >= 10000) return Math.round(m).toLocaleString() + 'x';
+        if (m >= 1000) return m.toLocaleString() + 'x';
+        return m.toFixed(2) + 'x';
+      });
     }
 
     // Reset all center images to default state
@@ -1845,31 +1881,12 @@
         }
       }
       
-      // 3. Dynamic Global RTP Engine
-      let effectiveRtp = 97.0;
-      if (u && u.custom_rtp) {
-        effectiveRtp = parseFloat(u.custom_rtp);
-      } else if (u && u.rig_mode === 'house_favored') {
-        effectiveRtp = 80.0;
-      } else if (u && u.rig_mode === 'high_win') {
-        effectiveRtp = 110.0;
-      } else if (gs.rtp_rate) {
-        effectiveRtp = parseFloat(gs.rtp_rate);
-      } else if (gs.target_rtp) {
-        effectiveRtp = parseFloat(gs.target_rtp);
-      }
-
-      // Base difficulty survival modifiers
-      let diffMultiplier = 1.0;
-      if (selectedDiff === 'Easy') diffMultiplier = 0.85;
-      else if (selectedDiff === 'Medium') diffMultiplier = 1.0;
-      else if (selectedDiff === 'Hard') diffMultiplier = 1.25;
-      else if (selectedDiff === 'Hardcore') diffMultiplier = 1.5;
-
-      // Mathematical crash probability derived from Global RTP
-      const houseEdgeFactor = Math.max(0.01, (100.0 - effectiveRtp) / 100.0);
-      const stepProgressionFactor = 0.08 + (pos * 0.015);
-      const crashChance = Math.min(0.95, Math.max(0.02, (stepProgressionFactor + (houseEdgeFactor * 1.5)) * diffMultiplier));
+      // 3. TRUE MATHEMATICAL RTP ENGINE
+      // Uses conditional crash probability: P(crash_s) = 1 - M(s-1) / M(s)
+      // This guarantees exact RTP enforcement at every step
+      const effectiveRtp = getEffectiveRtp(selectedDiff);
+      const multipliers = generateMultipliers(selectedDiff, effectiveRtp);
+      const crashChance = calculateCrashProbability(pos, multipliers, effectiveRtp);
       
       return Math.random() < crashChance;
     }

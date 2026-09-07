@@ -661,7 +661,12 @@ switch ($action) {
                         'preset_btn_3' => (float)($settings['preset_btn_3'] ?? 100),
                         'preset_btn_4' => (float)($settings['preset_btn_4'] ?? 500),
                         'maintenance_mode' => ($settings['maintenance_mode'] ?? 'false') === 'true',
-                        'target_rtp' => (float)($settings['target_rtp'] ?? 97.0)
+                        'target_rtp' => (float)($settings['target_rtp'] ?? 96.5),
+                        'chicken_target_rtp' => (float)($settings['chicken_target_rtp'] ?? $settings['target_rtp'] ?? 96.5),
+                        'rtp_easy' => isset($settings['rtp_easy']) && $settings['rtp_easy'] !== '' ? (float)$settings['rtp_easy'] : '',
+                        'rtp_medium' => isset($settings['rtp_medium']) && $settings['rtp_medium'] !== '' ? (float)$settings['rtp_medium'] : '',
+                        'rtp_hard' => isset($settings['rtp_hard']) && $settings['rtp_hard'] !== '' ? (float)$settings['rtp_hard'] : '',
+                        'rtp_hardcore' => isset($settings['rtp_hardcore']) && $settings['rtp_hardcore'] !== '' ? (float)$settings['rtp_hardcore'] : ''
                     ]
                 ]);
             } catch (Exception $e) {

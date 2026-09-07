@@ -30,8 +30,8 @@ try {
         }
     } catch (Exception $e) {}
 
-    $rtp = floatval($settings['rtp_rate'] ?? $settings['target_rtp'] ?? 97.0);
-    $houseEdge = floatval($settings['house_edge'] ?? (100.0 - $rtp));
+    $rtp = floatval($settings['chicken_target_rtp'] ?? $settings['rtp_rate'] ?? $settings['target_rtp'] ?? 96.5);
+    $houseEdge = floatval($settings['chicken_house_edge'] ?? $settings['house_edge'] ?? (100.0 - $rtp));
 
     // Return all settings with robust defaults
     echo json_encode([
@@ -39,7 +39,13 @@ try {
         'settings' => [
             'rtp_rate' => $rtp,
             'target_rtp' => $rtp,
+            'chicken_target_rtp' => $rtp,
             'house_edge' => $houseEdge,
+            'chicken_house_edge' => $houseEdge,
+            'rtp_easy' => floatval($settings['rtp_easy'] ?? $rtp),
+            'rtp_medium' => floatval($settings['rtp_medium'] ?? $rtp),
+            'rtp_hard' => floatval($settings['rtp_hard'] ?? $rtp),
+            'rtp_hardcore' => floatval($settings['rtp_hardcore'] ?? $rtp),
             'game_rig_mode' => $settings['game_rig_mode'] ?? 'fair',
             'min_bet' => floatval($settings['min_bet'] ?? 10),
             'max_bet' => floatval($settings['max_bet'] ?? 10000),

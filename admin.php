@@ -783,6 +783,44 @@ if (!$user || !isAdmin()) {
           </div>
 
           <form id="chicken-settings-form">
+            <!-- Chicken Road Target RTP -->
+            <div class="form-group" style="background: rgba(16, 185, 129, 0.08); padding: 12px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.2); margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <div>
+                  <div style="font-size: 0.82rem; font-weight: 800; color: #34d399;">🎯 Chicken Road Target RTP</div>
+                  <div style="font-size: 0.65rem; color: #94a3b8;">Mathematical return-to-player for all difficulties</div>
+                </div>
+                <div style="font-size: 1.1rem; font-weight: 900; color: #34d399;" id="chk-rtp-display">96.5%</div>
+              </div>
+              <input type="range" min="50" max="99" step="0.5" value="96.5" id="chk-target-rtp" name="chicken_target_rtp" style="width: 100%; accent-color: #10b981; cursor: pointer;">
+              <div style="display: flex; gap: 6px; margin-top: 6px;">
+                <button type="button" class="btn-preset-pill" onclick="document.getElementById('chk-target-rtp').value=98;document.getElementById('chk-rtp-display').textContent='98.0%'" style="font-size:0.65rem;padding:3px 8px;">Loose 98%</button>
+                <button type="button" class="btn-preset-pill" onclick="document.getElementById('chk-target-rtp').value=96.5;document.getElementById('chk-rtp-display').textContent='96.5%'" style="font-size:0.65rem;padding:3px 8px;">Standard 96.5%</button>
+                <button type="button" class="btn-preset-pill" onclick="document.getElementById('chk-target-rtp').value=92;document.getElementById('chk-rtp-display').textContent='92.0%'" style="font-size:0.65rem;padding:3px 8px;">Tight 92%</button>
+                <button type="button" class="btn-preset-pill" onclick="document.getElementById('chk-target-rtp').value=85;document.getElementById('chk-rtp-display').textContent='85.0%'" style="font-size:0.65rem;padding:3px 8px;">Aggressive 85%</button>
+              </div>
+            </div>
+
+            <!-- Per-Difficulty RTP Overrides -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px;">
+              <div class="form-group">
+                <label class="form-label" style="font-size:0.7rem;">🟢 Easy RTP %</label>
+                <input type="number" id="chk-rtp-easy" name="rtp_easy" class="form-input" step="0.5" min="50" max="110" placeholder="Default" style="padding:6px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="font-size:0.7rem;">🟡 Medium RTP %</label>
+                <input type="number" id="chk-rtp-medium" name="rtp_medium" class="form-input" step="0.5" min="50" max="110" placeholder="Default" style="padding:6px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="font-size:0.7rem;">🟠 Hard RTP %</label>
+                <input type="number" id="chk-rtp-hard" name="rtp_hard" class="form-input" step="0.5" min="50" max="110" placeholder="Default" style="padding:6px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="font-size:0.7rem;">🔴 Hardcore RTP %</label>
+                <input type="number" id="chk-rtp-hardcore" name="rtp_hardcore" class="form-input" step="0.5" min="50" max="110" placeholder="Default" style="padding:6px;">
+              </div>
+            </div>
+
             <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; background: rgba(16, 185, 129, 0.1); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.25);">
               <div>
                 <div style="font-size: 0.82rem; font-weight: 800; color: #fff;">Controlled Crash Mode</div>

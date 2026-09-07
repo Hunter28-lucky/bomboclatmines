@@ -33,3 +33,7 @@ generate_webp_and_compress.py
 
 # Discord Bot
 discord/
+
+# Python Cache
+__pycache__/
+*.pyc

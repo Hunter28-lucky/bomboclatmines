@@ -176,6 +176,16 @@ document.addEventListener('DOMContentLoaded', () => {
           if (input && val !== undefined && val !== null) input.value = val;
         };
 
+        if (s.chicken_target_rtp !== undefined) {
+          setVal('chk-target-rtp', s.chicken_target_rtp);
+          const rtpDisp = document.getElementById('chk-rtp-display');
+          if (rtpDisp) rtpDisp.textContent = Number(s.chicken_target_rtp).toFixed(1) + '%';
+        }
+        setVal('chk-rtp-easy', s.rtp_easy !== undefined ? s.rtp_easy : '');
+        setVal('chk-rtp-medium', s.rtp_medium !== undefined ? s.rtp_medium : '');
+        setVal('chk-rtp-hard', s.rtp_hard !== undefined ? s.rtp_hard : '');
+        setVal('chk-rtp-hardcore', s.rtp_hardcore !== undefined ? s.rtp_hardcore : '');
+
         setCheck('chk-controlled-crash', s.controlled_crash_enabled);
         setVal('chk-crash-easy', s.crash_level_easy || 'random');
         setVal('chk-crash-medium', s.crash_level_medium || 'random');
@@ -795,11 +805,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Chicken Road Settings Form Submit
     if (el.chickenSettingsForm) {
+      const chkTargetRtpSlider = document.getElementById('chk-target-rtp');
+      const chkRtpDisplay = document.getElementById('chk-rtp-display');
+      if (chkTargetRtpSlider && chkRtpDisplay) {
+        chkTargetRtpSlider.addEventListener('input', (e) => {
+          chkRtpDisplay.textContent = parseFloat(e.target.value).toFixed(1) + '%';
+        });
+      }
+
       el.chickenSettingsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const chkControlled = document.getElementById('chk-controlled-crash');
         const chkMaint = document.getElementById('chk-maintenance');
+        const getNumOrEmpty = (id) => {
+          const elem = document.getElementById(id);
+          if (!elem || elem.value === '' || isNaN(parseFloat(elem.value))) return '';
+          return parseFloat(elem.value);
+        };
         const payload = {
+          chicken_target_rtp: parseFloat(document.getElementById('chk-target-rtp') ? document.getElementById('chk-target-rtp').value : 96.5) || 96.5,
+          rtp_easy: getNumOrEmpty('chk-rtp-easy'),
+          rtp_medium: getNumOrEmpty('chk-rtp-medium'),
+          rtp_hard: getNumOrEmpty('chk-rtp-hard'),
+          rtp_hardcore: getNumOrEmpty('chk-rtp-hardcore'),
           controlled_crash_enabled: chkControlled && chkControlled.checked ? 1 : 0,
           crash_level_easy: document.getElementById('chk-crash-easy') ? document.getElementById('chk-crash-easy').value : 'random',
           crash_level_medium: document.getElementById('chk-crash-medium') ? document.getElementById('chk-crash-medium').value : 'random',
