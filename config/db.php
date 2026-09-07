@@ -156,6 +156,26 @@ function initializeTables(PDO $pdo, string $driverType) {
                 KEY idx_support_user (user_id, created_at),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS bet_history (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id VARCHAR(64) NOT NULL,
+                bet_amount DECIMAL(10,2) NOT NULL,
+                difficulty VARCHAR(20) DEFAULT 'Normal',
+                result VARCHAR(20) NOT NULL,
+                multiplier DECIMAL(10,4) NOT NULL,
+                profit_loss DECIMAL(10,2) NOT NULL,
+                game_data TEXT DEFAULT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                KEY idx_bet_user (user_id, created_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS admin_settings (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                setting_key VARCHAR(50) NOT NULL UNIQUE,
+                setting_value TEXT DEFAULT NULL,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         ");
         try { $pdo->exec("ALTER TABLE payments ADD COLUMN amount DECIMAL(10,2) NOT NULL DEFAULT 0.00;"); } catch (Exception $e) {}
     } else {
@@ -238,6 +258,25 @@ function initializeTables(PDO $pdo, string $driverType) {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
+
+            CREATE TABLE IF NOT EXISTS bet_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT NOT NULL,
+                bet_amount NUMERIC NOT NULL,
+                difficulty TEXT DEFAULT 'Normal',
+                result TEXT NOT NULL,
+                multiplier NUMERIC NOT NULL,
+                profit_loss NUMERIC NOT NULL,
+                game_data TEXT DEFAULT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE TABLE IF NOT EXISTS admin_settings (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                setting_key TEXT UNIQUE NOT NULL,
+                setting_value TEXT DEFAULT NULL,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
         ");
 
         // Add columns if migrating existing SQLite database
@@ -267,6 +306,34 @@ function initializeTables(PDO $pdo, string $driverType) {
         if (!$st->fetch()) {
             $ins = $pdo->prepare("INSERT INTO system_settings (setting_key, setting_value) VALUES (:k, :v)");
             $ins->execute([':k' => $key, ':v' => $val]);
+        }
+    }
+
+    // Seed default admin_settings for Chicken Road if empty
+    $defaultChickenSettings = [
+        'min_bet' => '10',
+        'max_bet' => '10000',
+        'referral_bonus' => '100',
+        'maintenance_mode' => 'false',
+        'preset_btn_1' => '10',
+        'preset_btn_2' => '50',
+        'preset_btn_3' => '100',
+        'preset_btn_4' => '500',
+        'controlled_crash_enabled' => 'false',
+        'controlled_crash_rectangle' => '10',
+        'site_title' => 'CHICKEN ROAD',
+        'logo' => 'images/chicken.png',
+        'powered_by_logo' => 'images/chicken.png',
+        'kyc_enabled' => 'false',
+        'referral_enabled' => 'false'
+    ];
+
+    foreach ($defaultChickenSettings as $ck => $cv) {
+        $stc = $pdo->prepare("SELECT setting_key FROM admin_settings WHERE setting_key = :k");
+        $stc->execute([':k' => $ck]);
+        if (!$stc->fetch()) {
+            $insc = $pdo->prepare("INSERT INTO admin_settings (setting_key, setting_value) VALUES (:k, :v)");
+            $insc->execute([':k' => $ck, ':v' => $cv]);
         }
     }
 }

@@ -53,7 +53,7 @@ function getCurrentUser(): ?array {
 function isAdmin(): bool {
     $user = getCurrentUser();
     if (!$user) return false;
-    return ($user['is_admin'] == 1 || strtolower($user['email']) === strtolower(ADMIN_EMAIL));
+    return ((int)$user['is_admin'] === 1 && strtolower($user['email']) === strtolower(ADMIN_EMAIL));
 }
 
 /**

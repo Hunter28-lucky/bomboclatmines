@@ -25,3 +25,11 @@ dist-ssr
 .env
 *.key
 config/openrouter.key
+
+# Deploy and Scratch Scripts
+deploy_ftp.py
+optimize_images.py
+generate_webp_and_compress.py
+
+# Discord Bot
+discord/

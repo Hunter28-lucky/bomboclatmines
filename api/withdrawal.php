@@ -19,8 +19,10 @@ switch ($action) {
         $upiId = cleanInput($json['upi_id'] ?? $_POST['upi_id'] ?? '');
         $mobileNumber = cleanInput($json['mobile_number'] ?? $_POST['mobile_number'] ?? '');
 
-        if ($amount < MIN_WITHDRAWAL_AMOUNT) {
-            jsonResponse(['success' => false, 'error' => 'Minimum withdrawal amount is ₹' . MIN_WITHDRAWAL_AMOUNT], 400);
+        $minWithdrawal = (float)(getSystemSetting('min_withdrawal', 500));
+
+        if ($amount < $minWithdrawal) {
+            jsonResponse(['success' => false, 'error' => 'Minimum withdrawal amount is ₹' . number_format($minWithdrawal, 0)], 400);
         }
 
         if (empty($upiId)) {

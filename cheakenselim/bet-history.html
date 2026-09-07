@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bet History - Chicken Road Game</title>
+  <style>
+    :root {
+      --main-color: #00ECBE;
+      --main-gradient-start: #7AFEC3;
+      --main-gradient-end: #02AFB6;
+      --main_gradient-color: linear-gradient(180deg, var(--main-gradient-start), var(--main-gradient-end));
+      --main_gradient-color2: linear-gradient(90deg, var(--main-gradient-start), var(--main-gradient-end));
+      --bg_HomeModule_Stroke: #224BA2;
+      --bg_HomeModule_Padding: linear-gradient(180deg, #001C54 0%, #000C33 100%);
+      --norm_red-color: #D23838;
+      --norm_green-color: #17B15E;
+      --norm_secondary-color: #DD9138;
+      --norm_Purple-color: #9B48DB;
+      --norm_bule-color: #5088D3;
+      --button_dis_color: #3D4863;
+      --Secondary_red_color: #FD565C;
+      --Secondary_green_color: #40AD72;
+      --Secondary_Color1: #FFEBEC;
+      --Secondary_Color2: #DAFFEB;
+      --Secondary_moto_Color9: #239DA1;
+      --Secondary_moto_Color8: #163B86;
+      --text_color_L1: #E3EFFF;
+      --text_color_L2: #92A8E3;
+      --text_color_L3: #6F80A4;
+      --text_color_L4: #05012B;
+      --bg_color_L1: #05012B;
+      --bg_color_L2: #011341;
+      --bg_color_L3: #001C54;
+      --Dividing-line_color: #022C68;
+      --sheet_nva_color: #2C5ECA;
+      --sheet_detail_bg_color: #000C33;
+      --icon1: rgba(12, 195, 159, .6);
+      --icon2: rgba(12, 195, 159, .25);
+      --tab1: #21D9CC;
+      --tab2: #BED921;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    body {
+      background: var(--bg_HomeModule_Padding);
+      min-height: 100vh;
+      color: var(--text_color_L1);
+      padding: 0;
+      padding-bottom: 80px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px 20px;
+      background: var(--bg_color_L2);
+      box-shadow: 0 8px 25px rgba(0, 28, 84, 0.4);
+      border-bottom: 2px solid var(--Dividing-line_color);
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-header-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    
+    .user-header-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--main-color);
+    }
+    
+    .user-header-balance {
+      font-size: 0.8rem;
+      color: #fbbf24;
+      font-weight: 500;
+    }
+    
+    .chicken-icon {
+      width: 35px;
+      height: 35px;
+      background: var(--main_gradient-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-right: 12px;
+      box-shadow: 0 4px 15px rgba(0, 236, 190, 0.4);
+    }
+    
+    .app-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--text_color_L1);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .main-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--text_color_L1);
+      text-align: center;
+      margin-bottom: 25px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .content-container {
+      background: var(--bg_color_L2);
+      border-radius: 16px;
+      padding: 25px;
+      border: 2px solid var(--Dividing-line_color);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .filter-section {
+      margin-bottom: 25px;
+    }
+    
+    .filter-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .filter-btn {
+      background: var(--main_gradient-color);
+      color: var(--text_color_L4);
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 236, 190, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .filter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 236, 190, 0.6);
+    }
+    
+    .filter-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 8px;
+      background: var(--bg_color_L3);
+      border: 2px solid var(--Dividing-line_color);
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 1000;
+      min-width: 200px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .filter-option {
+      padding: 12px 20px;
+      color: var(--text_color_L1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-bottom: 1px solid var(--Dividing-line_color);
+    }
+    
+    .filter-option:hover {
+      background: var(--bg_color_L2);
+      color: var(--main-color);
+    }
+    
+    .filter-option:last-child {
+      border-bottom: none;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--Dividing-line_color);
+    }
+    
+    .bet-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg_color_L3);
+    }
+    
+    .bet-table th {
+      background: var(--bg_color_L2);
+      color: var(--text_color_L1);
+      font-weight: 600;
+      padding: 15px 12px;
+      text-align: left;
+      border-bottom: 2px solid var(--Dividing-line_color);
+      font-size: 0.9rem;
+    }
+    
+    .bet-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--Dividing-line_color);
+      color: var(--text_color_L1);
+      font-size: 0.85rem;
+    }
+    
+    .bet-table tr:hover {
+      background: rgba(0, 236, 190, 0.05);
+    }
+    
+    .result-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .result-cashout {
+      background: rgba(23, 177, 94, 0.2);
+      color: var(--Secondary_green_color);
+      border: 1px solid rgba(23, 177, 94, 0.3);
+    }
+    
+    .result-crash {
+      background: rgba(210, 56, 56, 0.2);
+      color: var(--Secondary_red_color);
+      border: 1px solid rgba(210, 56, 56, 0.3);
+    }
+    
+    .multiplier-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .multiplier-high {
+      background: rgba(23, 177, 94, 0.2);
+      color: var(--Secondary_green_color);
+      border: 1px solid rgba(23, 177, 94, 0.3);
+    }
+    
+    .multiplier-medium {
+      background: rgba(221, 145, 56, 0.2);
+      color: var(--norm_secondary-color);
+      border: 1px solid rgba(221, 145, 56, 0.3);
+    }
+    
+    .multiplier-low {
+      background: rgba(80, 136, 211, 0.2);
+      color: var(--norm_bule-color);
+      border: 1px solid rgba(80, 136, 211, 0.3);
+    }
+    
+    .multiplier-crash {
+      background: rgba(210, 56, 56, 0.2);
+      color: var(--Secondary_red_color);
+      border: 1px solid rgba(210, 56, 56, 0.3);
+    }
+    
+    .profit-positive {
+      color: var(--Secondary_green_color);
+      font-weight: 600;
+    }
+    
+    .profit-negative {
+      color: var(--Secondary_red_color);
+      font-weight: 600;
+    }
+    
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+    
+    .pagination-btn {
+      background: var(--bg_color_L3);
+      color: var(--text_color_L1);
+      border: 2px solid var(--Dividing-line_color);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .pagination-btn:hover:not(:disabled) {
+      background: var(--bg_color_L2);
+      border-color: var(--main-color);
+      transform: translateY(-2px);
+    }
+    
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .page-info {
+      color: var(--text_color_L2);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .loading-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text_color_L2);
+      font-size: 1.1rem;
+    }
+    
+    .error-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--Secondary_red_color);
+      font-size: 1.1rem;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text_color_L2);
+      font-size: 1.1rem;
+    }
+    
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg_color_L2);
+      backdrop-filter: blur(15px);
+      border-top: 2px solid var(--Dividing-line_color);
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: var(--text_color_L2);
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      padding: 8px 12px;
+      border-radius: 10px;
+      min-width: 60px;
+    }
+    
+    .nav-item:hover {
+      color: var(--text_color_L1);
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .nav-item.active {
+      color: var(--main-color);
+      background: rgba(0, 236, 190, 0.2);
+    }
+    
+    .nav-icon {
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+    
+    .nav-text {
+      font-size: 0.7rem;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 0 15px;
+      }
+      
+      .content-container {
+        padding: 20px;
+      }
+      
+      .bet-table th,
+      .bet-table td {
+        padding: 10px 8px;
+        font-size: 0.8rem;
+      }
+      
+      .page-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with Logo and Navigation -->
+  <div class="header">
+    <div class="logo-section">
+      <div class="chicken-icon">🐔</div>
+      <div class="app-title">CHICKEN ROAD</div>
+    </div>
+    <div class="user-header-info" id="userHeaderInfo" style="display: none;">
+      <div class="user-header-name" id="userHeaderName">Welcome!</div>
+      <div class="user-header-balance" id="userHeaderBalance">Balance: ₹0</div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <h1 class="page-title">Bet History</h1>
+    
+    <div class="content-container">
+      <!-- Filter Section -->
+      <div class="filter-section">
+        <div class="filter-dropdown">
+          <button id="filterDropdown" class="filter-btn">
+            <span id="filterText">All Bets</span>
+            <span>▼</span>
+          </button>
+          <div id="filterOptions" class="filter-options hidden">
+            <div class="filter-option" data-result="">All Bets</div>
+            <div class="filter-option" data-result="cashout">Cashouts</div>
+            <div class="filter-option" data-result="crash">Crashes</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-state hidden">
+        Loading bet history...
+      </div>
+      
+      <!-- Error State -->
+      <div id="errorState" class="error-state hidden">
+        <div id="errorMessage"></div>
+      </div>
+      
+      <!-- Table Container -->
+      <div class="table-container">
+        <table class="bet-table">
+          <thead>
+            <tr>
+              <th>Bet Amount</th>
+              <th>Difficulty</th>
+              <th>Result</th>
+              <th>Multiplier</th>
+              <th>Profit/Loss</th>
+              <th>Date/Time</th>
+            </tr>
+          </thead>
+          <tbody id="betHistoryTable">
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div id="pagination" class="pagination hidden">
+        <button id="prevBtn" class="pagination-btn">Previous</button>
+        <span id="pageInfo" class="page-info"></span>
+        <button id="nextBtn" class="pagination-btn">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-text">Home</div>
+    </a>
+    <a href="refer.html" class="nav-item">
+      <div class="nav-icon">👥</div>
+      <div class="nav-text">Promotion</div>
+    </a>
+    <a href="game.html" class="nav-item">
+      <div class="nav-icon">🎮</div>
+      <div class="nav-text">Game</div>
+    </a>
+    <a href="bet-history.html" class="nav-item active">
+      <div class="nav-icon">💰</div>
+      <div class="nav-text">My Bet</div>
+    </a>
+    <a href="transactions.html" class="nav-item">
+      <div class="nav-icon">👤</div>
+      <div class="nav-text">My</div>
+    </a>
+  </div>
+
+  <script>
+    let currentPage = 1;
+    let currentFilter = '';
+    let totalPages = 1;
+    
+    // Check authentication and load user info
+    async function checkAuthAndLoadUser() {
+      try {
+        const response = await fetch('api/user.php');
+        const data = await response.json();
+        
+        if (data.success && data.user) {
+          // User is logged in, show user info and load bet history
+          document.getElementById('userHeaderInfo').style.display = 'flex';
+          document.getElementById('userHeaderName').textContent = `Welcome, ${data.user.username}!`;
+          document.getElementById('userHeaderBalance').textContent = `Balance: ₹${data.user.balance || 0}`;
+          loadBetHistory();
+        } else {
+          // User not logged in, redirect to login
+          window.location.href = '../login.php?game=chicken';
+        }
+      } catch (error) {
+        // Network error, redirect to login
+        window.location.href = '../login.php?game=chicken';
+      }
+    }
+    
+    // Load bet history
+    async function loadBetHistory() {
+      const loadingState = document.getElementById('loadingState');
+      const errorState = document.getElementById('errorState');
+      const table = document.getElementById('betHistoryTable');
+      
+      loadingState.classList.remove('hidden');
+      errorState.classList.add('hidden');
+      table.innerHTML = '';
+      
+      let url = `api/bet_history.php?page=${currentPage}&limit=10`;
+      if (currentFilter) url += `&result=${currentFilter}`;
+      
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        loadingState.classList.add('hidden');
+        
+        if (data.success) {
+          displayBetHistory(data.bets);
+          updatePagination(data.pagination);
+        } else {
+          showError(data.error || 'Failed to load bet history');
+        }
+      } catch (error) {
+        loadingState.classList.add('hidden');
+        showError('Network error');
+      }
+    }
+    
+    function displayBetHistory(bets) {
+      const table = document.getElementById('betHistoryTable');
+      table.innerHTML = '';
+      
+      if (bets.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="6" class="empty-state">No bets found</td>';
+        table.appendChild(tr);
+        return;
+      }
+      
+      bets.forEach(bet => {
+        const tr = document.createElement('tr');
+        const resultClass = getResultClass(bet.result);
+        const profitLoss = parseFloat(bet.profit || bet.profit_loss || 0);
+        const profitLossText = profitLoss >= 0 ? `+₹${profitLoss.toFixed(2)}` : `₹${profitLoss.toFixed(2)}`;
+        const profitLossClass = profitLoss >= 0 ? 'profit-positive' : 'profit-negative';
+        const multiplierText = bet.multiplier === '0x' ? 'CRASH' : 'x' + parseFloat(bet.multiplier).toFixed(2);
+        const multiplierClass = getMultiplierClass(bet.multiplier);
+        
+        tr.innerHTML = `
+          <td>₹${parseFloat(bet.bet_amount).toFixed(2)}</td>
+          <td>${bet.difficulty || 'Unknown'}</td>
+          <td><span class="result-badge ${resultClass}">${bet.result.toUpperCase()}</span></td>
+          <td><span class="multiplier-badge ${multiplierClass}">${multiplierText}</span></td>
+          <td class="${profitLossClass}">${profitLossText}</td>
+          <td>${new Date(bet.created_at).toLocaleString()}</td>
+        `;
+        table.appendChild(tr);
+      });
+    }
+    
+    function getResultClass(result) {
+      switch(result) {
+        case 'cashout': return 'result-cashout';
+        case 'crash': return 'result-crash';
+        default: return 'result-cashout';
+      }
+    }
+    
+    function getMultiplierClass(multiplier) {
+      const mult = parseFloat(multiplier);
+      if (multiplier === '0x') return 'multiplier-crash';
+      if (mult >= 2) return 'multiplier-high';
+      if (mult >= 1.5) return 'multiplier-medium';
+      return 'multiplier-low';
+    }
+    
+    function updatePagination(pagination) {
+      const paginationDiv = document.getElementById('pagination');
+      const pageInfo = document.getElementById('pageInfo');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      totalPages = pagination.total_pages;
+      currentPage = pagination.current_page;
+      
+      pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+      prevBtn.disabled = !pagination.has_prev;
+      nextBtn.disabled = !pagination.has_next;
+      
+      paginationDiv.classList.remove('hidden');
+    }
+    
+    function showError(message) {
+      const errorState = document.getElementById('errorState');
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.textContent = message;
+      errorState.classList.remove('hidden');
+    }
+    
+    // Filter dropdown functionality
+    document.getElementById('filterDropdown').addEventListener('click', function(e) {
+      e.stopPropagation();
+      const options = document.getElementById('filterOptions');
+      options.classList.toggle('hidden');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('filterDropdown');
+      const options = document.getElementById('filterOptions');
+      if (!dropdown.contains(event.target) && !options.contains(event.target)) {
+        options.classList.add('hidden');
+      }
+    });
+    
+    // Filter option selection
+    document.querySelectorAll('.filter-option').forEach(option => {
+      option.addEventListener('click', function() {
+        const selectedResult = this.dataset.result;
+        const filterText = selectedResult === '' ? 'All Bets' : selectedResult.charAt(0).toUpperCase() + selectedResult.slice(1);
+        document.getElementById('filterText').textContent = filterText;
+        currentFilter = selectedResult;
+        currentPage = 1;
+        loadBetHistory();
+        document.getElementById('filterOptions').classList.add('hidden');
+      });
+    });
+    
+    // Pagination buttons
+    document.getElementById('prevBtn').addEventListener('click', function() {
+      if (currentPage > 1) {
+        currentPage--;
+        loadBetHistory();
+      }
+    });
+    
+    document.getElementById('nextBtn').addEventListener('click', function() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        loadBetHistory();
+      }
+    });
+    
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', checkAuthAndLoadUser);
+  </script>
+</body>
+</html> 

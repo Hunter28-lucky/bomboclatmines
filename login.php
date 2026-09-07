@@ -2,7 +2,7 @@
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/includes/auth.php';
 
-// If already logged in, redirect to index
+// If already logged in, redirect to Casino Lobby
 if (getCurrentUser()) {
     header('Location: index.php');
     exit;
@@ -12,13 +12,19 @@ if (getCurrentUser()) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#070513">
   <title>BOMBACLAT MINE - Login & Play</title>
   <link rel="icon" type="image/png" href="assets/images/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;0,900;1,900&family=Outfit:wght@400;600;700;800;900&family=Permanent+Marker&family=Space+Grotesk:wght@500;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/app.css">
+  <!-- Performance: Preload Critical Login Assets (WebP) -->
+  <link rel="preload" as="image" href="assets/images/login_hero_bomb.webp" type="image/webp">
+  <link rel="preload" as="image" href="assets/images/login_bg.webp" type="image/webp">
+  <link rel="stylesheet" href="assets/css/app.css?v=<?= filemtime(__DIR__ . '/assets/css/app.css') ?>">
   <style>
     * {
       box-sizing: border-box;
@@ -27,7 +33,7 @@ if (getCurrentUser()) {
     }
     body {
       min-height: 100vh;
-      background: #070312 radial-gradient(circle at 50% 12%, rgba(147, 51, 234, 0.28) 0%, rgba(7, 3, 18, 0.96) 65%), url('assets/images/login_bg.png') center top / cover no-repeat fixed;
+      background: #070312 radial-gradient(circle at 50% 12%, rgba(147, 51, 234, 0.28) 0%, rgba(7, 3, 18, 0.96) 65%), url('assets/images/login_bg.webp') center top / cover no-repeat fixed;
       font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: #ffffff;
       display: flex;
@@ -62,6 +68,112 @@ if (getCurrentUser()) {
       position: relative;
       z-index: 1;
       margin: 0 auto;
+    }
+
+    /* Game Select Hub */
+    .game-select-hub {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .game-select-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .game-select-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .game-tab-btn {
+      background: rgba(18, 11, 40, 0.75);
+      border: 1.5px solid rgba(139, 92, 246, 0.35);
+      border-radius: 14px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(12px);
+      user-select: none;
+    }
+    .game-tab-btn:hover {
+      border-color: rgba(168, 85, 247, 0.6);
+      transform: translateY(-2px);
+      background: rgba(28, 17, 60, 0.9);
+    }
+    .game-tab-btn.active {
+      background: linear-gradient(145deg, rgba(147, 51, 234, 0.35) 0%, rgba(13, 7, 34, 0.95) 100%);
+      border-color: #c084fc;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.45), inset 0 0 12px rgba(168, 85, 247, 0.2);
+    }
+    .game-tab-btn.active.chicken-active {
+      background: linear-gradient(145deg, rgba(16, 185, 129, 0.35) 0%, rgba(7, 30, 24, 0.95) 100%);
+      border-color: #34d399;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.45), inset 0 0 12px rgba(16, 185, 129, 0.2);
+    }
+    .game-tab-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(147, 51, 234, 0.25);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+      transition: transform 0.2s;
+    }
+    .game-tab-icon-wrap.chicken-glow {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .game-tab-btn.active .game-tab-icon-wrap {
+      transform: scale(1.08);
+    }
+    .game-tab-emoji {
+      font-size: 1.25rem;
+    }
+    .game-tab-title {
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+    }
+    .game-tab-sub {
+      font-size: 0.63rem;
+      color: #94a3b8;
+      margin-top: 2px;
+      font-weight: 500;
+    }
+    .game-tab-check {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #a855f7;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .game-tab-btn.active .game-tab-check {
+      display: flex;
+    }
+    .game-tab-btn.active.chicken-active .game-tab-check {
+      background: #10b981;
     }
 
     /* 3D Hero Bomb Emblem */
@@ -390,15 +502,18 @@ if (getCurrentUser()) {
 
     <!-- 3D Glowing Skull Bomb -->
     <div class="hero-bomb-wrap">
-      <img src="assets/images/login_hero_bomb.png" alt="Bombaclat Mine Skull Bomb" class="hero-bomb-img" onerror="this.src='assets/images/skull_bomb.png'">
+      <picture>
+        <source srcset="assets/images/login_hero_bomb.webp" type="image/webp">
+        <img src="assets/images/login_hero_bomb.png" alt="Bombaclat Mine Skull Bomb" class="hero-bomb-img" onerror="this.src='assets/images/skull_bomb.png'" fetchpriority="high" decoding="async">
+      </picture>
     </div>
 
     <!-- Metallic & Neon Branding -->
     <div class="brand-logo-area">
       <h1 class="brand-title-bombaclat">BOMBACLAT</h1>
-      <span class="brand-title-mine">MINE</span>
+      <span class="brand-title-mine">CASINO</span>
       <div class="brand-tagline-bar">
-        <span>PICK A TILE. RISK IT ALL. <span class="highlight-cash-big">CASH BIG.</span></span>
+        <span>MULTIPLY YOUR MONEY. <span class="highlight-cash-big">CASH BIG.</span></span>
       </div>
     </div>
 
@@ -584,6 +699,46 @@ if (getCurrentUser()) {
 
   </div>
 
+  <!-- Modal: Admin Destination Chooser (Mobile & Desktop) -->
+  <div id="admin-destination-modal" style="display:none; position:fixed; inset:0; background:rgba(7,3,18,0.92); backdrop-filter:blur(10px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="width:100%; max-width:400px; background:#0f0a28; border:2px solid #a855f7; border-radius:22px; padding:24px 20px; box-shadow:0 0 40px rgba(168,85,247,0.4); text-align:center;">
+      <div style="width:60px; height:60px; margin:0 auto 12px; border-radius:50%; background:rgba(168,85,247,0.2); border:2px solid #a855f7; display:flex; align-items:center; justify-content:center; font-size:1.8rem; box-shadow:0 0 20px rgba(168,85,247,0.5);">
+        👑
+      </div>
+      <h2 style="font-size:1.35rem; font-weight:900; color:#ffffff; margin-bottom:6px; letter-spacing:0.5px;">WELCOME, OPERATOR!</h2>
+      <p style="font-size:0.82rem; color:#94a3b8; margin-bottom:20px;">Choose where you would like to proceed:</p>
+      
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <!-- Option A: Operator Studio (Admin Panel) -->
+        <a href="admin.php" style="text-decoration:none; padding:14px 16px; border-radius:14px; background:linear-gradient(135deg, #7c3aed 0%, #9333ea 100%); color:#fff; display:flex; align-items:center; gap:12px; box-shadow:0 4px 18px rgba(124,58,237,0.45);">
+          <span style="font-size:1.6rem;">⚙️</span>
+          <div style="text-align:left;">
+            <div style="font-size:0.95rem; font-weight:800; color:#fff;">Operator Studio (Admin)</div>
+            <div style="font-size:0.72rem; color:#e9d5ff;">Adjust RTP, approve withdrawals & rig games</div>
+          </div>
+        </a>
+
+        <!-- Option B: Mines Betting Arena -->
+        <a href="index.php" style="text-decoration:none; padding:14px 16px; border-radius:14px; background:#140e32; border:1.5px solid rgba(168,85,247,0.5); color:#fff; display:flex; align-items:center; gap:12px; box-shadow:0 4px 18px rgba(0,0,0,0.4);">
+          <span style="font-size:1.6rem;">💣</span>
+          <div style="text-align:left;">
+            <div style="font-size:0.95rem; font-weight:800; color:#c084fc;">Play Mines Game</div>
+            <div style="font-size:0.72rem; color:#94a3b8;">Enter Bombaclat Mines arena</div>
+          </div>
+        </a>
+
+        <!-- Option C: Chicken Road Game -->
+        <a href="cheakenselim/game.html" style="text-decoration:none; padding:14px 16px; border-radius:14px; background:#0d1f1c; border:1.5px solid rgba(16,185,129,0.5); color:#fff; display:flex; align-items:center; gap:12px; box-shadow:0 4px 18px rgba(0,0,0,0.4);">
+          <span style="font-size:1.6rem;">🐔</span>
+          <div style="text-align:left;">
+            <div style="font-size:0.95rem; font-weight:800; color:#34d399;">Play Chicken Road</div>
+            <div style="font-size:0.72rem; color:#94a3b8;">Enter Chicken Road cross game</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <script>
     function switchView(view) {
       const isLogin = (view === 'login');
@@ -645,7 +800,16 @@ if (getCurrentUser()) {
         });
         const data = await res.json();
         if (data.success) {
-          window.location.href = 'index.php';
+          if (data.user && (data.user.is_admin == 1 || data.user.email.toLowerCase() === '<?= strtolower(ADMIN_EMAIL) ?>')) {
+            const modal = document.getElementById('admin-destination-modal');
+            if (modal) {
+              modal.style.display = 'flex';
+            } else {
+              window.location.href = 'admin.php';
+            }
+          } else {
+            window.location.href = 'index.php';
+          }
         } else {
           showError(data.error || 'Failed to sign in. Please check your credentials.');
         }

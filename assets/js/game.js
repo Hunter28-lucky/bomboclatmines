@@ -60,7 +60,115 @@
     return audioCtx;
   }
 
+  let heartbeatTimer = null;
+  let heartbeatStep = 0;
+
   const soundEngine = {
+    // Mobile-optimized acoustic heartbeat thump (Dual LUB-DUB)
+    // Uses harmonic overtones so it punches through tiny phone speakers clearly
+    playHeartbeatBeat: function(isDub = false, intensity = 1.0) {
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        // Frequencies tuned with harmonics for mobile phone speakers
+        const baseFreq = isDub ? 120 : 92;
+        const dropFreq = isDub ? 68 : 50;
+        const duration = isDub ? 0.13 : 0.10;
+        const scaleGain = Math.min(2.2, 0.8 + (intensity * 0.25));
+        const peakGain = (isDub ? 0.44 : 0.32) * scaleGain;
+
+        // 1. Transient click/thump oscillator (ensures audibility on phone speakers)
+        const oscTransient = ctx.createOscillator();
+        const gainTransient = ctx.createGain();
+        oscTransient.type = 'triangle';
+        oscTransient.frequency.setValueAtTime(baseFreq * 1.85, now);
+        oscTransient.frequency.exponentialRampToValueAtTime(baseFreq, now + 0.03);
+        gainTransient.gain.setValueAtTime(peakGain * 0.55, now);
+        gainTransient.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+        oscTransient.connect(gainTransient);
+
+        // 2. Resonant Body Oscillator (visceral chest thump)
+        const oscBody = ctx.createOscillator();
+        const gainBody = ctx.createGain();
+        oscBody.type = 'sine';
+        oscBody.frequency.setValueAtTime(baseFreq, now);
+        oscBody.frequency.exponentialRampToValueAtTime(dropFreq, now + duration);
+        gainBody.gain.setValueAtTime(peakGain, now);
+        gainBody.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        oscBody.connect(gainBody);
+
+        // 3. Resonant Lowpass Filter (creates authentic flesh-thumping chest resonance)
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(260, now);
+        filter.Q.setValueAtTime(3.6, now);
+
+        gainTransient.connect(filter);
+        gainBody.connect(filter);
+        filter.connect(ctx.destination);
+
+        oscTransient.start(now);
+        oscTransient.stop(now + 0.036);
+        oscBody.start(now);
+        oscBody.stop(now + duration);
+
+        // Mobile dual-pulse haptic vibration (physical heartbeat in hand)
+        if ('vibrate' in navigator) {
+          try {
+            navigator.vibrate(isDub ? 28 : 16);
+          } catch (e) {}
+        }
+      } catch (e) {
+        console.warn('Audio heartbeat error', e);
+      }
+    },
+
+    // Start pulsating heartbeat loop when game begins
+    startHeartbeat: function(step = 0) {
+      this.stopHeartbeat();
+      heartbeatStep = step;
+
+      const scheduleBeat = () => {
+        if (state.gameState !== 'playing') {
+          this.stopHeartbeat();
+          return;
+        }
+
+        const intensity = Math.min(2.5, 1.0 + (heartbeatStep * 0.22));
+
+        // Beat 1: LUB
+        this.playHeartbeatBeat(false, intensity);
+
+        // Beat 2: DUB (115ms later)
+        setTimeout(() => {
+          if (state.gameState === 'playing') {
+            this.playHeartbeatBeat(true, intensity);
+          }
+        }, 115);
+
+        // Tempo accelerates with each revealed diamond (calm 68 BPM to racing 142 BPM)
+        const bpm = Math.min(142, 68 + (heartbeatStep * 14));
+        const intervalMs = (60 / bpm) * 1000;
+
+        heartbeatTimer = setTimeout(scheduleBeat, intervalMs);
+      };
+
+      scheduleBeat();
+    },
+
+    accelerateHeartbeat: function(step) {
+      heartbeatStep = step;
+    },
+
+    stopHeartbeat: function() {
+      if (heartbeatTimer) {
+        clearTimeout(heartbeatTimer);
+        heartbeatTimer = null;
+      }
+    },
+
     // Ascending diamond bell with crystalline harmonic overtone
     playDiamond: function(step = 1) {
       try {
@@ -291,8 +399,9 @@
     btnQuickRebet: document.getElementById('btn-quick-rebet'),
     btnDoubleRebet: document.getElementById('btn-double-rebet'),
     liveBetsTbody: document.getElementById('live-bets-tbody'),
-    depositModal: document.getElementById('deposit-modal'),
-    withdrawalModal: document.getElementById('withdrawal-modal'),
+    depositModal: document.getElementById('wallet-modal') || document.getElementById('deposit-modal'),
+    withdrawalModal: document.getElementById('wallet-modal') || document.getElementById('withdrawal-modal'),
+    walletModal: document.getElementById('wallet-modal'),
     withdrawAvailableBal: document.getElementById('withdraw-available-bal'),
     accountModal: document.getElementById('account-modal')
   };
@@ -301,6 +410,10 @@
     state.balance = newBal;
     if (el.balanceDisplay) {
       el.balanceDisplay.textContent = formatINR(newBal);
+    }
+    const modalBal = document.getElementById('wallet-modal-balance-display');
+    if (modalBal) {
+      modalBal.textContent = formatINR(newBal);
     }
     if (el.withdrawAvailableBal) {
       el.withdrawAvailableBal.textContent = formatINR(newBal);
@@ -544,7 +657,7 @@
 
     if (state.balance < state.betAmount) {
       alert('Insufficient balance! Please add funds.');
-      openModal(el.depositModal);
+      openWalletModal('deposit');
       return;
     }
 
@@ -594,6 +707,7 @@
       renderLadderDOM();
       updateStatsHeaderUI();
       updateActionButtonUI();
+      soundEngine.startHeartbeat(0);
     } catch (e) {
       alert('Network error');
       updateActionButtonUI();
@@ -637,6 +751,7 @@
 
         // Sensory Feedback: Ascending Major Pitch + Pacinian Expand Envelope + Luminance Bloom
         soundEngine.playDiamond(data.step);
+        soundEngine.accelerateHeartbeat(data.step);
         hapticEngine.expand(data.step);
         triggerLuminanceBloom(false);
 
@@ -661,6 +776,7 @@
         state.winStreak = 0;
         updateStreakUI();
 
+        soundEngine.stopHeartbeat();
         soundEngine.playMineDetonate();
         hapticEngine.bombThud();
 
@@ -781,7 +897,8 @@
       state.winStreak++;
       updateStreakUI();
 
-      // Sensory Reinforcement: Ascending Fanfare + Cascade Haptics + Gold Luminance Bloom + Confetti
+      // Sensory Reinforcement: Stop Heartbeat + Ascending Fanfare + Cascade Haptics + Gold Bloom + Confetti
+      soundEngine.stopHeartbeat();
       soundEngine.playCashout();
       hapticEngine.cashoutCascade();
       triggerLuminanceBloom(true);
@@ -826,6 +943,7 @@
   }
 
   function resetToBettingState() {
+    soundEngine.stopHeartbeat();
     state.gameState = 'betting';
     state.sessionId = null;
     state.currentWinnings = 0;
@@ -1149,25 +1267,84 @@
       });
     }
 
+    // Unified Wallet Tab Switcher
+    function switchWalletTab(tabName) {
+      document.querySelectorAll('.wallet-tab-btn').forEach(btn => {
+        if (btn.dataset.walletTab === tabName) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.wallet-tab-pane').forEach(pane => {
+        if (pane.id === `wallet-pane-${tabName}`) {
+          pane.classList.add('active');
+        } else {
+          pane.classList.remove('active');
+        }
+      });
+
+      if (tabName === 'deposit') {
+        const formContent = document.getElementById('deposit-form-content');
+        const successView = document.getElementById('deposit-success-view');
+        if (formContent) formContent.style.display = 'block';
+        if (successView) successView.style.display = 'none';
+      } else if (tabName === 'withdraw') {
+        const formContent = document.getElementById('withdrawal-form-content');
+        const successView = document.getElementById('withdrawal-success-view');
+        if (formContent) formContent.style.display = 'block';
+        if (successView) successView.style.display = 'none';
+        if (el.withdrawAvailableBal) el.withdrawAvailableBal.textContent = formatINR(state.balance);
+      } else if (tabName === 'deposit-history') {
+        fetchDepositHistory();
+      } else if (tabName === 'withdraw-history') {
+        fetchWithdrawalHistory();
+      }
+    }
+    window.switchWalletTab = switchWalletTab;
+
+    function openWalletModal(targetTab = 'deposit') {
+      const modal = document.getElementById('wallet-modal') || el.depositModal;
+      switchWalletTab(targetTab);
+      openModal(modal);
+    }
+    window.openWalletModal = openWalletModal;
+
+    // Wallet Tab Click Listeners
+    document.querySelectorAll('.wallet-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        soundEngine.playTick();
+        hapticEngine.tick();
+        const tab = btn.dataset.walletTab;
+        if (tab) switchWalletTab(tab);
+      });
+    });
+
+    // Wallet Direct Buttons ([data-open-wallet])
+    document.querySelectorAll('[data-open-wallet]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        soundEngine.playTick();
+        hapticEngine.tick();
+        const tab = btn.dataset.openWallet || 'deposit';
+        openWalletModal(tab);
+      });
+    });
+
     // Modal Triggers
     document.querySelectorAll('[data-open-modal]').forEach(btn => {
       btn.addEventListener('click', () => {
         const modalId = btn.dataset.openModal;
-        const modal = document.getElementById(modalId);
-        if (modalId === 'deposit-modal') {
-          const formContent = document.getElementById('deposit-form-content');
-          const successView = document.getElementById('deposit-success-view');
-          if (formContent) formContent.style.display = 'block';
-          if (successView) successView.style.display = 'none';
+        if (modalId === 'deposit-modal' || modalId === 'wallet-modal') {
+          openWalletModal('deposit');
+          return;
         }
         if (modalId === 'withdrawal-modal') {
-          const formContent = document.getElementById('withdrawal-form-content');
-          const successView = document.getElementById('withdrawal-success-view');
-          if (formContent) formContent.style.display = 'block';
-          if (successView) successView.style.display = 'none';
-          if (el.withdrawAvailableBal) el.withdrawAvailableBal.textContent = formatINR(state.balance);
-          fetchWithdrawalHistory();
+          openWalletModal('withdraw');
+          return;
         }
+        const modal = document.getElementById(modalId);
         if (modalId === 'live-support-modal') {
           fetchSupportHistory();
         }
@@ -1259,14 +1436,16 @@
                   if (typeof confetti === 'function') {
                     confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
                   }
-                  state.balance = data.new_balance;
-                  updateBalanceUI();
+                  setBalance(data.new_balance);
                   formContent.innerHTML = `
                     <div style="text-align:center; padding: 20px 10px;">
                       <div style="font-size:2.8rem; margin-bottom:8px;">✅</div>
                       <h4 style="font-size:1.1rem; color:#34d399; margin-bottom:6px;">Deposit Approved & Credited!</h4>
                       <p style="font-size:0.85rem; color:#cbd5e1; margin-bottom:16px;">₹${Number(data.credited_amount).toFixed(2)} has been added to your balance.</p>
-                      <button type="button" class="btn-primary-action" onclick="document.getElementById('deposit-modal').classList.remove('active')">Play Now</button>
+                      <div style="display:flex; gap:10px; justify-content:center;">
+                        <button type="button" class="btn-primary-action" onclick="switchWalletTab('deposit-history')">View History</button>
+                        <button type="button" class="btn-primary-action" data-close-modal style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">Play Now</button>
+                      </div>
                     </div>
                   `;
                 }
@@ -1284,6 +1463,24 @@
           submitBtn.disabled = false;
           submitBtn.textContent = 'Submit Payment';
         }
+      });
+    }
+
+    // Go to Deposit / Withdraw History buttons
+    const btnGotoDepHist = document.getElementById('btn-goto-deposit-history');
+    if (btnGotoDepHist) {
+      btnGotoDepHist.addEventListener('click', () => switchWalletTab('deposit-history'));
+    }
+    const btnGotoWithHist = document.getElementById('btn-goto-withdraw-history');
+    if (btnGotoWithHist) {
+      btnGotoWithHist.addEventListener('click', () => switchWalletTab('withdraw-history'));
+    }
+
+    // Refresh Deposit History Button
+    const refreshDepositBtn = document.getElementById('btn-refresh-deposits');
+    if (refreshDepositBtn) {
+      refreshDepositBtn.addEventListener('click', () => {
+        fetchDepositHistory();
       });
     }
 
@@ -1335,7 +1532,6 @@
             document.getElementById('withdrawal-success-view').style.display = 'block';
             withdrawForm.reset();
             fetchUserStatus();
-            fetchWithdrawalHistory();
           } else {
             alert(data.error || 'Failed to submit withdrawal request');
           }
@@ -1411,7 +1607,7 @@
     // Stealth Influencer Mobile Gesture (Triple Tap on Wallet/Badge)
     let tapCount = 0;
     let lastTapTime = 0;
-    const stealthArea = document.querySelector('.wallet-badge-wrap') || document.querySelector('.wallet-badge') || document.getElementById('user-balance');
+    const stealthArea = document.querySelector('.header-wallet-widget') || document.querySelector('.wallet-badge-wrap') || document.getElementById('user-balance');
     if (stealthArea) {
       stealthArea.addEventListener('click', async () => {
         const now = Date.now();
@@ -1445,31 +1641,98 @@
     }
   }
 
+  // ==========================================
+  // 14. TRANSACTION & WITHDRAWAL HISTORY CONTROLLER
+  // ==========================================
+  async function fetchDepositHistory() {
+    const listEl = document.getElementById('deposit-history-list');
+    if (!listEl) return;
+    listEl.innerHTML = '<div class="tx-empty-state"><div style="width:24px; height:24px; border:2px solid rgba(168,85,247,0.3); border-top-color:#a855f7; border-radius:50%; margin:0 auto 8px; animation:spin 0.8s linear infinite;"></div>Loading deposits...</div>';
+    try {
+      const res = await fetch('api/deposit.php?action=history');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.deposits)) {
+        if (data.deposits.length === 0) {
+          listEl.innerHTML = `
+            <div class="tx-empty-state">
+              <div style="font-size: 1.8rem; margin-bottom: 6px;">📥</div>
+              <div style="color: #cbd5e1; font-weight: 700; margin-bottom: 4px;">No Deposits Yet</div>
+              <div>Submitted deposits will show up here with live verification status.</div>
+              <button type="button" class="btn-primary-action" onclick="switchWalletTab('deposit')" style="margin-top: 10px; padding: 6px 14px; font-size: 0.78rem;">+ Make First Deposit</button>
+            </div>
+          `;
+          return;
+        }
+        listEl.innerHTML = data.deposits.map(d => {
+          const status = (d.status || 'pending').toLowerCase();
+          const icon = status === 'approved' ? '✓ ' : (status === 'rejected' ? '✕ ' : '⏳ ');
+          const dateStr = d.created_at || 'Just now';
+          const screenshotBadge = d.screenshot_url ? `<a href="${escapeHtml(d.screenshot_url)}" target="_blank" style="font-size:0.65rem; color:#a855f7; text-decoration:none; margin-left:6px;">[View Proof]</a>` : '';
+          return `
+            <div class="tx-history-card">
+              <div class="tx-card-left">
+                <div class="tx-amount">+ ₹${Number(d.amount).toFixed(2)}</div>
+                <div class="tx-meta">UTR: <strong>${escapeHtml(d.utr_number || 'N/A')}</strong>${screenshotBadge}</div>
+                <div class="tx-meta" style="font-size: 0.65rem; color: #64748b;">${dateStr}</div>
+              </div>
+              <div class="tx-card-right">
+                <span class="tx-status-badge ${status}">${icon}${escapeHtml(status)}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        listEl.innerHTML = '<div class="tx-empty-state" style="color:#ef4444;">Failed to load deposit history.</div>';
+      }
+    } catch (e) {
+      console.error('Failed to load deposit history', e);
+      listEl.innerHTML = '<div class="tx-empty-state" style="color:#ef4444;">Network error while loading deposits.</div>';
+    }
+  }
+
   async function fetchWithdrawalHistory() {
     const listEl = document.getElementById('withdrawal-history-list');
     if (!listEl) return;
+    listEl.innerHTML = '<div class="tx-empty-state"><div style="width:24px; height:24px; border:2px solid rgba(168,85,247,0.3); border-top-color:#a855f7; border-radius:50%; margin:0 auto 8px; animation:spin 0.8s linear infinite;"></div>Loading withdrawals...</div>';
     try {
       const res = await fetch('api/withdrawal.php?action=history');
       const data = await res.json();
       if (data.success && Array.isArray(data.withdrawals)) {
         if (data.withdrawals.length === 0) {
-          listEl.innerHTML = '<div style="text-align: center; color: #64748b; padding: 10px;">No recent withdrawal requests</div>';
+          listEl.innerHTML = `
+            <div class="tx-empty-state">
+              <div style="font-size: 1.8rem; margin-bottom: 6px;">📤</div>
+              <div style="color: #cbd5e1; font-weight: 700; margin-bottom: 4px;">No Withdrawals Yet</div>
+              <div>Placed withdrawal requests will show up here.</div>
+            </div>
+          `;
           return;
         }
-        listEl.innerHTML = data.withdrawals.map(w => `
-          <div class="withdrawal-history-item">
-            <div>
-              <strong style="color: #34d399;">₹${Number(w.amount).toFixed(2)}</strong>
-              <div style="font-size: 0.68rem; color: #94a3b8;">${escapeHtml(w.upi_id)} • ${w.created_at}</div>
+        listEl.innerHTML = data.withdrawals.map(w => {
+          const status = (w.status || 'pending').toLowerCase();
+          const icon = status === 'approved' || status === 'completed' ? '✓ ' : (status === 'rejected' ? '✕ ' : '⏳ ');
+          const dateStr = w.created_at || 'Just now';
+          const noteStr = w.admin_note ? `<div style="font-size:0.65rem; color:#f87171; margin-top:2px;">Note: ${escapeHtml(w.admin_note)}</div>` : '';
+          return `
+            <div class="tx-history-card">
+              <div class="tx-card-left">
+                <div class="tx-amount" style="color: #38bdf8;">- ₹${Number(w.amount).toFixed(2)}</div>
+                <div class="tx-meta">UPI: <strong>${escapeHtml(w.upi_id || 'N/A')}</strong></div>
+                <div class="tx-meta" style="font-size: 0.65rem; color: #64748b;">${dateStr}</div>
+                ${noteStr}
+              </div>
+              <div class="tx-card-right">
+                <span class="tx-status-badge ${status}">${icon}${escapeHtml(status)}</span>
+              </div>
             </div>
-            <div>
-              <span class="withdrawal-status-badge ${escapeHtml(w.status)}">${escapeHtml(w.status)}</span>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
+      } else {
+        listEl.innerHTML = '<div class="tx-empty-state" style="color:#ef4444;">Failed to load withdrawal history.</div>';
       }
     } catch (e) {
       console.error('Failed to load withdrawal history', e);
+      listEl.innerHTML = '<div class="tx-empty-state" style="color:#ef4444;">Network error while loading withdrawals.</div>';
     }
   }
 
@@ -1582,13 +1845,33 @@
   document.addEventListener('DOMContentLoaded', () => {
     // Mobile touch & audio auto-unlock on first tap gesture
     const unlockMobileAudio = () => {
-      getAudioContext();
+      const ctx = getAudioContext();
+      if (ctx) {
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+        try {
+          const buffer = ctx.createBuffer(1, 1, 22050);
+          const source = ctx.createBufferSource();
+          source.buffer = buffer;
+          source.connect(ctx.destination);
+          source.start(0);
+        } catch (e) {}
+      }
       hapticEngine.tick();
       window.removeEventListener('touchstart', unlockMobileAudio);
       window.removeEventListener('pointerdown', unlockMobileAudio);
     };
     window.addEventListener('touchstart', unlockMobileAudio, { passive: true, once: true });
     window.addEventListener('pointerdown', unlockMobileAudio, { passive: true, once: true });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        soundEngine.stopHeartbeat();
+      } else if (state.gameState === 'playing') {
+        soundEngine.startHeartbeat(state.tilesRevealed);
+      }
+    });
 
     fetchUserStatus();
     renderGrid(false);

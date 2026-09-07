@@ -59,15 +59,30 @@ button, input, select, textarea {
 /* =========================================================
    TOP NAVIGATION HEADER
    ========================================================= */
+/* Full-width sticky header shell */
+.app-header-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: rgba(10, 6, 26, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+
+/* Inner content row — max-width constrained */
 .app-header {
   width: 100%;
   max-width: 1240px;
   margin: 0 auto;
-  padding: 8px 14px;
+  padding: 8px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 50;
+  height: 58px;
+  box-sizing: border-box;
 }
 
 .header-left-group {
@@ -112,8 +127,8 @@ button, input, select, textarea {
 .mine-highlight {
   font-size: 1.15rem;
   font-weight: 900;
-  color: #d946ef;
-  text-shadow: 0 0 12px rgba(217, 70, 239, 0.6);
+  color: #a3e635;
+  text-shadow: 0 0 12px rgba(163, 230, 53, 0.6);
 }
 
 .header-center-badge {
@@ -139,7 +154,99 @@ button, input, select, textarea {
   gap: 8px;
 }
 
-/* Header Wallet Capsule */
+/* Header Wallet Capsule (Matches Reference Mockup) */
+.header-wallet-widget {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(14, 10, 32, 0.95);
+  border: 1.5px solid rgba(168, 85, 247, 0.45);
+  border-radius: 20px;
+  padding: 5px 8px 5px 14px;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  flex-shrink: 0;
+}
+.header-wallet-widget:hover {
+  border-color: #a855f7;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
+  transform: translateY(-1px);
+}
+.wallet-val {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #00e676;
+  line-height: 1.1;
+  text-shadow: 0 0 10px rgba(0, 230, 118, 0.5);
+  white-space: nowrap;
+  font-family: var(--font-mono, 'Outfit', sans-serif);
+}
+.wallet-plus-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 900;
+  transition: transform 0.15s ease;
+}
+.header-wallet-widget:hover .wallet-plus-circle {
+  transform: scale(1.1);
+  border-color: #a855f7;
+}
+
+/* Bonus Gift Icon Button (Matches Reference Mockup) */
+.gift-box-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(168, 85, 247, 0.45);
+  background: rgba(18, 12, 42, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.2);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.gift-box-btn:hover {
+  transform: scale(1.08);
+  border-color: #f472b6;
+  box-shadow: 0 0 16px rgba(244, 114, 182, 0.4);
+}
+.gift-box-btn svg {
+  filter: drop-shadow(0 0 4px rgba(244, 114, 182, 0.5));
+}
+
+/* Admin Crown Quick Launch Button */
+.header-admin-crown-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(168, 85, 247, 0.2);
+  border: 1.5px solid #a855f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  text-decoration: none;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.35);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.header-admin-crown-btn:hover {
+  transform: scale(1.08);
+  border-color: #c084fc;
+}
+
+/* Backward compatibility classes */
 .header-wallet-capsule {
   display: flex;
   align-items: center;
@@ -149,25 +256,7 @@ button, input, select, textarea {
   border-radius: 12px;
   padding: 3px 6px 3px 10px;
   box-shadow: 0 0 14px rgba(168, 85, 247, 0.15);
-}
-.wallet-balance-info {
-  display: flex;
-  flex-direction: column;
-  text-align: right;
-}
-.wallet-val {
-  font-size: 0.92rem;
-  font-weight: 900;
-  color: #a3e635;
-  line-height: 1.1;
-  text-shadow: 0 0 8px rgba(163, 230, 53, 0.4);
-}
-.wallet-label {
-  font-size: 0.52rem;
-  font-weight: 800;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
+  cursor: pointer;
 }
 .wallet-plus-btn {
   width: 24px;
@@ -185,30 +274,6 @@ button, input, select, textarea {
   box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
   transition: transform 0.15s;
 }
-.wallet-plus-btn:hover { transform: scale(1.08); }
-
-.gift-box-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: rgba(168, 85, 247, 0.15);
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.gift-box-btn:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);
-}
-.gift-btn-img {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-}
-
 .btn-deposit-neon {
   background: #a3e635;
   color: #070513;
@@ -221,10 +286,6 @@ button, input, select, textarea {
   box-shadow: 0 0 16px rgba(163, 230, 53, 0.45);
   transition: all 0.15s;
   letter-spacing: 0.5px;
-}
-.btn-deposit-neon:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 24px rgba(163, 230, 53, 0.75);
 }
 
 .btn-admin-pill {
@@ -469,42 +530,48 @@ button, input, select, textarea {
 }
 
 .promo-dare-card {
-  background: linear-gradient(135deg, rgba(30, 16, 60, 0.95), rgba(15, 10, 36, 0.95));
-  border: 1.5px solid rgba(217, 70, 239, 0.35);
+  background: rgba(14, 10, 32, 0.95);
+  border: 1px solid rgba(139, 92, 246, 0.25);
   border-radius: 14px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  box-shadow: 0 0 16px rgba(217, 70, 239, 0.15);
+  gap: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 .promo-title {
-  font-size: 0.88rem;
+  font-size: 1rem;
   font-weight: 900;
-  color: #d946ef;
-  letter-spacing: 0.4px;
+  color: #a855f7;
+  letter-spacing: 0.5px;
 }
 .promo-subtext {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   color: #94a3b8;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 .btn-try-bombs {
-  padding: 5px 12px;
-  border-radius: 6px;
-  background: #7c3aed;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6d28d9, #7c3aed);
   border: none;
   color: #fff;
-  font-size: 0.7rem;
-  font-weight: 900;
+  font-size: 0.72rem;
+  font-weight: 800;
   cursor: pointer;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+  transition: transform 0.15s ease;
+  text-transform: uppercase;
+}
+.btn-try-bombs:hover {
+  transform: scale(1.05);
 }
 .promo-bomb-img {
-  width: 44px;
-  height: 44px;
+  width: 58px;
+  height: 58px;
   object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(217, 70, 239, 0.6));
+  filter: drop-shadow(0 0 14px rgba(217, 70, 239, 0.7));
 }
 
 /* =========================================================
@@ -725,12 +792,14 @@ button, input, select, textarea {
 .cashout-control-bar {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
+  align-items: stretch;
+  box-sizing: border-box;
 }
 .cashout-action-card {
-  padding: 6px 12px;
-  height: 52px;
+  padding: 6px 10px;
+  min-height: 56px;
   border-radius: 12px;
   background: linear-gradient(135deg, rgba(22, 101, 52, 0.35), rgba(15, 10, 36, 0.95));
   border: 1.5px solid #22c55e;
@@ -740,11 +809,19 @@ button, input, select, textarea {
   cursor: pointer;
   box-shadow: 0 0 16px rgba(34, 197, 94, 0.25);
   transition: all 0.2s;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 .cashout-action-card.disabled {
   opacity: 0.45;
   filter: grayscale(0.6);
   cursor: not-allowed;
+}
+.cashout-main-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 }
 .cashout-amount-huge {
   font-size: 1.35rem;
@@ -762,30 +839,37 @@ button, input, select, textarea {
 .cashout-subtext {
   font-size: 0.58rem;
   color: #94a3b8;
+  white-space: nowrap;
 }
-.cashout-arrow-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(163, 230, 53, 0.15);
-  border: 1.5px solid #a3e635;
+.cashout-arrow-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(10, 7, 24, 0.95);
+  border: 1.5px solid rgba(34, 197, 94, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  margin-left: 8px;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.15);
+  box-sizing: border-box;
 }
 
 .auto-cashout-box {
-  padding: 6px 10px;
-  height: 52px;
+  padding: 6px 12px;
+  min-height: 56px;
   border-radius: 12px;
   background: rgba(18, 12, 40, 0.95);
   border: 1px solid rgba(139, 92, 246, 0.3);
-  min-width: 95px;
+  min-width: 100px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
   cursor: pointer;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 .auto-cashout-label {
   font-size: 0.55rem;
@@ -926,64 +1010,106 @@ button, input, select, textarea {
 .btn-start-mining {
   width: 100%;
   height: 48px;
-  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #6b21a8 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 45%, #9333ea 100%);
+  color: #ffffff;
   border: none;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 900;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  transition: all 0.15s;
+  gap: 8px;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+}
+.btn-start-mining::after {
+  content: '💀';
+  position: absolute;
+  right: 14px;
+  font-size: 1.6rem;
+  opacity: 0.18;
+  pointer-events: none;
+  transform: rotate(-8deg);
+}
+.btn-start-mining svg {
+  fill: #ffffff;
 }
 .btn-start-mining:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 0 30px rgba(147, 51, 234, 0.75);
+  box-shadow: 0 6px 30px rgba(139, 92, 246, 0.75);
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 45%, #a855f7 100%);
+}
+.btn-start-mining:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .quick-rebet-bar {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
 }
+/* REPLAY button — dark card with cyan border */
 .btn-fast-rebet {
   flex: 1;
-  height: 42px;
-  padding: 6px;
-  font-size: 0.8rem;
-  font-weight: 900;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #0284c7, #0369a1);
-  color: #fff;
-  border: none;
+  height: 44px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  border-radius: 12px;
+  background: #081026;
+  color: #ffffff;
+  border: 1.5px solid rgba(2, 132, 199, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  box-shadow: 0 0 14px rgba(2, 132, 199, 0.4);
+  gap: 6px;
+  box-shadow: 0 0 14px rgba(2, 132, 199, 0.25);
   cursor: pointer;
+  transition: all 0.15s ease;
 }
+.btn-fast-rebet:hover {
+  border-color: #00f0ff;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.45);
+  transform: translateY(-1px);
+}
+.btn-fast-rebet .rebet-val-cyan {
+  color: #00f0ff;
+  font-weight: 800;
+}
+
+/* 2X REPLAY button — dark card with amber/gold border */
 .btn-fast-rebet-double {
   flex: 1;
-  height: 42px;
-  padding: 6px;
-  font-size: 0.8rem;
-  font-weight: 900;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #d97706, #b45309);
-  color: #fff;
-  border: none;
+  height: 44px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  border-radius: 12px;
+  background: #1c1202;
+  color: #ffffff;
+  border: 1.5px solid rgba(217, 119, 6, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  box-shadow: 0 0 14px rgba(217, 119, 6, 0.4);
+  gap: 6px;
+  box-shadow: 0 0 14px rgba(217, 119, 6, 0.25);
   cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-fast-rebet-double:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.45);
+  transform: translateY(-1px);
+}
+.btn-fast-rebet-double .rebet-val-gold {
+  color: #f59e0b;
+  font-weight: 800;
 }
 
 /* =========================================================
@@ -1158,12 +1284,13 @@ button, input, select, textarea {
 }
 
 /* =========================================================
-   MOBILE DOCK & RESPONSIVE RULES (<= 860px)
+   MOBILE DOCK & RESPONSIVE RULES
    ========================================================= */
 .mobile-bottom-dock {
   display: none;
 }
 
+/* ---- TABLET / LARGE PHONE (≤ 860px) ---- */
 @media (max-width: 860px) {
   html, body {
     width: 100% !important;
@@ -1172,19 +1299,23 @@ button, input, select, textarea {
     background-color: #070513 !important;
   }
 
-  .app-header {
-    padding: 8px 10px;
-    height: 52px;
-    background: rgba(10, 6, 26, 0.98);
-    backdrop-filter: blur(16px);
+  /* Sticky header */
+  .app-header-bar {
     border-bottom: 1px solid rgba(168, 85, 247, 0.25);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    width: 100% !important;
-    max-width: 100% !important;
   }
 
+  .app-header {
+    padding: 0 10px;
+    height: 52px;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+  }
+
+  /* Hide desktop-only elements */
   .header-center-badge,
   .avatar-circle-btn,
   .notification-bell-btn,
@@ -1194,13 +1325,83 @@ button, input, select, textarea {
     display: none !important;
   }
 
+  /* Header left group tighter on mobile */
+  .header-left-group {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .brand-title, .mine-highlight {
+    font-size: 1.05rem;
+  }
+
+  /* Wallet capsule - clean mobile pill */
+  .header-wallet-widget {
+    padding: 4px 6px 4px 12px;
+    gap: 6px;
+    border-radius: 20px;
+    background: rgba(14, 10, 32, 0.95);
+    border: 1.5px solid rgba(168, 85, 247, 0.45);
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.25);
+    flex-shrink: 0;
+  }
+  .wallet-val {
+    font-size: 0.88rem;
+    color: #00e676;
+    font-weight: 800;
+  }
+  .wallet-plus-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Gift button */
+  .gift-box-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(168, 85, 247, 0.45);
+    background: rgba(18, 12, 42, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Hamburger menu button on mobile */
+  .menu-hamburger-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* Header right - no wrap */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  /* Main layout: clean centered single column */
   .main-dashboard-grid {
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
-    max-width: 480px !important;
+    max-width: 440px !important;
     margin: 0 auto !important;
-    padding: 4px 8px 75px 8px !important;
+    padding: 8px 12px 76px 12px !important;
     gap: 8px !important;
     box-sizing: border-box !important;
   }
@@ -1208,44 +1409,166 @@ button, input, select, textarea {
   .center-game-column {
     width: 100% !important;
     max-width: 100% !important;
-    padding: 8px 6px !important;
+    padding: 0 !important;
     margin: 0 auto !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    gap: 8px !important;
     box-sizing: border-box !important;
+  }
+
+  .arena-stats-strip-four {
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+  .stat-quad-label {
+    font-size: 0.54rem;
+  }
+  .stat-quad-val {
+    font-size: 0.95rem;
   }
 
   .arena-matrix-container {
     width: 100% !important;
-    margin: 4px auto !important;
+    margin: 2px auto !important;
+    padding: 0;
+    display: flex;
+    justify-content: center;
   }
 
   .mines-grid-stage {
     width: 100% !important;
-    max-width: min(320px, 85vw) !important;
+    max-width: min(340px, 92vw) !important;
     aspect-ratio: 1 / 1 !important;
+    margin: 0 auto !important;
+    border-radius: 18px;
+    border: 2px solid #a855f7;
+    box-shadow: 0 0 24px rgba(168, 85, 247, 0.35);
+    background: rgba(12, 8, 28, 0.95);
+    padding: 8px;
+    box-sizing: border-box;
   }
 
+  /* Compact bet deck full width */
+  .mobile-compact-bet-deck {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+  }
+  .compact-bet-row-three {
+    grid-template-columns: 1.15fr 1fr 0.95fr;
+    gap: 6px;
+  }
+  .compact-cell {
+    padding: 6px 8px;
+    border-radius: 12px;
+  }
+
+  /* Cashout bar */
+  .cashout-control-bar {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+  .cashout-action-card {
+    padding: 6px 10px !important;
+    min-height: 54px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .cashout-amount-huge {
+    font-size: 1.25rem !important;
+  }
+  .cashout-arrow-box {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 8px !important;
+    margin-left: 6px !important;
+    box-sizing: border-box !important;
+  }
+  .auto-cashout-box {
+    min-width: 96px !important;
+    min-height: 54px !important;
+    padding: 6px 8px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    flex-direction: column !important;
+  }
+
+  /* Multiplier ladder */
+  .multiplier-ladder-box {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 5px 6px;
+    border-radius: 12px;
+  }
+
+  /* Live bets table - scrollable horizontally */
   .live-bets-full-card {
     width: 100% !important;
     max-width: 100% !important;
-    padding: 0 4px !important;
+    padding: 0 !important;
     margin-bottom: 20px !important;
+    box-sizing: border-box;
+  }
+  .live-bets-inner-panel {
+    overflow-x: hidden;
+    border-radius: 14px;
+    padding: 10px;
+  }
+  .live-table {
+    width: 100%;
+    font-size: 0.72rem;
+  }
+  .live-table th,
+  .live-table td {
+    padding: 6px 8px;
+  }
+  /* Hide less important columns on mobile */
+  .live-table th:nth-child(3),
+  .live-table td:nth-child(3) {
+    display: none;
   }
 
-  /* Mobile Bottom Navigation Dock */
+  /* Quick rebet bar */
+  .quick-rebet-bar {
+    gap: 8px;
+  }
+  .btn-fast-rebet,
+  .btn-fast-rebet-double {
+    font-size: 0.75rem;
+    height: 40px;
+    padding: 5px;
+  }
+
+  /* Near miss banner */
+  .near-miss-banner {
+    padding: 7px 10px;
+    gap: 8px;
+  }
+
+  /* Mobile Bottom Navigation Dock (Reference Mockup Style with Center Bolt) */
   .mobile-bottom-dock {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 56px;
-    background: rgba(10, 6, 26, 0.98);
-    backdrop-filter: blur(16px);
+    height: 60px;
+    background: rgba(8, 5, 20, 0.98);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     border-top: 1px solid rgba(139, 92, 246, 0.25);
     display: flex !important;
     align-items: center;
     justify-content: space-around;
     z-index: 95;
     padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: border-box;
   }
   .dock-nav-item {
     background: transparent;
@@ -1255,25 +1578,315 @@ button, input, select, textarea {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
-    font-size: 0.62rem;
-    font-weight: 800;
+    gap: 3px;
+    font-size: 0.65rem;
+    font-weight: 700;
     cursor: pointer;
+    padding: 4px 6px;
+    min-width: 48px;
+    min-height: 48px;
+    touch-action: manipulation;
+    transition: color 0.15s;
+  }
+  .dock-nav-item svg {
+    transition: transform 0.15s ease;
   }
   .dock-nav-item.active {
-    color: #a855f7;
-    filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.6));
+    color: #c084fc;
+  }
+  .dock-nav-item.active svg {
+    filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.7));
   }
 
+  /* Center Elevated Floating Lightning Button */
+  .dock-center-action-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-top: -24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    touch-action: manipulation;
+  }
+  .dock-bolt-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, #9333ea 0%, #581c87 60%, #3b0764 100%);
+    border: 2.5px solid #a855f7;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 -4px 14px rgba(147, 51, 234, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  }
+  .dock-bolt-circle svg {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+  }
+  .dock-center-action-btn:hover .dock-bolt-circle,
+  .dock-center-action-btn:active .dock-bolt-circle {
+    transform: scale(1.1);
+    box-shadow: 0 0 28px rgba(168, 85, 247, 1), 0 -6px 18px rgba(147, 51, 234, 0.7);
+  }
+
+  /* Floating support button — above dock */
   .floating-live-support-btn {
-    bottom: 64px;
-    left: 8px;
-    right: auto;
-    padding: 4px 8px;
-    font-size: 0.68rem;
+    bottom: 70px;
+    right: 10px;
+    left: auto;
+    padding: 5px 10px;
+    font-size: 0.7rem;
     border-radius: 14px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     z-index: 90;
+  }
+}
+
+/* ---- MEDIUM PHONES (≤ 640px) ---- */
+@media (max-width: 640px) {
+  .main-dashboard-grid {
+    padding: 4px 8px 78px 8px !important;
+  }
+
+  /* Show wallet action text again now that we have more space on medium screens,
+     but for the smallest phones below 480px we hide it */
+  .wallet-action-text {
+    display: inline;
+  }
+
+  .bet-number-input {
+    font-size: 1.2rem;
+    width: 80px;
+  }
+
+  /* Panel cards: tighter padding */
+  .panel-card {
+    padding: 10px;
+    border-radius: 14px;
+  }
+  .bet-input-card {
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  /* Modal: fit to screen height */
+  .modal-overlay {
+    padding: 8px;
+    align-items: flex-end;
+  }
+  .modal-box {
+    border-radius: 20px 20px 16px 16px;
+    max-height: 92vh;
+  }
+  .wallet-modal-box {
+    border-radius: 20px 20px 16px 16px;
+  }
+
+  /* Wallet modal tab bar: 2x2 grid on small phones */
+  .wallet-nav-tabs {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    padding: 5px;
+  }
+  .wallet-tab-btn {
+    padding: 7px 4px;
+    font-size: 0.68rem;
+    border-radius: 8px;
+  }
+  .wallet-tab-btn .tab-icon {
+    font-size: 0.9rem;
+  }
+
+  /* Wallet modal header balance pill — hide label, keep value */
+  .bal-pill-label {
+    display: none;
+  }
+
+  /* Deposit chip buttons — 3 per row */
+  .btn-deposit-chip, .btn-withdraw-chip {
+    flex: 1 1 calc(33.333% - 6px);
+    font-size: 0.72rem;
+    padding: 5px 3px;
+  }
+
+  /* Tx history cards on mobile */
+  .tx-history-card {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .tx-amount {
+    font-size: 0.88rem;
+  }
+  .tx-history-scroll-container {
+    max-height: 240px;
+  }
+
+  /* Game grid slightly larger */
+  .mines-grid-stage {
+    max-width: min(360px, 92vw) !important;
+  }
+
+  /* Quick rebet full width each */
+  .quick-rebet-bar {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  /* Sidebar stats: hide on mobile since right-sidebar-column is hidden */
+  .sidebar-card-header { font-size: 0.72rem; }
+
+  /* Toast position: below header on mobile */
+  .live-toast-container {
+    top: 58px;
+    right: 8px;
+    left: 8px;
+    align-items: flex-end;
+  }
+  .live-toast-item {
+    font-size: 0.72rem;
+    padding: 6px 10px;
+  }
+}
+
+/* ---- EXTRA SMALL PHONES (≤ 420px / iPhone SE, small Android) ---- */
+@media (max-width: 420px) {
+  /* Brand: hide subtitle on very small screens */
+  .brand-title {
+    font-size: 0.88rem;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mine-highlight {
+    font-size: 0.88rem;
+  }
+
+  /* Wallet: show only balance + plus icon */
+  .wallet-action-text {
+    display: none;
+  }
+  .btn-wallet-action {
+    padding: 5px 7px;
+    border-radius: 8px;
+  }
+  .wallet-val {
+    font-size: 0.82rem;
+    max-width: 72px;
+  }
+
+  /* Header right: tighten gap */
+  .header-right {
+    gap: 4px;
+  }
+
+  /* Main pad */
+  .main-dashboard-grid {
+    padding: 4px 6px 78px 6px !important;
+  }
+
+  /* Compact bet row: tighter */
+  .compact-bet-row-three {
+    gap: 4px;
+  }
+  .compact-cell {
+    padding: 5px 5px;
+  }
+  .compact-label {
+    font-size: 0.5rem;
+  }
+  .compact-bet-input {
+    font-size: 0.85rem;
+  }
+
+  /* Game grid: nearly full width */
+  .mines-grid-stage {
+    max-width: min(340px, 95vw) !important;
+    padding: 6px;
+  }
+
+  /* Cashout bar: keep side-by-side */
+  .cashout-control-bar {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+  .cashout-action-card {
+    padding: 5px 8px !important;
+    min-height: 52px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .cashout-arrow-box {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+    margin-left: 4px !important;
+    box-sizing: border-box !important;
+  }
+  .auto-cashout-box {
+    width: auto !important;
+    min-width: 90px !important;
+    min-height: 52px !important;
+    flex-direction: column !important;
+    padding: 5px 8px !important;
+    gap: 2px !important;
+    box-sizing: border-box !important;
+  }
+  .cashout-amount-huge {
+    font-size: 1.15rem !important;
+  }
+
+  /* Wallet modal tabs: 2x2 grid */
+  .wallet-nav-tabs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .wallet-tab-btn {
+    padding: 6px 3px;
+    font-size: 0.64rem;
+  }
+
+  /* Deposit chips 3-col on xs */
+  .btn-deposit-chip, .btn-withdraw-chip {
+    font-size: 0.68rem;
+    padding: 4px 2px;
+  }
+
+  /* Modal body padding reduce */
+  .modal-body {
+    padding: 10px;
+  }
+
+  /* Live bets table: only show player + amount */
+  .live-table th:nth-child(2),
+  .live-table td:nth-child(2) {
+    display: none;
+  }
+
+  /* Toast: full width */
+  .live-toast-container {
+    right: 6px;
+    left: 6px;
+  }
+
+  /* Near miss banner compact */
+  .near-miss-banner {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .near-miss-bolt { font-size: 1.1rem; }
+  .near-miss-title { font-size: 0.75rem; }
+  .near-miss-sub { font-size: 0.65rem; }
+
+  /* Bottom dock larger tap targets */
+  .dock-nav-item {
+    font-size: 0.58rem;
+    padding: 4px 2px;
+    min-width: 40px;
   }
 }
 
@@ -1334,6 +1947,192 @@ button, input, select, textarea {
 }
 .modal-close-btn:hover { background: rgba(239, 68, 68, 0.3); color: #ef4444; }
 .modal-body { padding: 16px; overflow-y: auto; }
+
+/* =========================================================
+   WALLET CASHIER MODAL & TABS
+   ========================================================= */
+.wallet-modal-box {
+  max-width: 480px;
+  background: #0d0822;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.wallet-modal-bal-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+}
+.bal-pill-label {
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+.bal-pill-val {
+  color: #34d399;
+  font-weight: 800;
+  font-family: var(--font-mono, inherit);
+}
+
+/* Wallet Navigation Tabs Bar */
+.wallet-nav-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  background: rgba(8, 5, 20, 0.9);
+  padding: 6px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+}
+.wallet-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+.wallet-tab-btn .tab-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+.wallet-tab-btn:hover {
+  background: rgba(168, 85, 247, 0.12);
+  color: #f1f5f9;
+}
+.wallet-tab-btn.active {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(168, 85, 247, 0.25));
+  border-color: rgba(168, 85, 247, 0.6);
+  color: #a3e635;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.25);
+}
+
+/* Tab Panes */
+.wallet-tab-pane {
+  display: none;
+  animation: fadeInPane 0.2s ease-out;
+}
+.wallet-tab-pane.active {
+  display: block;
+}
+@keyframes fadeInPane {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Transaction History Scroll & Cards */
+.tx-history-scroll-container {
+  max-height: 290px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 2px;
+}
+.tx-history-card {
+  background: rgba(15, 10, 35, 0.85);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.15s ease;
+}
+.tx-history-card:hover {
+  border-color: rgba(168, 85, 247, 0.45);
+  background: rgba(22, 14, 50, 0.95);
+  transform: translateY(-1px);
+}
+.tx-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tx-amount {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #34d399;
+  font-family: var(--font-mono, inherit);
+}
+.tx-meta {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tx-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.tx-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.tx-status-badge.approved,
+.tx-status-badge.completed {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+.tx-status-badge.pending {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+.tx-status-badge.rejected {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.btn-tx-refresh {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #c084fc;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-tx-refresh:hover {
+  background: rgba(168, 85, 247, 0.3);
+  color: #fff;
+  transform: rotate(45deg);
+}
+.tx-empty-state {
+  text-align: center;
+  padding: 28px 14px;
+  color: #64748b;
+  font-size: 0.8rem;
+}
 
 /* Form controls */
 .form-group { margin-bottom: 12px; }
@@ -1594,3 +2393,41 @@ button, input, select, textarea {
   color: #fff;
   border-color: #c084fc;
 }
+
+/* Chicken Road Switcher Header Button */
+.header-chicken-switch-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.38) 100%);
+  border: 1.5px solid rgba(52, 211, 153, 0.6);
+  color: #34d399;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 12px;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+.header-chicken-switch-btn:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.45) 0%, rgba(5, 150, 105, 0.65) 100%);
+  border-color: #34d399;
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.6);
+  transform: translateY(-1px);
+  color: #fff;
+}
+.header-chicken-switch-btn:active {
+  transform: translateY(1px);
+}
+@media (max-width: 580px) {
+  .header-chicken-switch-btn .chicken-switch-label {
+    display: none;
+  }
+  .header-chicken-switch-btn {
+    padding: 6px 8px;
+    border-radius: 10px;
+  }
+}
+

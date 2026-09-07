@@ -12,7 +12,7 @@ if (!$user || !isAdmin()) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Operator Studio - <?= htmlspecialchars(APP_NAME) ?></title>
   <link rel="icon" type="image/png" href="assets/images/favicon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
@@ -395,6 +395,210 @@ if (!$user || !isAdmin()) {
       background: none; border: none; font-size: 1.2rem; color: #94a3b8; cursor: pointer;
     }
     .modal-body { padding: 18px; }
+
+    /* Mobile Responsive Rules & Touch Ergonomics */
+    @media (max-width: 768px) {
+      .admin-header {
+        padding: 8px 12px;
+        gap: 6px;
+      }
+      .brand-title {
+        font-size: 0.92rem;
+      }
+      .brand-badge {
+        display: none;
+      }
+      .admin-operator-email {
+        display: none !important;
+      }
+      .admin-nav-actions {
+        gap: 6px;
+      }
+      .btn-launch-game, .btn-admin-logout {
+        padding: 6px 10px;
+        font-size: 0.72rem;
+        border-radius: 6px;
+      }
+      .studio-container {
+        margin: 10px auto;
+        padding: 0 10px;
+        gap: 12px;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+      }
+      .kpi-card {
+        padding: 10px 12px !important;
+        border-radius: 12px !important;
+      }
+      .kpi-value {
+        font-size: 1.15rem !important;
+      }
+      .kpi-label {
+        font-size: 0.58rem !important;
+      }
+      .kpi-sub {
+        font-size: 0.62rem !important;
+      }
+    }
+
+    /* Orientation / Tilt guidance tip */
+    .orientation-tip-bar {
+      background: rgba(168, 85, 247, 0.12);
+      border: 1px dashed rgba(168, 85, 247, 0.4);
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 0.74rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .orientation-tip-bar strong {
+      color: var(--accent-purple);
+    }
+
+    /* Mobile Section Switcher */
+    .mobile-section-switcher {
+      display: none;
+      background: #0e0924;
+      border: 1px solid var(--obsidian-border);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    @media (max-width: 1024px) {
+      .mobile-section-switcher {
+        display: flex;
+      }
+      .studio-column-left, .studio-column-right {
+        width: 100%;
+      }
+    }
+    .switcher-tab-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-weight: 800;
+      font-size: 0.76rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .switcher-tab-btn.active {
+      background: var(--accent-purple);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+    }
+
+    /* Horizontal Scrollable Tabs & Tables with Touch Momentum */
+    .tab-bar-nav {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+      white-space: nowrap;
+    }
+    .tab-bar-nav::-webkit-scrollbar {
+      display: none;
+    }
+    .tab-bar-btn {
+      flex-shrink: 0;
+    }
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 12px;
+      scrollbar-width: thin;
+      position: relative;
+    }
+
+    /* Table Sticky First Column on Mobile */
+    @media (max-width: 768px) {
+      .studio-table th:first-child,
+      .studio-table td:first-child {
+        position: sticky;
+        left: 0;
+        background: #0f0a28;
+        z-index: 2;
+        box-shadow: 2px 0 6px rgba(0, 0, 0, 0.5);
+      }
+      .studio-table th {
+        padding: 8px 10px;
+        font-size: 0.64rem;
+      }
+      .studio-table td {
+        padding: 8px 10px;
+        font-size: 0.74rem;
+      }
+      .btn-action-tiny {
+        padding: 6px 10px;
+        font-size: 0.72rem;
+        min-height: 34px;
+        display: inline-flex;
+        align-items: center;
+      }
+      .rig-mode-select {
+        padding: 6px 8px;
+        font-size: 0.74rem;
+        min-height: 34px;
+      }
+    }
+
+    /* Landscape Orientation optimization (Rotation Support) */
+    @media (orientation: landscape) and (max-height: 520px) {
+      .admin-header {
+        padding: 4px 14px;
+      }
+      .studio-container {
+        margin: 6px auto;
+        padding: 0 10px;
+        gap: 8px;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
+      }
+      .kpi-card {
+        padding: 6px 10px !important;
+      }
+      .kpi-value {
+        font-size: 1.1rem !important;
+      }
+    }
+
+    /* Floating Mobile Game Button */
+    .floating-game-btn {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.82rem;
+      padding: 10px 16px;
+      border-radius: 24px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.45);
+      z-index: 90;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.15s;
+    }
+    .floating-game-btn:active {
+      transform: scale(0.95);
+    }
+    @media (max-width: 900px) {
+      .floating-game-btn {
+        display: flex;
+      }
+    }
   </style>
 </head>
 <body>
@@ -410,13 +614,26 @@ if (!$user || !isAdmin()) {
     </div>
 
     <div class="admin-nav-actions">
-      <span style="font-size: 0.75rem; color: #94a3b8;">Operator: <strong style="color:#fff;"><?= htmlspecialchars($user['email']) ?></strong></span>
-      <a href="index.php" class="btn-launch-game" target="_blank">🎮 Launch Game</a>
+      <span class="admin-operator-email" style="font-size: 0.75rem; color: #94a3b8;">Operator: <strong style="color:#fff;"><?= htmlspecialchars($user['email']) ?></strong></span>
+      <a href="index.php" class="btn-launch-game">💣 Play Mines</a>
+      <a href="cheakenselim/game.html" class="btn-launch-game" style="background:rgba(16,185,129,0.2);color:#34d399;border-color:rgba(16,185,129,0.4);">🐔 Play Chicken Road</a>
       <a href="api/auth.php?action=logout" class="btn-admin-logout">Logout</a>
     </div>
   </header>
 
   <div class="studio-container">
+
+    <!-- Orientation / Tilt Tip Banner for Mobile Phones -->
+    <div class="orientation-tip-bar" id="orientation-tip">
+      <span>📱 <strong>Mobile Access:</strong> Rotate your phone to Landscape mode anytime for wide multi-column analytics, or swipe tables horizontally.</span>
+      <button type="button" onclick="document.getElementById('orientation-tip').style.display='none';" style="background:none; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer; padding:0 4px;">&times;</button>
+    </div>
+
+    <!-- Mobile Section Switcher (Management vs Settings) -->
+    <div class="mobile-section-switcher" id="mobile-section-switcher">
+      <button type="button" class="switcher-tab-btn active" data-target="studio-col-right">📊 Players & Queues</button>
+      <button type="button" class="switcher-tab-btn" data-target="studio-col-left">⚙️ RTP & System Settings</button>
+    </div>
 
     <!-- KPI Metric Summary -->
     <div class="kpi-grid">
@@ -433,11 +650,16 @@ if (!$user || !isAdmin()) {
       <div class="kpi-card">
         <div class="kpi-label">Total Rounds Played</div>
         <div class="kpi-value" id="kpi-total-games">--</div>
-        <div class="kpi-sub">Mines sessions completed</div>
+        <div class="kpi-sub">Mines + Chicken Road</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Active Global RTP</div>
-        <div class="kpi-value" style="color: var(--accent-purple);" id="kpi-global-rtp">--%</div>
+        <div class="kpi-label">Total Volume Wagered</div>
+        <div class="kpi-value" style="color: #fff;" id="kpi-total-wagered">₹--</div>
+        <div class="kpi-sub">Gross betting volume</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">House Net Profit</div>
+        <div class="kpi-value" style="color: var(--accent-emerald);" id="kpi-house-profit">₹--</div>
         <div class="kpi-sub" id="kpi-house-edge">House Edge: --%</div>
       </div>
       <div class="kpi-card">
@@ -447,11 +669,84 @@ if (!$user || !isAdmin()) {
       </div>
     </div>
 
+    <!-- Comparative Profitability Analysis Between Games -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+      <!-- Mines Performance Card -->
+      <div class="studio-panel" style="border: 1.5px solid rgba(168, 85, 247, 0.4); background: linear-gradient(180deg, rgba(20, 14, 48, 0.9) 0%, rgba(12, 8, 30, 0.95) 100%);">
+        <div class="panel-header" style="border-bottom: 1px solid rgba(168, 85, 247, 0.25);">
+          <div class="panel-title" style="color: #c084fc;">
+            <span>💣</span> Bombaclat Mines Performance
+          </div>
+          <span class="brand-badge" style="background: rgba(168, 85, 247, 0.2); color: #c084fc;">5x5 Grid</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 0;">
+          <div>
+            <div class="kpi-label">Rounds Played</div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #fff;" id="stats-mines-games">0</div>
+          </div>
+          <div>
+            <div class="kpi-label">Volume Wagered</div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #fff;" id="stats-mines-wagered">₹0.00</div>
+          </div>
+          <div>
+            <div class="kpi-label">Total Payouts Won</div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #38bdf8;" id="stats-mines-won">₹0.00</div>
+          </div>
+          <div>
+            <div class="kpi-label">House Net Profit (Margin)</div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #34d399;" id="stats-mines-profit">₹0.00 (0%)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chicken Road Performance Card -->
+      <div class="studio-panel" style="border: 1.5px solid rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, rgba(14, 30, 24, 0.9) 0%, rgba(8, 20, 16, 0.95) 100%);">
+        <div class="panel-header" style="border-bottom: 1px solid rgba(16, 185, 129, 0.25);">
+          <div class="panel-title" style="color: #34d399;">
+            <span>🐔</span> Chicken Road Performance
+          </div>
+          <span class="brand-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.4);">Step Multiplier</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 0;">
+          <div>
+            <div class="kpi-label">Rounds Played</div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #fff;" id="stats-chicken-games">0</div>
+          </div>
+          <div>
+            <div class="kpi-label">Volume Wagered</div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #fff;" id="stats-chicken-wagered">₹0.00</div>
+          </div>
+          <div>
+            <div class="kpi-label">Total Payouts Won</div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #38bdf8;" id="stats-chicken-won">₹0.00</div>
+          </div>
+          <div>
+            <div class="kpi-label">House Net Profit (Margin)</div>
+            <div style="font-size: 1.15rem; font-weight: 900; color: #34d399;" id="stats-chicken-profit">₹0.00 (0%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profitability Insight Ticker -->
+    <div style="background: rgba(18, 12, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.35); border-radius: 14px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.6rem;">🏆</span>
+        <div>
+          <div style="font-size: 0.72rem; color: #94a3b8; font-weight: 800; text-transform: uppercase;">Top Profitable Game For House</div>
+          <div style="font-size: 1.15rem; font-weight: 900; color: #fff;" id="stats-most-profitable-game">Bombaclat Mines</div>
+        </div>
+      </div>
+      <div style="font-size: 0.84rem; color: #cbd5e1;">
+        Platform Total House Revenue: <strong style="color: #34d399; font-size: 1.1rem;" id="stats-platform-total-profit">₹0.00</strong>
+      </div>
+    </div>
+
     <!-- Main Workspace Layout -->
     <div class="studio-main-grid">
 
       <!-- Left Column: Master Settings & RTP Controller -->
-      <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="studio-column-left" id="studio-col-left" style="display: flex; flex-direction: column; gap: 20px;">
 
         <!-- RTP & House Edge Controller -->
         <div class="studio-panel">
@@ -477,6 +772,98 @@ if (!$user || !isAdmin()) {
           <button class="btn-save-settings" id="btn-save-rtp" style="background: linear-gradient(135deg, #10b981, #059669);">
             Apply RTP to All Games
           </button>
+        </div>
+
+        <!-- Chicken Road Game Engine Controller -->
+        <div class="studio-panel">
+          <div class="panel-header">
+            <div class="panel-title" style="color: #34d399;">
+              <span>🐔</span> Chicken Road Engine Settings
+            </div>
+          </div>
+
+          <form id="chicken-settings-form">
+            <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; background: rgba(16, 185, 129, 0.1); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.25);">
+              <div>
+                <div style="font-size: 0.82rem; font-weight: 800; color: #fff;">Controlled Crash Mode</div>
+                <div style="font-size: 0.68rem; color: #94a3b8;">Force crash at specified lane steps</div>
+              </div>
+              <input type="checkbox" id="chk-controlled-crash" name="controlled_crash_enabled" style="width: 20px; height: 20px; cursor: pointer;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0;">
+              <div class="form-group">
+                <label class="form-label">Easy Crash Step</label>
+                <select id="chk-crash-easy" name="crash_level_easy" class="form-input" style="padding: 8px;">
+                  <option value="random">🎲 Random (Fair)</option>
+                  <option value="1">Step 1</option>
+                  <option value="2">Step 2</option>
+                  <option value="3">Step 3</option>
+                  <option value="4">Step 4</option>
+                  <option value="5">Step 5</option>
+                  <option value="8">Step 8</option>
+                  <option value="10">Step 10</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Medium Crash Step</label>
+                <select id="chk-crash-medium" name="crash_level_medium" class="form-input" style="padding: 8px;">
+                  <option value="random">🎲 Random (Fair)</option>
+                  <option value="1">Step 1</option>
+                  <option value="2">Step 2</option>
+                  <option value="3">Step 3</option>
+                  <option value="4">Step 4</option>
+                  <option value="5">Step 5</option>
+                  <option value="8">Step 8</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Hard Crash Step</label>
+                <select id="chk-crash-hard" name="crash_level_hard" class="form-input" style="padding: 8px;">
+                  <option value="random">🎲 Random (Fair)</option>
+                  <option value="1">Step 1</option>
+                  <option value="2">Step 2</option>
+                  <option value="3">Step 3</option>
+                  <option value="4">Step 4</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Hardcore Crash Step</label>
+                <select id="chk-crash-hardcore" name="crash_level_hardcore" class="form-input" style="padding: 8px;">
+                  <option value="random">🎲 Random (Fair)</option>
+                  <option value="1">Step 1</option>
+                  <option value="2">Step 2</option>
+                  <option value="3">Step 3</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="form-group">
+                <label class="form-label">Min Bet (₹)</label>
+                <input type="number" id="chk-min-bet" name="min_bet" class="form-input" value="10">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Max Bet (₹)</label>
+                <input type="number" id="chk-max-bet" name="max_bet" class="form-input" value="10000">
+              </div>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; background: rgba(239, 68, 68, 0.1); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.25); margin-top: 6px;">
+              <div>
+                <div style="font-size: 0.78rem; font-weight: 800; color: #f87171;">Chicken Maintenance Mode</div>
+                <div style="font-size: 0.65rem; color: #94a3b8;">Temporarily lock Chicken Road</div>
+              </div>
+              <input type="checkbox" id="chk-maintenance" name="maintenance_mode" style="width: 18px; height: 18px; cursor: pointer;">
+            </div>
+
+            <button type="submit" class="btn-save-settings" style="background: linear-gradient(135deg, #059669, #10b981); margin-top: 10px;">
+              Save Chicken Road Settings
+            </button>
+          </form>
         </div>
 
         <!-- System Settings Form -->
@@ -565,11 +952,12 @@ if (!$user || !isAdmin()) {
       </div>
 
       <!-- Right Column: Player Management Console & Approval Queues -->
-      <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div class="studio-column-right" id="studio-col-right" style="display: flex; flex-direction: column; gap: 20px;">
 
         <!-- Tab Navigation -->
         <div class="tab-bar-nav">
           <button class="tab-bar-btn active" data-tab="players">👥 Player Management (Rig & Controls)</button>
+          <button class="tab-bar-btn" data-tab="bets">🎲 Unified Bet Feed</button>
           <button class="tab-bar-btn" data-tab="deposits">💳 Deposit Approvals</button>
           <button class="tab-bar-btn" data-tab="withdrawals">📤 Withdrawal Payouts</button>
           <button class="tab-bar-btn" data-tab="support">🎧 Live Support & Escalations</button>
@@ -606,7 +994,44 @@ if (!$user || !isAdmin()) {
           </div>
         </div>
 
-        <!-- TAB 2: DEPOSIT QUEUE -->
+        <!-- TAB 2: UNIFIED REAL-TIME BET FEED -->
+        <div class="studio-panel" id="tab-content-bets" style="display: none;">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span>🎲</span> Unified Real-Time Bet Feed (Mines & Chicken)
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <select id="bet-feed-game-filter" class="form-input" style="padding: 6px 10px; width: 150px;">
+                <option value="all">All Games</option>
+                <option value="mines">💣 Bombaclat Mines</option>
+                <option value="chicken">🐔 Chicken Road</option>
+              </select>
+              <button class="btn-action-tiny green" id="btn-refresh-bet-feed">🔄 Refresh Feed</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="studio-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Player</th>
+                  <th>Game</th>
+                  <th>Config / Mode</th>
+                  <th>Bet Amount</th>
+                  <th>Payout / Multiplier</th>
+                  <th>House Net</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="bets-feed-tbody">
+                <!-- Dynamic Bet Feed Rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 3: DEPOSIT QUEUE -->
         <div class="studio-panel" id="tab-content-deposits" style="display: none;">
           <div class="panel-header">
             <div class="panel-title">
@@ -635,7 +1060,7 @@ if (!$user || !isAdmin()) {
           </div>
         </div>
 
-        <!-- TAB 3: WITHDRAWAL QUEUE -->
+        <!-- TAB 4: WITHDRAWAL QUEUE -->
         <div class="studio-panel" id="tab-content-withdrawals" style="display: none;">
           <div class="panel-header">
             <div class="panel-title">
@@ -663,7 +1088,7 @@ if (!$user || !isAdmin()) {
           </div>
         </div>
 
-        <!-- TAB 4: SUPPORT TICKETS & ESCALATIONS -->
+        <!-- TAB 5: SUPPORT TICKETS & ESCALATIONS -->
         <div class="studio-panel" id="tab-content-support" style="display: none;">
           <div class="panel-header">
             <div class="panel-title">
@@ -824,6 +1249,12 @@ if (!$user || !isAdmin()) {
     </div>
   </div>
 
-  <script src="assets/js/admin.js"></script>
+  <!-- Floating Mobile Quick Game Launcher -->
+  <a href="index.php" class="floating-game-btn" title="Switch to Mines Game">
+    <span>🎮</span>
+    <span>Play Game</span>
+  </a>
+
+  <script src="assets/js/admin.js?v=<?= filemtime(__DIR__ . '/assets/js/admin.js') ?>"></script>
 </body>
 </html>

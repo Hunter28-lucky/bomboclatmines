@@ -10,6 +10,34 @@ if (!$user) {
     jsonResponse(['success' => false, 'error' => 'Please log in to submit a deposit request'], 401);
 }
 
+$action = cleanInput($_GET['action'] ?? $_POST['action'] ?? '');
+
+// Return deposit history if requested via action=history or GET request without POST data
+if ($action === 'history' || ($_SERVER['REQUEST_METHOD'] === 'GET' && empty($_GET['amount']))) {
+    try {
+        $db = getDB();
+        $stmt = $db->prepare("
+            SELECT id, amount, mobile_number, utr_number, screenshot_url, status, created_at, reviewed_at
+            FROM payments
+            WHERE user_id = :user_id
+            ORDER BY created_at DESC
+        ");
+        $stmt->execute([':user_id' => $user['id']]);
+        $deposits = $stmt->fetchAll();
+
+        foreach ($deposits as &$d) {
+            $d['amount'] = (float)$d['amount'];
+        }
+
+        jsonResponse([
+            'success' => true,
+            'deposits' => $deposits
+        ]);
+    } catch (Exception $e) {
+        jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+}
+
 $amount = (float)($_POST['amount'] ?? 0);
 $utrNumber = cleanInput($_POST['utr_number'] ?? '');
 $mobileNumber = cleanInput($_POST['mobile_number'] ?? '');

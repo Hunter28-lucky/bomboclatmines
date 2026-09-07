@@ -13,9 +13,24 @@ document.addEventListener('DOMContentLoaded', () => {
     kpiUsers: document.getElementById('kpi-total-users'),
     kpiBalance: document.getElementById('kpi-total-balance'),
     kpiGames: document.getElementById('kpi-total-games'),
+    kpiTotalWagered: document.getElementById('kpi-total-wagered'),
+    kpiHouseProfit: document.getElementById('kpi-house-profit'),
     kpiRtp: document.getElementById('kpi-global-rtp'),
     kpiHouseEdge: document.getElementById('kpi-house-edge'),
     kpiPending: document.getElementById('kpi-pending-count'),
+    // Comparative Stats elements
+    statsMinesGames: document.getElementById('stats-mines-games'),
+    statsMinesWagered: document.getElementById('stats-mines-wagered'),
+    statsMinesWon: document.getElementById('stats-mines-won'),
+    statsMinesProfit: document.getElementById('stats-mines-profit'),
+    statsChickenGames: document.getElementById('stats-chicken-games'),
+    statsChickenWagered: document.getElementById('stats-chicken-wagered'),
+    statsChickenWon: document.getElementById('stats-chicken-won'),
+    statsChickenProfit: document.getElementById('stats-chicken-profit'),
+    statsMostProfitableGame: document.getElementById('stats-most-profitable-game'),
+    statsPlatformTotalProfit: document.getElementById('stats-platform-total-profit'),
+    // Chicken settings form
+    chickenSettingsForm: document.getElementById('chicken-settings-form'),
     // RTP slider
     rtpSlider: document.getElementById('rtp-range-slider'),
     rtpSliderVal: document.getElementById('rtp-slider-val'),
@@ -27,11 +42,15 @@ document.addEventListener('DOMContentLoaded', () => {
     userSearchInput: document.getElementById('user-search-input'),
     // Tables
     playersTbody: document.getElementById('players-tbody'),
+    betsFeedTbody: document.getElementById('bets-feed-tbody'),
+    betFeedGameFilter: document.getElementById('bet-feed-game-filter'),
+    btnRefreshBetFeed: document.getElementById('btn-refresh-bet-feed'),
     depositsTbody: document.getElementById('deposits-tbody'),
     withdrawalsTbody: document.getElementById('withdrawals-tbody'),
     // Tabs
     tabBtns: document.querySelectorAll('.tab-bar-btn'),
     tabPlayers: document.getElementById('tab-content-players'),
+    tabBets: document.getElementById('tab-content-bets'),
     tabDeposits: document.getElementById('tab-content-deposits'),
     tabWithdrawals: document.getElementById('tab-content-withdrawals'),
     tabSupport: document.getElementById('tab-content-support'),
@@ -76,9 +95,59 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el.kpiUsers) el.kpiUsers.textContent = data.stats.total_users;
         if (el.kpiBalance) el.kpiBalance.textContent = '₹' + Number(data.stats.total_balance).toLocaleString('en-IN', { maximumFractionDigits: 0 });
         if (el.kpiGames) el.kpiGames.textContent = data.stats.total_games;
+        if (el.kpiTotalWagered) el.kpiTotalWagered.textContent = '₹' + Number(data.stats.total_wagered).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        if (el.kpiHouseProfit) {
+          const prof = Number(data.stats.house_profit);
+          el.kpiHouseProfit.textContent = (prof >= 0 ? '₹' : '-₹') + Math.abs(prof).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+          el.kpiHouseProfit.style.color = prof >= 0 ? 'var(--accent-emerald)' : '#ef4444';
+        }
         if (el.kpiRtp) el.kpiRtp.textContent = Number(data.stats.rtp_rate).toFixed(1) + '%';
         if (el.kpiHouseEdge) el.kpiHouseEdge.textContent = `House Edge: ${Number(data.stats.house_edge).toFixed(1)}%`;
         if (el.kpiPending) el.kpiPending.textContent = (data.stats.pending_payments + data.stats.pending_withdrawals);
+
+        // Mines Performance
+        if (data.stats.mines) {
+          const m = data.stats.mines;
+          if (el.statsMinesGames) el.statsMinesGames.textContent = m.games_count ?? m.games_played ?? 0;
+          const mw = Number(m.wagered ?? m.total_wagered ?? 0);
+          const mwon = Number(m.won ?? m.total_won ?? 0);
+          const mp = Number(m.profit ?? m.net_profit ?? 0);
+          const mm = m.margin_pct !== undefined ? m.margin_pct : (mw > 0 ? ((mp / mw) * 100).toFixed(1) : '0.0');
+
+          if (el.statsMinesWagered) el.statsMinesWagered.textContent = '₹' + mw.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          if (el.statsMinesWon) el.statsMinesWon.textContent = '₹' + mwon.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          if (el.statsMinesProfit) {
+            el.statsMinesProfit.textContent = `${mp >= 0 ? '+' : '-'}₹${Math.abs(mp).toFixed(2)} (${mm}%)`;
+            el.statsMinesProfit.style.color = mp >= 0 ? '#34d399' : '#f87171';
+          }
+        }
+
+        // Chicken Road Performance
+        if (data.stats.chicken) {
+          const c = data.stats.chicken;
+          if (el.statsChickenGames) el.statsChickenGames.textContent = c.games_count ?? c.games_played ?? 0;
+          const cw = Number(c.wagered ?? c.total_wagered ?? 0);
+          const cwon = Number(c.won ?? c.total_won ?? 0);
+          const cp = Number(c.profit ?? c.net_profit ?? 0);
+          const cm = c.margin_pct !== undefined ? c.margin_pct : (cw > 0 ? ((cp / cw) * 100).toFixed(1) : '0.0');
+
+          if (el.statsChickenWagered) el.statsChickenWagered.textContent = '₹' + cw.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          if (el.statsChickenWon) el.statsChickenWon.textContent = '₹' + cwon.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          if (el.statsChickenProfit) {
+            el.statsChickenProfit.textContent = `${cp >= 0 ? '+' : '-'}₹${Math.abs(cp).toFixed(2)} (${cm}%)`;
+            el.statsChickenProfit.style.color = cp >= 0 ? '#34d399' : '#f87171';
+          }
+        }
+
+        // Top Profitable Game & Platform Net
+        if (el.statsMostProfitableGame && data.stats.most_profitable_game) {
+          el.statsMostProfitableGame.textContent = data.stats.most_profitable_game;
+        }
+        if (el.statsPlatformTotalProfit) {
+          const tp = Number(data.stats.total_house_profit ?? data.stats.house_profit ?? 0);
+          el.statsPlatformTotalProfit.textContent = `${tp >= 0 ? '+' : '-'}₹${Math.abs(tp).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          el.statsPlatformTotalProfit.style.color = tp >= 0 ? '#34d399' : '#f87171';
+        }
 
         if (el.rtpSlider && data.stats.rtp_rate) {
           el.rtpSlider.value = data.stats.rtp_rate;
@@ -88,6 +157,102 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (e) {
       console.error('Failed to load stats', e);
+    }
+  }
+
+  // Fetch Chicken Road Settings
+  async function fetchChickenSettings() {
+    try {
+      const res = await fetch('api/admin.php?action=chicken_settings');
+      const data = await res.json();
+      if (data.success && data.settings) {
+        const s = data.settings;
+        const setCheck = (id, val) => {
+          const chk = document.getElementById(id);
+          if (chk) chk.checked = parseInt(val) === 1;
+        };
+        const setVal = (id, val) => {
+          const input = document.getElementById(id);
+          if (input && val !== undefined && val !== null) input.value = val;
+        };
+
+        setCheck('chk-controlled-crash', s.controlled_crash_enabled);
+        setVal('chk-crash-easy', s.crash_level_easy || 'random');
+        setVal('chk-crash-medium', s.crash_level_medium || 'random');
+        setVal('chk-crash-hard', s.crash_level_hard || 'random');
+        setVal('chk-crash-hardcore', s.crash_level_hardcore || 'random');
+        setVal('chk-min-bet', s.min_bet || 10);
+        setVal('chk-max-bet', s.max_bet || 10000);
+        setCheck('chk-maintenance', s.maintenance_mode);
+      }
+    } catch (e) {
+      console.error('Failed to load chicken settings', e);
+    }
+  }
+
+  // Fetch Unified Recent Bet History Feed
+  async function fetchBetFeed(filter = 'all') {
+    try {
+      if (!el.betsFeedTbody) return;
+      el.betsFeedTbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#64748b;">Loading live bets...</td></tr>';
+
+      const res = await fetch(`api/admin.php?action=recent_bets&game=${encodeURIComponent(filter)}`);
+      const data = await res.json();
+      if (data.success && data.bets) {
+        el.betsFeedTbody.innerHTML = '';
+        if (data.bets.length === 0) {
+          el.betsFeedTbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#64748b;">No bets recorded yet</td></tr>';
+          return;
+        }
+
+        data.bets.forEach(b => {
+          const tr = document.createElement('tr');
+          const isMines = b.game === 'mines';
+          const isChicken = b.game === 'chicken';
+          const isWin = b.status === 'won' || b.status === 'cashed_out';
+          const isBust = b.status === 'lost' || b.status === 'bust';
+
+          const gameBadge = isMines
+            ? '<span style="background:rgba(168,85,247,0.2); color:#c084fc; border:1px solid rgba(168,85,247,0.4); padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.72rem;">💣 MINES</span>'
+            : '<span style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4); padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.72rem;">🐔 CHICKEN</span>';
+
+          const profit = Number(b.house_profit || 0);
+          const profitColor = profit >= 0 ? 'var(--accent-emerald)' : '#ef4444';
+          const profitSign = profit >= 0 ? '+₹' : '-₹';
+
+          let statusBadge = '';
+          if (isWin) {
+            statusBadge = '<span style="background:rgba(16,185,129,0.15); color:#34d399; font-weight:800; padding:2px 6px; border-radius:4px; font-size:0.68rem;">WON</span>';
+          } else if (isBust) {
+            statusBadge = '<span style="background:rgba(239,68,68,0.15); color:#f87171; font-weight:800; padding:2px 6px; border-radius:4px; font-size:0.68rem;">BUSTED</span>';
+          } else {
+            statusBadge = `<span style="background:rgba(148,163,184,0.15); color:#cbd5e1; font-weight:800; padding:2px 6px; border-radius:4px; font-size:0.68rem;">${escapeHtml(b.status.toUpperCase())}</span>`;
+          }
+
+          tr.innerHTML = `
+            <td style="font-size:0.72rem; color:#94a3b8; font-family:var(--font-mono);">${escapeHtml(b.created_at || '-')}</td>
+            <td>
+              <div class="player-cell-box">
+                <span class="player-name">${escapeHtml(b.user_name || 'Player')}</span>
+                <span class="player-email">${escapeHtml(b.user_email || b.user_id)}</span>
+              </div>
+            </td>
+            <td>${gameBadge}</td>
+            <td style="font-size:0.75rem; color:#cbd5e1;">${escapeHtml(b.details || '-')}</td>
+            <td><strong style="color:#fff;">₹${Number(b.bet_amount || 0).toFixed(2)}</strong></td>
+            <td>
+              <strong style="color:var(--accent-cyan);">₹${Number(b.payout || 0).toFixed(2)}</strong>
+              <span style="font-size:0.68rem; color:#94a3b8; margin-left:4px;">(${Number(b.multiplier || 1).toFixed(2)}x)</span>
+            </td>
+            <td><strong style="color:${profitColor};">${profitSign}${Math.abs(profit).toFixed(2)}</strong></td>
+            <td>${statusBadge}</td>
+          `;
+
+          el.betsFeedTbody.appendChild(tr);
+        });
+      }
+    } catch (e) {
+      console.error('Failed to load bet feed', e);
     }
   }
 
@@ -628,6 +793,55 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // Chicken Road Settings Form Submit
+    if (el.chickenSettingsForm) {
+      el.chickenSettingsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const chkControlled = document.getElementById('chk-controlled-crash');
+        const chkMaint = document.getElementById('chk-maintenance');
+        const payload = {
+          controlled_crash_enabled: chkControlled && chkControlled.checked ? 1 : 0,
+          crash_level_easy: document.getElementById('chk-crash-easy') ? document.getElementById('chk-crash-easy').value : 'random',
+          crash_level_medium: document.getElementById('chk-crash-medium') ? document.getElementById('chk-crash-medium').value : 'random',
+          crash_level_hard: document.getElementById('chk-crash-hard') ? document.getElementById('chk-crash-hard').value : 'random',
+          crash_level_hardcore: document.getElementById('chk-crash-hardcore') ? document.getElementById('chk-crash-hardcore').value : 'random',
+          min_bet: parseFloat(document.getElementById('chk-min-bet') ? document.getElementById('chk-min-bet').value : 10) || 10,
+          max_bet: parseFloat(document.getElementById('chk-max-bet') ? document.getElementById('chk-max-bet').value : 10000) || 10000,
+          maintenance_mode: chkMaint && chkMaint.checked ? 1 : 0
+        };
+
+        try {
+          const res = await fetch('api/admin.php?action=chicken_settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert('🐔 Chicken Road settings saved successfully!');
+            fetchChickenSettings();
+          } else {
+            alert(data.error || 'Failed to save Chicken settings');
+          }
+        } catch (err) {
+          alert('Network error while saving Chicken settings');
+        }
+      });
+    }
+
+    // Bet Feed Game Filter & Refresh
+    if (el.betFeedGameFilter) {
+      el.betFeedGameFilter.addEventListener('change', () => {
+        fetchBetFeed(el.betFeedGameFilter.value);
+      });
+    }
+    if (el.btnRefreshBetFeed) {
+      el.btnRefreshBetFeed.addEventListener('click', () => {
+        const filter = el.betFeedGameFilter ? el.betFeedGameFilter.value : 'all';
+        fetchBetFeed(filter);
+      });
+    }
+
     // QR Upload
     const qrForm = document.getElementById('qr-upload-form');
     if (qrForm) {
@@ -735,10 +949,12 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('active');
         const tab = btn.dataset.tab;
         el.tabPlayers.style.display = tab === 'players' ? 'block' : 'none';
+        if (el.tabBets) el.tabBets.style.display = tab === 'bets' ? 'block' : 'none';
         el.tabDeposits.style.display = tab === 'deposits' ? 'block' : 'none';
         el.tabWithdrawals.style.display = tab === 'withdrawals' ? 'block' : 'none';
         if (el.tabSupport) el.tabSupport.style.display = tab === 'support' ? 'block' : 'none';
 
+        if (tab === 'bets') fetchBetFeed(el.betFeedGameFilter ? el.betFeedGameFilter.value : 'all');
         if (tab === 'deposits') fetchDeposits();
         if (tab === 'withdrawals') fetchWithdrawals();
         if (tab === 'support') fetchSupportTickets();
@@ -936,6 +1152,46 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el.deductMoneyModal) el.deductMoneyModal.classList.remove('active');
       });
     }
+
+    // Mobile Section Switcher (Management vs System Settings)
+    const mobileSwitcherBtns = document.querySelectorAll('.mobile-section-switcher .switcher-tab-btn');
+    const colLeft = document.getElementById('studio-col-left');
+    const colRight = document.getElementById('studio-col-right');
+
+    function applyMobileSection(target) {
+      if (!colLeft || !colRight) return;
+      if (window.innerWidth <= 1024) {
+        if (target === 'studio-col-left') {
+          colLeft.style.display = 'flex';
+          colRight.style.display = 'none';
+        } else {
+          colLeft.style.display = 'none';
+          colRight.style.display = 'flex';
+        }
+      } else {
+        colLeft.style.display = 'flex';
+        colRight.style.display = 'flex';
+      }
+    }
+
+    mobileSwitcherBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        mobileSwitcherBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        applyMobileSection(btn.dataset.target);
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      const activeBtn = document.querySelector('.mobile-section-switcher .switcher-tab-btn.active');
+      applyMobileSection(activeBtn ? activeBtn.dataset.target : 'studio-col-right');
+    });
+
+    // Initial check for mobile devices
+    const defaultActive = document.querySelector('.mobile-section-switcher .switcher-tab-btn.active');
+    if (defaultActive && window.innerWidth <= 1024) {
+      applyMobileSection(defaultActive.dataset.target);
+    }
   }
 
   function escapeHtml(t) {
@@ -948,6 +1204,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Init
   fetchStats();
   fetchSettings();
+  fetchChickenSettings();
   fetchUsers();
   setupEvents();
 });

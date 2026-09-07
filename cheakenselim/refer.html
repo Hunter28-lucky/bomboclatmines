@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Refer & Earn - Chicken Road Game</title>
+  <style>
+    :root {
+      --main-color: #00ECBE;
+      --main-gradient-start: #7AFEC3;
+      --main-gradient-end: #02AFB6;
+      --main_gradient-color: linear-gradient(180deg, var(--main-gradient-start), var(--main-gradient-end));
+      --main_gradient-color2: linear-gradient(90deg, var(--main-gradient-start), var(--main-gradient-end));
+      --bg_HomeModule_Stroke: #224BA2;
+      --bg_HomeModule_Padding: linear-gradient(180deg, #001C54 0%, #000C33 100%);
+      --norm_red-color: #D23838;
+      --norm_green-color: #17B15E;
+      --norm_secondary-color: #DD9138;
+      --norm_Purple-color: #9B48DB;
+      --norm_bule-color: #5088D3;
+      --button_dis_color: #3D4863;
+      --Secondary_red_color: #FD565C;
+      --Secondary_green_color: #40AD72;
+      --Secondary_Color1: #FFEBEC;
+      --Secondary_Color2: #DAFFEB;
+      --Secondary_moto_Color9: #239DA1;
+      --Secondary_moto_Color8: #163B86;
+      --text_color_L1: #E3EFFF;
+      --text_color_L2: #92A8E3;
+      --text_color_L3: #6F80A4;
+      --text_color_L4: #05012B;
+      --bg_color_L1: #05012B;
+      --bg_color_L2: #011341;
+      --bg_color_L3: #001C54;
+      --Dividing-line_color: #022C68;
+      --sheet_nva_color: #2C5ECA;
+      --sheet_detail_bg_color: #000C33;
+      --icon1: rgba(12, 195, 159, .6);
+      --icon2: rgba(12, 195, 159, .25);
+      --tab1: #21D9CC;
+      --tab2: #BED921;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    body {
+      background: var(--bg_HomeModule_Padding);
+      min-height: 100vh;
+      color: var(--text_color_L1);
+      padding: 0;
+      padding-bottom: 80px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px 20px;
+      background: var(--bg_color_L2);
+      box-shadow: 0 8px 25px rgba(0, 28, 84, 0.4);
+      border-bottom: 2px solid var(--Dividing-line_color);
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-header-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    
+    .user-header-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--main-color);
+    }
+    
+    .user-header-balance {
+      font-size: 0.8rem;
+      color: #fbbf24;
+      font-weight: 500;
+    }
+    
+    .chicken-icon {
+      width: 35px;
+      height: 35px;
+      background: var(--main_gradient-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-right: 12px;
+      box-shadow: 0 4px 15px rgba(0, 236, 190, 0.4);
+    }
+    
+    .app-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--text_color_L1);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .main-content {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--text_color_L1);
+      text-align: center;
+      margin-bottom: 25px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .content-container {
+      background: var(--bg_color_L2);
+      border-radius: 16px;
+      padding: 25px;
+      border: 2px solid var(--Dividing-line_color);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .hero-section {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .hero-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--text_color_L1);
+      margin-bottom: 8px;
+    }
+    
+    .hero-subtitle {
+      color: var(--text_color_L2);
+      font-size: 0.9rem;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .stat-card {
+      background: var(--bg_color_L3);
+      border: 2px solid var(--Dividing-line_color);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--main-color);
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      color: var(--text_color_L2);
+      font-size: 0.85rem;
+    }
+    
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text_color_L1);
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    .refer-box {
+      background: var(--bg_color_L3);
+      border: 2px solid var(--Dividing-line_color);
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    
+    .refer-code-span, .refer-link-span {
+      font-weight: 600;
+      color: var(--text_color_L1);
+      text-align: center;
+      flex: 1;
+    }
+    
+    .refer-link-span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 300px;
+      display: inline-block;
+    }
+    
+    .copy-btn {
+      background: var(--main_gradient-color);
+      color: var(--text_color_L4);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 236, 190, 0.4);
+    }
+    
+    .copy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 236, 190, 0.6);
+    }
+    
+    .copy-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    
+    .how-it-works {
+      margin-bottom: 25px;
+    }
+    
+    .step-card {
+      background: var(--bg_color_L3);
+      border: 2px solid var(--Dividing-line_color);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 12px;
+    }
+    
+    .step-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .step-number {
+      width: 30px;
+      height: 30px;
+      background: var(--main_gradient-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text_color_L4);
+      font-size: 0.9rem;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    .step-text {
+      flex: 1;
+    }
+    
+    .step-title {
+      color: var(--text_color_L1);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .step-description {
+      color: var(--text_color_L2);
+      font-size: 0.85rem;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .loading-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text_color_L2);
+      font-size: 1.1rem;
+    }
+    
+    .error-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--Secondary_red_color);
+      font-size: 1.1rem;
+    }
+    
+    .disabled-state {
+      background: rgba(210, 56, 56, 0.1);
+      border: 2px solid rgba(210, 56, 56, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      color: var(--Secondary_red_color);
+      font-size: 1rem;
+    }
+    
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg_color_L2);
+      backdrop-filter: blur(15px);
+      border-top: 2px solid var(--Dividing-line_color);
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: var(--text_color_L2);
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      padding: 8px 12px;
+      border-radius: 10px;
+      min-width: 60px;
+    }
+    
+    .nav-item:hover {
+      color: var(--text_color_L1);
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .nav-item.active {
+      color: var(--main-color);
+      background: rgba(0, 236, 190, 0.2);
+    }
+    
+    .nav-icon {
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+    
+    .nav-text {
+      font-size: 0.7rem;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 0 15px;
+      }
+      
+      .content-container {
+        padding: 20px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      
+      .page-title {
+        font-size: 1.5rem;
+      }
+      
+      .hero-title {
+        font-size: 1.2rem;
+      }
+      
+      .refer-link-span {
+        max-width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with Logo and Navigation -->
+  <div class="header">
+    <div class="logo-section">
+      <div class="chicken-icon">🐔</div>
+      <div class="app-title">CHICKEN ROAD</div>
+    </div>
+    <div class="user-header-info" id="userHeaderInfo" style="display: none;">
+      <div class="user-header-name" id="userHeaderName">Welcome!</div>
+      <div class="user-header-balance" id="userHeaderBalance">Balance: ₹0</div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <h1 class="page-title">Refer & Earn</h1>
+    
+    <div class="content-container">
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <h3 class="hero-title">Earn ₹100 for Every Friend!</h3>
+        <p class="hero-subtitle">Share your referral code and earn rewards when your friends join and play</p>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-state hidden">
+        Loading referral info...
+      </div>
+      
+      <!-- Error State -->
+      <div id="errorState" class="error-state hidden">
+        <div id="errorMessage"></div>
+      </div>
+      
+      <!-- Referral Content -->
+      <div id="referralContent" class="hidden">
+        <!-- Referral Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="totalReferrals">0</div>
+            <div class="stat-label">Total Referrals</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalEarnings">₹0</div>
+            <div class="stat-label">Total Earnings</div>
+          </div>
+        </div>
+        
+        <!-- Referral Code Section -->
+        <div class="section-title">Your Referral Code</div>
+        <div class="refer-box">
+          <span id="refCode" class="refer-code-span">Loading...</span>
+          <button onclick="copyToClipboard('refCode', this)" class="copy-btn">Copy Code</button>
+        </div>
+        
+        <!-- Referral Link Section -->
+        <div class="section-title">Your Referral Link</div>
+        <div class="refer-box">
+          <span id="refLink" class="refer-link-span">Loading...</span>
+          <button onclick="copyToClipboard('refLink', this)" class="copy-btn">Copy Link</button>
+        </div>
+        
+        <!-- How It Works -->
+        <div class="how-it-works">
+          <div class="section-title">How It Works</div>
+          <div class="step-card">
+            <div class="step-content">
+              <div class="step-number">1</div>
+              <div class="step-text">
+                <div class="step-title">Share your referral code with friends</div>
+                <div class="step-description">Send them your unique referral code or link</div>
+              </div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-content">
+              <div class="step-number">2</div>
+              <div class="step-text">
+                <div class="step-title">Friends register using your code</div>
+                <div class="step-description">They sign up and start playing the game</div>
+              </div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-content">
+              <div class="step-number">3</div>
+              <div class="step-text">
+                <div class="step-title">Earn ₹100 for each referral</div>
+                <div class="step-description">Get rewarded instantly when they join</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Referral Disabled State -->
+      <div id="referralDisabled" class="disabled-state hidden">
+        Referral system is currently disabled by the admin. Please try again later.
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
+  <div class="bottom-nav">
+    <a href="game.html" class="nav-item">
+      <div class="nav-icon">🎮</div>
+      <div class="nav-text">Game</div>
+    </a>
+    <a href="refer.html" class="nav-item active">
+      <div class="nav-icon">👥</div>
+      <div class="nav-text">Promotion</div>
+    </a>
+    <a href="bet-history.html" class="nav-item">
+      <div class="nav-icon">💰</div>
+      <div class="nav-text">My Bet</div>
+    </a>
+    <a href="transactions.html" class="nav-item">
+      <div class="nav-icon">👤</div>
+      <div class="nav-text">My</div>
+    </a>
+  </div>
+
+  <script>
+    // Check authentication and load user info
+    async function checkAuthAndLoadUser() {
+      try {
+        const response = await fetch('api/user.php');
+        const data = await response.json();
+        
+        if (data.success && data.user) {
+          // User is logged in, show user info and check referral
+          document.getElementById('userHeaderInfo').style.display = 'flex';
+          document.getElementById('userHeaderName').textContent = `Welcome, ${data.user.username}!`;
+          document.getElementById('userHeaderBalance').textContent = `Balance: ₹${data.user.balance || 0}`;
+          checkReferralEnabled();
+        } else {
+          // User not logged in, redirect to login
+          window.location.href = '../login.php?game=chicken';
+        }
+      } catch (error) {
+        // Network error, redirect to login
+        window.location.href = '../login.php?game=chicken';
+      }
+    }
+    
+    // Load referral data
+    async function loadReferralData() {
+      const loadingState = document.getElementById('loadingState');
+      const errorState = document.getElementById('errorState');
+      const content = document.getElementById('referralContent');
+      
+      loadingState.classList.remove('hidden');
+      errorState.classList.add('hidden');
+      content.classList.add('hidden');
+      
+      try {
+        const response = await fetch('api/user.php');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        loadingState.classList.add('hidden');
+        
+        if (data.success && data.user) {
+          displayReferralData(data.user);
+          content.classList.remove('hidden');
+        } else {
+          showError(data.error || 'Failed to load referral data');
+        }
+      } catch (error) {
+        loadingState.classList.add('hidden');
+        console.error('Error loading referral data:', error);
+        showError('Network error. Please try again later.');
+      }
+    }
+    
+    function displayReferralData(user) {
+      try {
+        // Only show referral content if referral data exists
+        if (!user.referral_code || typeof user.total_referrals === 'undefined' || typeof user.referral_earnings === 'undefined') {
+          document.getElementById('referralDisabled').classList.remove('hidden');
+          document.getElementById('referralContent').classList.add('hidden');
+          return;
+        }
+        
+        document.getElementById('referralDisabled').classList.add('hidden');
+        document.getElementById('referralContent').classList.remove('hidden');
+        
+        // Set referral code
+        const referralCode = user.referral_code;
+        document.getElementById('refCode').textContent = referralCode;
+        
+        // Set referral link - point to index.html
+        const baseUrl = window.location.origin;
+        const refLink = `${baseUrl}/index.html?ref=${encodeURIComponent(referralCode)}`;
+        document.getElementById('refLink').textContent = refLink;
+        
+        // Set stats
+        const totalReferrals = user.total_referrals || 0;
+        const totalEarnings = user.referral_earnings || 0;
+        document.getElementById('totalReferrals').textContent = totalReferrals;
+        document.getElementById('totalEarnings').textContent = `₹${parseFloat(totalEarnings).toFixed(2)}`;
+      } catch (error) {
+        console.error('Error displaying referral data:', error);
+        showError('Error displaying data. Please refresh the page.');
+      }
+    }
+    
+    function showError(message) {
+      const errorState = document.getElementById('errorState');
+      const errorMessage = document.getElementById('errorMessage');
+      const content = document.getElementById('referralContent');
+      
+      errorMessage.textContent = message;
+      errorState.classList.remove('hidden');
+      content.classList.add('hidden');
+    }
+    
+    // Copy functionality with better error handling
+    function copyToClipboard(elementId, btn) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const old = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.disabled = true;
+        setTimeout(() => {
+          btn.textContent = old;
+          btn.disabled = false;
+        }, 1200);
+      });
+    }
+
+    async function checkReferralEnabled() {
+      try {
+        const res = await fetch('api/settings.php');
+        const data = await res.json();
+        if (data.success && data.settings && data.settings.referral_enabled === false) {
+          document.getElementById('referralDisabled').classList.remove('hidden');
+          document.getElementById('referralContent').classList.add('hidden');
+        } else {
+          document.getElementById('referralDisabled').classList.add('hidden');
+          loadReferralData();
+        }
+      } catch (e) {
+        // fallback: show content
+        loadReferralData();
+      }
+    }
+    
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', checkAuthAndLoadUser);
+  </script>
+</body>
+</html> 
